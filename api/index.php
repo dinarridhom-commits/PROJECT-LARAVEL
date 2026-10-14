@@ -1,6 +1,5 @@
 <?php
 
-// Arahkan path storage Laravel ke /tmp
 $_ENV['APP_STORAGE'] = '/tmp/storage';
 
 if (!is_dir('/tmp/storage')) {
