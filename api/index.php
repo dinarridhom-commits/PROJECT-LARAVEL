@@ -1,5 +1,9 @@
 <?php
 
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+
 $_ENV['APP_STORAGE'] = '/tmp/storage';
 
 if (!is_dir('/tmp/storage')) {
@@ -11,4 +15,11 @@ if (!is_dir('/tmp/storage')) {
     @mkdir('/tmp/storage/logs', 0777, true);
 }
 
-require __DIR__ . '/../public/index.php';
+try {
+    require __DIR__ . '/../public/index.php';
+} catch (\Throwable $e) {
+    header('Content-Type: text/plain; charset=utf-8', true, 500);
+    echo "EXC: " . $e->getMessage() . "\n";
+    echo "File: " . $e->getFile() . ":" . $e->getLine() . "\n\n";
+    echo $e->getTraceAsString();
+}
