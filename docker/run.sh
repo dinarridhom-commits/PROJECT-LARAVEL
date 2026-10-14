@@ -45,6 +45,20 @@ if [ -n "$APP_URL" ]; then
     fi
 fi
 
+# Force file-based sessions (avoids 419 on cloud, no DB table needed)
+if grep -q "^SESSION_DRIVER=" /var/www/html/.env 2>/dev/null; then
+    sed -i "s|^SESSION_DRIVER=.*|SESSION_DRIVER=file|" /var/www/html/.env
+else
+    echo "SESSION_DRIVER=file" >> /var/www/html/.env
+fi
+
+# Ensure secure cookie is enabled for HTTPS (Railway)
+if grep -q "^SESSION_SECURE_COOKIE=" /var/www/html/.env 2>/dev/null; then
+    sed -i "s|^SESSION_SECURE_COOKIE=.*|SESSION_SECURE_COOKIE=true|" /var/www/html/.env
+else
+    echo "SESSION_SECURE_COOKIE=true" >> /var/www/html/.env
+fi
+
 # Ensure storage, cache, and database folders exist
 mkdir -p /var/www/html/storage/framework/cache/data \
          /var/www/html/storage/framework/sessions \
