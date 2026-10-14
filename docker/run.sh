@@ -7,10 +7,25 @@ echo "Configuring Apache for PORT: $PORT..."
 echo "Listen $PORT" > /etc/apache2/ports.conf
 grep -q "ServerName localhost" /etc/apache2/apache2.conf 2>/dev/null || echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
-# Generate APP_KEY if missing
-if [ -z "$APP_KEY" ]; then
+# Ensure .env exists in container for artisan commands
+if [ ! -f "/var/www/html/.env" ]; then
+    if [ -f "/var/www/html/.env.example" ]; then
+        cp /var/www/html/.env.example /var/www/html/.env
+    else
+        touch /var/www/html/.env
+    fi
+fi
+
+# Generate APP_KEY if missing or synchronize environment APP_KEY to .env
+if [ -n "$APP_KEY" ]; then
+    if grep -q "^APP_KEY=" /var/www/html/.env 2>/dev/null; then
+        sed -i "s|^APP_KEY=.*|APP_KEY=$APP_KEY|" /var/www/html/.env
+    else
+        echo "APP_KEY=$APP_KEY" >> /var/www/html/.env
+    fi
+else
     echo "Warning: APP_KEY not set. Generating key..."
-    php artisan key:generate --force
+    php artisan key:generate --force || true
 fi
 
 # Ensure storage, cache, and database folders exist
@@ -28,8 +43,9 @@ if [ "$DB_CONNECTION" = "sqlite" ] || [ -z "$DB_CONNECTION" ]; then
     fi
 fi
 
-chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database
+chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database /var/www/html/.env
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database
+chmod 664 /var/www/html/.env
 
 # Run database migrations automatically so tables (sessions, users, etc.) always exist
 echo "Running database migrations..."
