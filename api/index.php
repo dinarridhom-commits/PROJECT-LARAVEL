@@ -1,6 +1,5 @@
 <?php
 
-// Tangkap semua jenis error dan exception agar tampil di browser
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
@@ -28,7 +27,6 @@ register_shutdown_function(function () {
     }
 });
 
-// Arahkan storage Laravel ke /tmp
 $_ENV['APP_STORAGE'] = '/tmp/storage';
 
 if (!is_dir('/tmp/storage')) {
