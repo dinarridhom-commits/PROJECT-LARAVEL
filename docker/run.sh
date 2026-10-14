@@ -30,6 +30,21 @@ else
     echo "APP_KEY=$APP_KEY" >> /var/www/html/.env
 fi
 
+# Set dynamic APP_URL with HTTPS for Railway/Cloud
+if [ -n "$RAILWAY_PUBLIC_DOMAIN" ]; then
+    export APP_URL="https://$RAILWAY_PUBLIC_DOMAIN"
+elif [ -n "$RAILWAY_STATIC_URL" ]; then
+    export APP_URL="https://$RAILWAY_STATIC_URL"
+fi
+
+if [ -n "$APP_URL" ]; then
+    if grep -q "^APP_URL=" /var/www/html/.env 2>/dev/null; then
+        sed -i "s|^APP_URL=.*|APP_URL=$APP_URL|" /var/www/html/.env
+    else
+        echo "APP_URL=$APP_URL" >> /var/www/html/.env
+    fi
+fi
+
 # Ensure storage, cache, and database folders exist
 mkdir -p /var/www/html/storage/framework/cache/data \
          /var/www/html/storage/framework/sessions \
