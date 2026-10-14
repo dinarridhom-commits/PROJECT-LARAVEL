@@ -1,11 +1,8 @@
 <?php
-
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
-ini_set('display_startup_errors', '1');
 
 echo "STEP 1: Start<br>";
-
 $_ENV['APP_STORAGE'] = '/tmp/storage';
 
 if (!is_dir('/tmp/storage')) {
@@ -16,7 +13,6 @@ if (!is_dir('/tmp/storage')) {
     @mkdir('/tmp/storage/framework/sessions', 0777, true);
     @mkdir('/tmp/storage/logs', 0777, true);
 }
-
 echo "STEP 2: Storage ready<br>";
 
 require __DIR__ . '/../vendor/autoload.php';
