@@ -1,5 +1,4 @@
 <?php
-// Vercel production runtime
 
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
@@ -16,4 +15,12 @@ if (!is_dir('/tmp/storage')) {
     @mkdir('/tmp/storage/logs', 0777, true);
 }
 
-require __DIR__ . '/../public/index.php';
+try {
+    require __DIR__ . '/../public/index.php';
+} catch (\Throwable $e) {
+    header('Content-Type: text/plain; charset=utf-8', true, 500);
+    echo "CRITICAL ERROR:\n";
+    echo "Message: " . $e->getMessage() . "\n";
+    echo "File: " . $e->getFile() . ":" . $e->getLine() . "\n\n";
+    echo "Stack Trace:\n" . $e->getTraceAsString();
+}
