@@ -1,22 +1,18 @@
 <?php
+
 error_reporting(E_ALL);
-sql_autoload_register(); // memicu error jika perlu atau test sederhana
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
 
-echo "TEST 1: File executed.<br>";
+$_ENV['APP_STORAGE'] = '/tmp/storage';
 
-$autoload = __DIR__ . '/../vendor/autoload.php';
-if (file_exists($autoload)) {
-    require_once $autoload;
-    echo "TEST 2: Autoload loaded.<br>";
-} else {
-    echo "TEST 2 ERROR: Autoload missing.<br>";
+if (!is_dir('/tmp/storage')) {
+    @mkdir('/tmp/storage', 0777, true);
+    @mkdir('/tmp/storage/framework', 0777, true);
+    @mkdir('/tmp/storage/framework/views', 0777, true);
+    @mkdir('/tmp/storage/framework/cache', 0777, true);
+    @mkdir('/tmp/storage/framework/sessions', 0777, true);
+    @mkdir('/tmp/storage/logs', 0777, true);
 }
 
-$appFile = __DIR__ . '/../bootstrap/app.php';
-if (file_exists($appFile)) {
-    $app = require_once $appFile;
-    echo "TEST 3: Bootstrap app loaded successfully!<br>";
-} else {
-    echo "TEST 3 ERROR: bootstrap/app.php missing.<br>";
-}
-exit;
+require __DIR__ . '/../public/index.php';
