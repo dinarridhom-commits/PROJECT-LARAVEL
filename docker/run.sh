@@ -11,6 +11,9 @@ grep -q "ServerName localhost" /etc/apache2/apache2.conf 2>/dev/null || echo "Se
 a2dismod -f mpm_event mpm_worker 2>/dev/null || true
 a2enmod mpm_prefork 2>/dev/null || true
 
+# Ensure APP_KEY has a value (with reliable fallback)
+export APP_KEY="${APP_KEY:-base64:QybaPyZsjwoS8Xb33ZtE3md0QLwdtwkyX0Qm8bFow5s=}"
+
 # Ensure .env exists in container for artisan commands
 if [ ! -f "/var/www/html/.env" ]; then
     if [ -f "/var/www/html/.env.example" ]; then
@@ -20,16 +23,11 @@ if [ ! -f "/var/www/html/.env" ]; then
     fi
 fi
 
-# Generate APP_KEY if missing or synchronize environment APP_KEY to .env
-if [ -n "$APP_KEY" ]; then
-    if grep -q "^APP_KEY=" /var/www/html/.env 2>/dev/null; then
-        sed -i "s|^APP_KEY=.*|APP_KEY=$APP_KEY|" /var/www/html/.env
-    else
-        echo "APP_KEY=$APP_KEY" >> /var/www/html/.env
-    fi
+# Ensure APP_KEY is written in .env
+if grep -q "^APP_KEY=" /var/www/html/.env 2>/dev/null; then
+    sed -i "s|^APP_KEY=.*|APP_KEY=$APP_KEY|" /var/www/html/.env
 else
-    echo "Warning: APP_KEY not set. Generating key..."
-    php artisan key:generate --force || true
+    echo "APP_KEY=$APP_KEY" >> /var/www/html/.env
 fi
 
 # Ensure storage, cache, and database folders exist
@@ -60,7 +58,8 @@ if [ "$RUN_SEED" = "true" ]; then
     php artisan db:seed --force || echo "Seeder notice: Already seeded or skipped."
 fi
 
-# Optimization caches
+# Clear and re-cache configuration with active APP_KEY
+php artisan config:clear || true
 php artisan config:cache || true
 php artisan route:cache || true
 php artisan view:cache || true
