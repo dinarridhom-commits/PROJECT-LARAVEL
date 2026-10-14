@@ -4,7 +4,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 
-echo "DEBUG A: Starting script.<br>";
+echo "STEP 1: Start<br>";
 
 $_ENV['APP_STORAGE'] = '/tmp/storage';
 
@@ -17,19 +17,24 @@ if (!is_dir('/tmp/storage')) {
     @mkdir('/tmp/storage/logs', 0777, true);
 }
 
-echo "DEBUG B: Storage prepared.<br>";
+echo "STEP 2: Storage ready<br>";
 
-$publicIndex = __DIR__ . '/../public/index.php';
-if (file_exists($publicIndex)) {
-    echo "DEBUG C: public/index.php found, requiring now...<br>";
-    try {
-        require_once $publicIndex;
-        echo "DEBUG D: public/index.php executed successfully.<br>";
-    } catch (\Throwable $e) {
-        echo "<br><b>LARRUNTIME ERROR:</b> " . $e->getMessage() . "<br>";
-        echo "File: " . $e->getFile() . ":" . $e->getLine() . "<br>";
-        echo "<pre>" . $e->getTraceAsString() . "</pre>";
-    }
-} else {
-    echo "DEBUG C ERROR: public/index.php not found!<br>";
+require __DIR__ . '/../vendor/autoload.php';
+echo "STEP 3: Autoload loaded<br>";
+
+$app = require_once __DIR__ . '/../bootstrap/app.php';
+echo "STEP 4: Bootstrap app created<br>";
+
+use Illuminate\Http\Request;
+$request = Request::capture();
+echo "STEP 5: Request captured<br>";
+
+try {
+    $response = $app->handleRequest($request);
+    echo "STEP 6: Request handled successfully!<br>";
+    $response->send();
+} catch (\Throwable $e) {
+    echo "<br><b>HANDLE ERROR:</b> " . $e->getMessage() . "<br>";
+    echo "File: " . $e->getFile() . ":" . $e->getLine() . "<br>";
+    echo "<pre>" . $e->getTraceAsString() . "</pre>";
 }
