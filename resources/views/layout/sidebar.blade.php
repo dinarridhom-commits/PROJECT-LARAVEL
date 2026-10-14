@@ -2,12 +2,17 @@
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/home">
-                <div class="sidebar-brand-icon">
-                    <i class="fas fa-home"></i>
-                </div>
-                <div class="sidebar-brand-text mx-3">TOKO KAMI</div>
-            </a>
+            <div class="sidebar-brand d-flex align-items-center justify-content-between px-3">
+                <a class="d-flex align-items-center text-white text-decoration-none flex-grow-1" href="/home">
+                    <div class="sidebar-brand-icon">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <div class="sidebar-brand-text mx-2">TOKO KAMI</div>
+                </a>
+                <button class="btn btn-sm btn-link text-white d-md-none p-1" id="sidebarMobileClose" type="button" title="Tutup Menu" style="opacity: 0.85;">
+                    <i class="fas fa-times fa-lg"></i>
+                </button>
+            </div>
 
             <!-- Divider -->
             <hr class="sidebar-divider my-0">

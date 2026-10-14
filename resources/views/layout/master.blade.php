@@ -20,12 +20,120 @@
     <!-- Leaflet CSS (untuk peta interaktif) -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <!-- Responsive Styles untuk Tampilan Layar HP & Berbagai Perangkat -->
+    <style>
+        /* Mencegah horizontal scroll overflow di seluruh halaman */
+        html, body {
+            overflow-x: hidden !important;
+            max-width: 100vw;
+            width: 100%;
+        }
+
+        #wrapper {
+            overflow-x: hidden !important;
+            width: 100%;
+        }
+
+        /* Overlay Gelap saat Menu Dibuka di Layar HP */
+        .sidebar-mobile-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
+            z-index: 1045;
+            opacity: 0;
+            transition: opacity 0.25s ease-in-out;
+        }
+        .sidebar-mobile-backdrop.show {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Penyesuaian Responsif untuk Perangkat HP (< 768px) */
+        @media (max-width: 767.98px) {
+            /* Sidebar disembunyikan secara default menjadi Off-Canvas Drawer */
+            #accordionSidebar {
+                position: fixed !important;
+                top: 0 !important;
+                left: -280px !important;
+                width: 260px !important;
+                height: 100vh !important;
+                min-height: 100vh !important;
+                max-height: 100vh !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch;
+                z-index: 1055 !important;
+                transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                box-shadow: 6px 0 25px rgba(0, 0, 0, 0.35) !important;
+                margin: 0 !important;
+            }
+
+            /* Saat tombol menu HP diklik, sidebar meluncur masuk */
+            #accordionSidebar.mobile-open {
+                left: 0 !important;
+            }
+
+            /* Area konten memenuhi 100% lebar layar HP */
+            #content-wrapper {
+                width: 100% !important;
+                min-width: 0 !important;
+                margin-left: 0 !important;
+            }
+
+            /* Padding halaman dibuat pas dan nyaman di layar HP */
+            .container-fluid {
+                padding-left: 0.75rem !important;
+                padding-right: 0.75rem !important;
+            }
+
+            /* Topbar navbar lebih proporsional di HP */
+            .topbar {
+                height: 3.75rem !important;
+                padding-left: 0.75rem !important;
+                padding-right: 0.75rem !important;
+                margin-bottom: 1rem !important;
+            }
+
+            /* Ukuran font judul di layar HP */
+            h1.h3, .h3 {
+                font-size: 1.25rem !important;
+                line-height: 1.35 !important;
+            }
+
+            /* Modal dialog menyesuaikan lebar layar HP */
+            .modal-dialog {
+                margin: 0.5rem auto !important;
+                max-width: 95% !important;
+            }
+        }
+
+        /* Layar HP Sangat Sempit (< 480px, misal ponsel kecil/lipat) */
+        @media (max-width: 480px) {
+            .container-fluid {
+                padding-left: 0.5rem !important;
+                padding-right: 0.5rem !important;
+            }
+            .btn-sm {
+                padding: 0.25rem 0.5rem !important;
+                font-size: 0.8rem !important;
+            }
+        }
+    </style>
     @stack('styles')
 </head>
 
-
-
 <body id="page-top">
+
+    <!-- Backdrop Gelap untuk Menu Mobile -->
+    <div id="sidebarMobileBackdrop" class="sidebar-mobile-backdrop"></div>
 
     <!-- Page Wrapper -->
     <div id="wrapper">
@@ -96,6 +204,68 @@
 
     <!-- Custom scripts for all pages-->
     <script src="{{asset('sbadmin')}}/js/sb-admin-2.min.js"></script>
+
+    <!-- Script Kontrol Responsif Menu Layar HP -->
+    <script>
+        (function($) {
+            $(document).ready(function() {
+                var $sidebar = $('#accordionSidebar');
+                var $backdrop = $('#sidebarMobileBackdrop');
+
+                function openMobileSidebar() {
+                    $sidebar.addClass('mobile-open');
+                    $backdrop.addClass('show');
+                    $('body').css('overflow', 'hidden');
+                }
+
+                function closeMobileSidebar() {
+                    $sidebar.removeClass('mobile-open');
+                    $backdrop.removeClass('show');
+                    $('body').css('overflow', '');
+                }
+
+                // Tombol hamburger di navbar (khusus HP)
+                $('#sidebarToggleTop').off('click').on('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if ($(window).width() < 768) {
+                        if ($sidebar.hasClass('mobile-open')) {
+                            closeMobileSidebar();
+                        } else {
+                            openMobileSidebar();
+                        }
+                    } else {
+                        $("body").toggleClass("sidebar-toggled");
+                        $(".sidebar").toggleClass("toggled");
+                    }
+                });
+
+                // Tutup menu saat tap area backdrop luar
+                $backdrop.on('click', function() {
+                    closeMobileSidebar();
+                });
+
+                // Tutup menu saat tap tombol silang (X)
+                $('#sidebarMobileClose').on('click', function() {
+                    closeMobileSidebar();
+                });
+
+                // Tutup menu saat navigasi link diklik di HP
+                $sidebar.find('.nav-link').on('click', function() {
+                    if ($(window).width() < 768) {
+                        closeMobileSidebar();
+                    }
+                });
+
+                // Deteksi perubahan orientasi atau resize layar di simulator HP
+                $(window).on('resize orientationchange', function() {
+                    if ($(window).width() >= 768) {
+                        closeMobileSidebar();
+                    }
+                });
+            });
+        })(jQuery);
+    </script>
 
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

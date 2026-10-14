@@ -4,15 +4,15 @@
 
 @section('konten')
 <!-- Page Heading -->
-<div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <div>
-        <h1 class="h3 mb-1 text-gray-800 font-weight-bold">
+<div class="d-sm-flex align-items-center justify-content-between mb-3 mb-sm-4">
+    <div class="mb-2 mb-sm-0">
+        <h1 class="h3 mb-1 text-gray-800 font-weight-bold" style="font-size: clamp(1.2rem, 3.5vw, 1.75rem);">
             <i class="fas fa-map-marked-alt text-primary mr-2"></i>Peta Interaktif Daerah Irigasi (DIR)
         </h1>
         <p class="text-muted mb-0 small">Sistem Informasi Geografis (SIG) Terintegrasi Data ArcMap - Balai Wilayah Sungai Kalimantan I Pontianak</p>
     </div>
-    <div class="mt-3 mt-sm-0 d-flex flex-wrap align-items-center">
-        <button type="button" class="btn btn-sm btn-outline-secondary shadow-sm mr-2 font-weight-bold" data-toggle="modal" data-target="#modalKelolaGeojson">
+    <div class="mt-2 mt-sm-0 d-flex flex-wrap align-items-center" style="gap: 6px;">
+        <button type="button" class="btn btn-sm btn-outline-secondary shadow-sm font-weight-bold" data-toggle="modal" data-target="#modalKelolaGeojson">
             <i class="fas fa-folder-open mr-1"></i> Kelola File GIS <span class="badge badge-primary ml-1">{{ count($fileList ?? []) }}</span>
         </button>
         <button type="button" class="btn btn-sm btn-info shadow-sm font-weight-bold" data-toggle="modal" data-target="#modalUploadGeojson">
@@ -276,7 +276,7 @@
         </div>
     </div>
     <div class="card-body p-0 position-relative">
-        <div id="map" style="height: 600px; width: 100%; z-index: 1;"></div>
+        <div id="map" class="map-container-responsive"></div>
     </div>
     <div class="card-footer bg-light text-muted small d-flex flex-wrap justify-content-between align-items-center py-2">
         <div>
@@ -301,9 +301,9 @@
             @endif
         </div>
         @if($hasFiles)
-        <div class="d-flex align-items-center flex-wrap my-1">
+        <div class="d-flex align-items-center flex-wrap my-1 w-100 w-md-auto justify-content-between justify-content-md-end" style="gap: 8px;">
             {{-- Toggle Mode: Per File GIS vs Rincian Objek --}}
-            <div class="btn-group btn-group-sm mr-2" role="group" id="tabel-mode-switch">
+            <div class="btn-group btn-group-sm flex-wrap" role="group" id="tabel-mode-switch">
                 <button type="button" class="btn btn-primary active font-weight-bold" id="btn-mode-file" onclick="setTabelMode('file')">
                     <i class="fas fa-folder mr-1"></i>Ringkasan File (<span id="count-mode-file">{{ count($fileList) }}</span>)
                 </button>
@@ -312,7 +312,7 @@
                 </button>
             </div>
             {{-- Input Pencarian Cepat --}}
-            <div style="min-width: 220px;">
+            <div class="flex-grow-1 flex-md-grow-0" style="min-width: 180px; max-width: 100%;">
                 <div class="input-group input-group-sm">
                     <div class="input-group-prepend">
                         <span class="input-group-text bg-light border-right-0"><i class="fas fa-search text-muted"></i></span>
@@ -526,6 +526,59 @@
         max-width: unset !important;
     }
 
+    /* Penyesuaian Responsif Map & Kontrol untuk Berbagai Ukuran Layar HP */
+    .map-container-responsive {
+        height: 580px;
+        width: 100%;
+        z-index: 1;
+    }
+    @media (max-width: 991.98px) {
+        .map-container-responsive {
+            height: 460px;
+        }
+    }
+    @media (max-width: 767.98px) {
+        .map-container-responsive {
+            height: 380px !important;
+        }
+        .leaflet-control-layers-expanded {
+            min-width: 175px !important;
+            max-width: 220px !important;
+            font-size: 11.5px !important;
+            padding: 6px 8px !important;
+            max-height: 220px !important;
+            overflow-y: auto !important;
+        }
+        .map-legend {
+            max-width: 175px !important;
+            font-size: 11px !important;
+            line-height: 16px !important;
+            padding: 6px 10px !important;
+            max-height: 200px !important;
+            overflow-y: auto !important;
+        }
+        .leaflet-popup-content {
+            margin: 8px 10px !important;
+            max-width: 240px !important;
+            font-size: 11px !important;
+        }
+        .custom-control-header {
+            font-size: 11.5px !important;
+        }
+    }
+    @media (max-width: 480px) {
+        .map-container-responsive {
+            height: 340px !important;
+        }
+        .leaflet-control-layers-expanded {
+            min-width: 155px !important;
+            font-size: 11px !important;
+        }
+        .map-legend {
+            max-width: 155px !important;
+            font-size: 10px !important;
+        }
+    }
 </style>
 
 <script>
@@ -930,6 +983,13 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     L.DomEvent.disableClickPropagation(layerHeader);
 
+    // Di layar HP (< 768px), otomatis perkecil kontrol layer agar peta terlihat lapang
+    if (window.innerWidth < 768) {
+        layerControlContainer.classList.add('is-minimized');
+        iconToggleLayers.className = 'fas fa-chevron-down';
+        btnToggleLayers.title = 'Buka / Perluas Layer';
+    }
+
     // 4. MAP BOUNDS
     var mapBounds = L.latLngBounds();
 
@@ -995,6 +1055,13 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
         L.DomEvent.disableClickPropagation(div);
+
+        // Di layar HP (< 768px), otomatis perkecil legenda agar tidak menutupi peta
+        if (window.innerWidth < 768) {
+            div.classList.add('is-minimized');
+            iconToggleLegend.className = 'fas fa-chevron-down';
+            btnToggleLegend.title = 'Buka / Perluas Legenda';
+        }
 
         return div;
     };
@@ -1521,6 +1588,22 @@ document.addEventListener('DOMContentLoaded', function () {
             else if (filter === 'kuburaya') { map.flyTo([-0.50, 109.55], 10, { animate: true, duration: 1 }); }
             else if (filter === 'ketapang') { map.flyTo([-1.90, 110.05], 10, { animate: true, duration: 1 }); }
         });
+    });
+
+    // Otomatis sinkronkan ukuran peta saat pergantian pilihan HP di browser / rotasi layar
+    window.addEventListener('resize', function() {
+        if (map) {
+            setTimeout(function() {
+                map.invalidateSize();
+            }, 150);
+        }
+    });
+    window.addEventListener('orientationchange', function() {
+        if (map) {
+            setTimeout(function() {
+                map.invalidateSize();
+            }, 250);
+        }
     });
 
 });
