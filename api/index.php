@@ -1,29 +1,22 @@
 <?php
-
 error_reporting(E_ALL);
-ini_set('display_errors', '1');
-ini_set('display_startup_errors', '1');
+sql_autoload_register(); // memicu error jika perlu atau test sederhana
 
-echo "1. API Index Loaded Successfully.<br>";
+echo "TEST 1: File executed.<br>";
 
-$autoloadPath = __DIR__ . '/../vendor/autoload.php';
-if (file_exists($autoloadPath)) {
-    require $autoloadPath;
-    echo "2. Autoload Loaded Successfully.<br>";
+$autoload = __DIR__ . '/../vendor/autoload.php';
+if (file_exists($autoload)) {
+    require_once $autoload;
+    echo "TEST 2: Autoload loaded.<br>";
 } else {
-    die("2. ERROR: vendor/autoload.php not found!");
+    echo "TEST 2 ERROR: Autoload missing.<br>";
 }
 
-$appPath = __DIR__ . '/../bootstrap/app.php';
-if (file_exists($appPath)) {
-    $app = require_once $appPath;
-    echo "3. Bootstrap App Loaded Successfully.<br>";
+$appFile = __DIR__ . '/../bootstrap/app.php';
+if (file_exists($appFile)) {
+    $app = require_once $appFile;
+    echo "TEST 3: Bootstrap app loaded successfully!<br>";
 } else {
-    die("3. ERROR: bootstrap/app.php not found!");
+    echo "TEST 3 ERROR: bootstrap/app.php missing.<br>";
 }
-
-if (is_object($app)) {
-    echo "4. Laravel Application Object Created Successfully!";
-} else {
-    echo "4. ERROR: Application object is invalid.";
-}
+exit;
