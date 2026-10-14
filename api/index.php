@@ -4,22 +4,26 @@ error_reporting(E_ALL);
 ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 
-$_ENV['APP_STORAGE'] = '/tmp/storage';
+echo "1. API Index Loaded Successfully.<br>";
 
-if (!is_dir('/tmp/storage')) {
-    @mkdir('/tmp/storage', 0777, true);
-    @mkdir('/tmp/storage/framework', 0777, true);
-    @mkdir('/tmp/storage/framework/views', 0777, true);
-    @mkdir('/tmp/storage/framework/cache', 0777, true);
-    @mkdir('/tmp/storage/framework/sessions', 0777, true);
-    @mkdir('/tmp/storage/logs', 0777, true);
+$autoloadPath = __DIR__ . '/../vendor/autoload.php';
+if (file_exists($autoloadPath)) {
+    require $autoloadPath;
+    echo "2. Autoload Loaded Successfully.<br>";
+} else {
+    die("2. ERROR: vendor/autoload.php not found!");
 }
 
-try {
-    require __DIR__ . '/../public/index.php';
-} catch (\Throwable $e) {
-    header('Content-Type: text/plain; charset=utf-8', true, 500);
-    echo "EXC: " . $e->getMessage() . "\n";
-    echo "File: " . $e->getFile() . ":" . $e->getLine() . "\n\n";
-    echo $e->getTraceAsString();
+$appPath = __DIR__ . '/../bootstrap/app.php';
+if (file_exists($appPath)) {
+    $app = require_once $appPath;
+    echo "3. Bootstrap App Loaded Successfully.<br>";
+} else {
+    die("3. ERROR: bootstrap/app.php not found!");
+}
+
+if (is_object($app)) {
+    echo "4. Laravel Application Object Created Successfully!";
+} else {
+    echo "4. ERROR: Application object is invalid.";
 }
