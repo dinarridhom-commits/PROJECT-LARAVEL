@@ -7,6 +7,10 @@ echo "Configuring Apache for PORT: $PORT..."
 echo "Listen $PORT" > /etc/apache2/ports.conf
 grep -q "ServerName localhost" /etc/apache2/apache2.conf 2>/dev/null || echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
+# Ensure only one MPM module is active
+a2dismod -f mpm_event mpm_worker 2>/dev/null || true
+a2enmod mpm_prefork 2>/dev/null || true
+
 # Ensure .env exists in container for artisan commands
 if [ ! -f "/var/www/html/.env" ]; then
     if [ -f "/var/www/html/.env.example" ]; then
