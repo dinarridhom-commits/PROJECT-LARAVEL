@@ -4,6 +4,8 @@ error_reporting(E_ALL);
 ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 
+echo "DEBUG A: Starting script.<br>";
+
 $_ENV['APP_STORAGE'] = '/tmp/storage';
 
 if (!is_dir('/tmp/storage')) {
@@ -15,12 +17,14 @@ if (!is_dir('/tmp/storage')) {
     @mkdir('/tmp/storage/logs', 0777, true);
 }
 
-try {
-    require __DIR__ . '/../public/index.php';
-} catch (\Throwable $e) {
-    header('Content-Type: text/plain; charset=utf-8', true, 500);
-    echo "CRITICAL ERROR:\n";
-    echo "Message: " . $e->getMessage() . "\n";
-    echo "File: " . $e->getFile() . ":" . $e->getLine() . "\n\n";
-    echo "Stack Trace:\n" . $e->getTraceAsString();
+echo "DEBUG B: Storage prepared.<br>";
+
+$publicIndex = __DIR__ . '/../public/index.php';
+if (file_exists($publicIndex)) {
+    echo "DEBUG C: public/index.php found, requiring now...<br>";
+    require_once $publicIndex;
+} else {
+    echo "DEBUG C ERROR: public/index.php not found!<br>";
 }
+
+echo "DEBUG D: Finished execution.";
