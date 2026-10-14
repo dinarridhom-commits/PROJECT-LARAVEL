@@ -46,9 +46,10 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction
 # Konfigurasi Apache VirtualHost ke folder /public
 COPY docker/apache.conf /etc/apache2/sites-available/000-default.conf
 
-# Atur hak akses permission folder storage dan bootstrap/cache
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
-    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+# Atur hak akses permission folder storage, bootstrap/cache, dan database
+RUN mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache database \
+    && chown -R www-data:www-data storage bootstrap/cache database \
+    && chmod -R 775 storage bootstrap/cache database
 
 # Setup script entrypoint
 COPY docker/run.sh /usr/local/bin/run.sh
