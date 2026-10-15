@@ -61,4 +61,20 @@ use App\Http\Controllers\UserController;
     });
 });
 
-
+// TEMPORARY DEBUG ROUTE - HAPUS SETELAH MASALAH TERATASI
+Route::get('/debug-session', function () {
+    return response()->json([
+        'session_driver'        => config('session.driver'),
+        'session_secure'        => config('session.secure'),
+        'session_same_site'     => config('session.same_site'),
+        'app_env'               => config('app.env'),
+        'app_url'               => config('app.url'),
+        'forwarded_proto'       => request()->server('HTTP_X_FORWARDED_PROTO'),
+        'is_secure'             => request()->isSecure(),
+        'session_id'            => session()->getId(),
+        'csrf_token'            => csrf_token(),
+        'session_started'       => session()->isStarted(),
+        'db_connection'         => config('database.default'),
+        'sessions_table_exists' => \Illuminate\Support\Facades\Schema::hasTable('sessions'),
+    ]);
+});
