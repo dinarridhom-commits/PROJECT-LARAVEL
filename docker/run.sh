@@ -45,15 +45,15 @@ if [ -n "$APP_URL" ]; then
     fi
 fi
 
-# Force file-based sessions (avoids 419 on cloud, no DB table needed)
+# Gunakan DATABASE session driver - lebih reliable di cloud (persistent, tidak hilang saat restart)
 if grep -q "^SESSION_DRIVER=" /var/www/html/.env 2>/dev/null; then
-    sed -i "s|^SESSION_DRIVER=.*|SESSION_DRIVER=file|" /var/www/html/.env
+    sed -i "s|^SESSION_DRIVER=.*|SESSION_DRIVER=database|" /var/www/html/.env
 else
-    echo "SESSION_DRIVER=file" >> /var/www/html/.env
+    echo "SESSION_DRIVER=database" >> /var/www/html/.env
 fi
 
-# JANGAN set SESSION_SECURE_COOKIE=true di Railway karena SSL di-terminate di load balancer
-# Internal request masuk sebagai HTTP, sehingga cookie secure tidak dikirim balik -> 419
+# SESSION_SECURE_COOKIE=false - Railway SSL di-terminate di load balancer
+# Request internal masuk sebagai HTTP, jadi secure cookie TIDAK boleh true
 if grep -q "^SESSION_SECURE_COOKIE=" /var/www/html/.env 2>/dev/null; then
     sed -i "s|^SESSION_SECURE_COOKIE=.*|SESSION_SECURE_COOKIE=false|" /var/www/html/.env
 else
@@ -102,11 +102,13 @@ if [ "$RUN_SEED" = "true" ]; then
     php artisan db:seed --force || echo "Seeder notice: Already seeded or skipped."
 fi
 
-# Clear and re-cache configuration with active APP_KEY
+# PENTING: Gunakan config:clear TANPA config:cache agar env vars dari Railway
+# bisa override .env tanpa tertimpa cached config yang stale
+echo "Clearing caches..."
 php artisan config:clear || true
-php artisan config:cache || true
-php artisan route:cache || true
-php artisan view:cache || true
+php artisan route:clear || true
+php artisan view:clear || true
+php artisan cache:clear || true
 
 echo "Starting Apache on port $PORT..."
 exec apache2-foreground
