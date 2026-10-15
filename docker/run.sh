@@ -52,11 +52,26 @@ else
     echo "SESSION_DRIVER=file" >> /var/www/html/.env
 fi
 
-# Ensure secure cookie is enabled for HTTPS (Railway)
+# JANGAN set SESSION_SECURE_COOKIE=true di Railway karena SSL di-terminate di load balancer
+# Internal request masuk sebagai HTTP, sehingga cookie secure tidak dikirim balik -> 419
 if grep -q "^SESSION_SECURE_COOKIE=" /var/www/html/.env 2>/dev/null; then
-    sed -i "s|^SESSION_SECURE_COOKIE=.*|SESSION_SECURE_COOKIE=true|" /var/www/html/.env
+    sed -i "s|^SESSION_SECURE_COOKIE=.*|SESSION_SECURE_COOKIE=false|" /var/www/html/.env
 else
-    echo "SESSION_SECURE_COOKIE=true" >> /var/www/html/.env
+    echo "SESSION_SECURE_COOKIE=false" >> /var/www/html/.env
+fi
+
+# Set APP_ENV=production
+if grep -q "^APP_ENV=" /var/www/html/.env 2>/dev/null; then
+    sed -i "s|^APP_ENV=.*|APP_ENV=production|" /var/www/html/.env
+else
+    echo "APP_ENV=production" >> /var/www/html/.env
+fi
+
+# Set APP_DEBUG=false di production
+if grep -q "^APP_DEBUG=" /var/www/html/.env 2>/dev/null; then
+    sed -i "s|^APP_DEBUG=.*|APP_DEBUG=false|" /var/www/html/.env
+else
+    echo "APP_DEBUG=false" >> /var/www/html/.env
 fi
 
 # Ensure storage, cache, and database folders exist
