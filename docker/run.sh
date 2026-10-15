@@ -45,11 +45,13 @@ if [ -n "$APP_URL" ]; then
     fi
 fi
 
-# Gunakan DATABASE session driver - lebih reliable di cloud (persistent, tidak hilang saat restart)
+# Gunakan COOKIE session driver - paling reliable di cloud
+# Session disimpan di encrypted browser cookie, tidak butuh DB/file
+# CSRF token selalu ada karena ikut cookie di setiap request
 if grep -q "^SESSION_DRIVER=" /var/www/html/.env 2>/dev/null; then
-    sed -i "s|^SESSION_DRIVER=.*|SESSION_DRIVER=database|" /var/www/html/.env
+    sed -i "s|^SESSION_DRIVER=.*|SESSION_DRIVER=cookie|" /var/www/html/.env
 else
-    echo "SESSION_DRIVER=database" >> /var/www/html/.env
+    echo "SESSION_DRIVER=cookie" >> /var/www/html/.env
 fi
 
 # SESSION_SECURE_COOKIE=false - Railway SSL di-terminate di load balancer

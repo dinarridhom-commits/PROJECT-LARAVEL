@@ -65,10 +65,13 @@ use App\Http\Controllers\UserController;
 Route::get('/debug-session', function () {
     return response()->json([
         'session_driver'        => config('session.driver'),
+        'session_driver_env'    => env('SESSION_DRIVER'),
         'session_secure'        => config('session.secure'),
         'session_same_site'     => config('session.same_site'),
         'app_env'               => config('app.env'),
+        'app_env_raw'           => env('APP_ENV'),
         'app_url'               => config('app.url'),
+        'app_key_set'           => !empty(env('APP_KEY')),
         'forwarded_proto'       => request()->server('HTTP_X_FORWARDED_PROTO'),
         'is_secure'             => request()->isSecure(),
         'session_id'            => session()->getId(),
