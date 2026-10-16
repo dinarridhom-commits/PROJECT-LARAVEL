@@ -54,12 +54,13 @@ else
     echo "SESSION_DRIVER=cookie" >> /var/www/html/.env
 fi
 
-# SESSION_SECURE_COOKIE=false - Railway SSL di-terminate di load balancer
-# Request internal masuk sebagai HTTP, jadi secure cookie TIDAK boleh true
+# SESSION_SECURE_COOKIE=true - Wajib true karena Railway pakai HTTPS
+# trustProxies(at: '*') di bootstrap/app.php sudah mendeteksi HTTPS dari header proxy
+# Browser butuh secure=true agar cookie dikirim balik di koneksi HTTPS
 if grep -q "^SESSION_SECURE_COOKIE=" /var/www/html/.env 2>/dev/null; then
-    sed -i "s|^SESSION_SECURE_COOKIE=.*|SESSION_SECURE_COOKIE=false|" /var/www/html/.env
+    sed -i "s|^SESSION_SECURE_COOKIE=.*|SESSION_SECURE_COOKIE=true|" /var/www/html/.env
 else
-    echo "SESSION_SECURE_COOKIE=false" >> /var/www/html/.env
+    echo "SESSION_SECURE_COOKIE=true" >> /var/www/html/.env
 fi
 
 # Set APP_ENV=production

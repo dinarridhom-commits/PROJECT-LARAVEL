@@ -26,11 +26,11 @@ class CekRole
             $roles = ['superadmin'];
         }
 
-        if (!in_array(Auth::user()->role, $roles)) {
-            return redirect('/dashboard')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
+       if (in_array(Auth::user()->role, $roles)) {
+            return $next($request);
         }
 
-        return $next($request);
+        return redirect('/dashboard')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
     }
 }
 
