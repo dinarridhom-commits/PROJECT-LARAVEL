@@ -99,6 +99,10 @@ chmod 664 /var/www/html/.env
 echo "Running database migrations..."
 php artisan migrate --force || echo "Migrations notice: Database not ready or already up to date."
 
+# Pastikan akun admin/user selalu ada dan password ter-hash dengan benar
+echo "Seeding default admin users..."
+php artisan db:seed --class=UserSeeder --force || echo "UserSeeder notice: Already seeded or skipped."
+
 if [ "$RUN_SEED" = "true" ]; then
     echo "Running database seeders..."
     php artisan db:seed --force || echo "Seeder notice: Already seeded or skipped."
