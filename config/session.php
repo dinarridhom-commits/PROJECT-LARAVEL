@@ -18,9 +18,9 @@ return [
     |
     */
 
-    // Gunakan file session driver - reliable di cloud container
-    // Cookie driver punya batas 4KB yang sering menyebabkan 419 error
-    'driver' => env('SESSION_DRIVER', 'file'),
+    // HARDCODE ke 'file' - jangan gunakan env() karena Railway env var bisa override
+    // Cookie driver punya batas 4KB yang menyebabkan 419 PAGE EXPIRED
+    'driver' => 'file',
 
     /*
     |--------------------------------------------------------------------------
@@ -171,7 +171,7 @@ return [
     |
     */
 
-    'secure' => env('SESSION_SECURE_COOKIE', true),
+    'secure' => false,
 
     /*
     |--------------------------------------------------------------------------
