@@ -29,6 +29,9 @@ RUN apt-get update && apt-get install -y \
 RUN a2dismod -f mpm_event mpm_worker 2>/dev/null || true \
     && a2enmod mpm_prefork rewrite
 
+# Konfigurasi batas upload PHP untuk file GIS / GeoJSON besar
+RUN echo "upload_max_filesize = 500M\npost_max_size = 500M\nmemory_limit = 512M\nmax_execution_time = 300\nmax_input_time = 300" > /usr/local/etc/php/conf.d/uploads.ini
+
 # Salin Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 

@@ -1549,6 +1549,136 @@
         document.querySelectorAll('.chk-file-geojson').forEach(function(c) {
             c.addEventListener('change', updateBulkDeleteUI);
         });
+
+        // 10. CHUNKED BATCH UPLOAD UNTUK MENCEGAH PostTooLargeException
+        var formUpload = document.getElementById('formUploadGeojson');
+        if (formUpload) {
+            formUpload.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                var input = document.getElementById('inputGeojsonFile');
+                if (!input || !input.files || input.files.length === 0) {
+                    alert('Silakan pilih setidaknya satu file GeoJSON/JSON terlebih dahulu.');
+                    return;
+                }
+
+                var files = Array.from(input.files);
+                var totalFiles = files.length;
+                var BATCH_SIZE = 5; // Unggah 5 file per batch agar sangat aman di bawah batas POST
+                var totalBatches = Math.ceil(totalFiles / BATCH_SIZE);
+
+                var progressSection = document.getElementById('uploadProgressSection');
+                var progressBar     = document.getElementById('uploadProgressBar');
+                var percentText     = document.getElementById('uploadPercentText');
+                var statusText      = document.getElementById('uploadStatusText');
+                var detailText      = document.getElementById('uploadDetailText');
+                var batchCountText  = document.getElementById('uploadBatchCountText');
+                var successSection  = document.getElementById('uploadSuccessSection');
+                var errorSection    = document.getElementById('uploadErrorSection');
+                var btnSubmit       = document.getElementById('btnSubmitUpload');
+                var btnBatal        = document.getElementById('btnBatalUpload');
+                var btnClose        = document.getElementById('btnCloseUploadModal');
+
+                if (errorSection) { errorSection.style.display = 'none'; errorSection.innerText = ''; }
+                if (successSection) successSection.style.display = 'none';
+                if (progressSection) progressSection.style.display = 'block';
+                if (btnSubmit) {
+                    btnSubmit.disabled = true;
+                    btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Mengunggah...';
+                }
+                if (btnBatal) btnBatal.disabled = true;
+                if (btnClose) btnClose.style.display = 'none';
+
+                var totalUploaded = 0;
+                var allUploadedNames = [];
+                var allFailed = [];
+                var csrfToken = formUpload.querySelector('input[name="_token"]')?.value || '{{ csrf_token() }}';
+
+                try {
+                    for (var b = 0; b < totalBatches; b++) {
+                        var start = b * BATCH_SIZE;
+                        var end = Math.min(start + BATCH_SIZE, totalFiles);
+                        var batchFiles = files.slice(start, end);
+                        var currentBatchNum = b + 1;
+
+                        if (statusText) {
+                            statusText.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Mengunggah batch ' + currentBatchNum + ' dari ' + totalBatches + '...';
+                        }
+                        if (batchCountText) {
+                            batchCountText.textContent = 'Batch ' + currentBatchNum + '/' + totalBatches + ' (' + batchFiles.length + ' file)';
+                        }
+
+                        var formData = new FormData();
+                        formData.append('_token', csrfToken);
+                        for (var f = 0; f < batchFiles.length; f++) {
+                            formData.append('file_geojson[]', batchFiles[f]);
+                        }
+
+                        var response = await fetch("{{ route('peta.upload-geojson') }}", {
+                            method: 'POST',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json'
+                            },
+                            body: formData
+                        });
+
+                        if (!response.ok) {
+                            var errJson = await response.json().catch(function() { return {}; });
+                            throw new Error(errJson.message || ('Gagal pada pengunggahan batch ke-' + currentBatchNum + ' (HTTP ' + response.status + ')'));
+                        }
+
+                        var result = await response.json();
+                        if (result.uploaded && result.uploaded.length > 0) {
+                            allUploadedNames = allUploadedNames.concat(result.uploaded);
+                            totalUploaded += result.uploaded.length;
+                        }
+                        if (result.failed && result.failed.length > 0) {
+                            allFailed = allFailed.concat(result.failed);
+                        }
+
+                        var pct = Math.round((end / totalFiles) * 100);
+                        if (progressBar) {
+                            progressBar.style.width = pct + '%';
+                            progressBar.textContent = pct + '%';
+                        }
+                        if (percentText) percentText.textContent = pct + '%';
+                        if (detailText) {
+                            detailText.innerHTML = '<span>Tersimpan <b>' + totalUploaded + '</b> dari <b>' + totalFiles + '</b> file</span><span id="uploadBatchCountText">Batch ' + currentBatchNum + '/' + totalBatches + '</span>';
+                        }
+                    }
+
+                    if (statusText) {
+                        statusText.innerHTML = '<i class="fas fa-check-circle text-success mr-1"></i>Semua file selesai diunggah!';
+                    }
+                    if (successSection) {
+                        var successMsg = totalUploaded + ' file GeoJSON berhasil diunggah! Memuat ulang halaman peta...';
+                        if (allFailed.length > 0) {
+                            successMsg += '<br><small class="text-warning">File dilewati: ' + allFailed.join(', ') + '</small>';
+                        }
+                        successSection.innerHTML = '<i class="fas fa-check-circle mr-1"></i>' + successMsg;
+                        successSection.style.display = 'block';
+                    }
+
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 1200);
+
+                } catch (err) {
+                    if (errorSection) {
+                        errorSection.innerHTML = '<i class="fas fa-exclamation-triangle mr-1"></i><b>Terjadi Kesalahan:</b> ' + err.message +
+                            (totalUploaded > 0 ? '<br><small>(' + totalUploaded + ' file sempat tersimpan sebelum error)</small>' : '');
+                        errorSection.style.display = 'block';
+                    }
+                    if (btnSubmit) {
+                        btnSubmit.disabled = false;
+                        btnSubmit.innerHTML = '<i class="fas fa-redo mr-1"></i>Coba Lagi';
+                    }
+                    if (btnBatal) btnBatal.disabled = false;
+                    if (btnClose) btnClose.style.display = '';
+                }
+            });
+        }
     });
     </script>
 </body>

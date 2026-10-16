@@ -11,6 +11,14 @@ grep -q "ServerName localhost" /etc/apache2/apache2.conf 2>/dev/null || echo "Se
 a2dismod -f mpm_event mpm_worker 2>/dev/null || true
 a2enmod mpm_prefork 2>/dev/null || true
 
+# Configure PHP upload and memory limits for large GIS / GeoJSON uploads
+mkdir -p /usr/local/etc/php/conf.d 2>/dev/null || true
+echo "upload_max_filesize = 500M" > /usr/local/etc/php/conf.d/uploads.ini
+echo "post_max_size = 500M" >> /usr/local/etc/php/conf.d/uploads.ini
+echo "memory_limit = 512M" >> /usr/local/etc/php/conf.d/uploads.ini
+echo "max_execution_time = 300" >> /usr/local/etc/php/conf.d/uploads.ini
+echo "max_input_time = 300" >> /usr/local/etc/php/conf.d/uploads.ini
+
 # Ensure APP_KEY has a value (with reliable fallback)
 export APP_KEY="${APP_KEY:-base64:QybaPyZsjwoS8Xb33ZtE3md0QLwdtwkyX0Qm8bFow5s=}"
 
