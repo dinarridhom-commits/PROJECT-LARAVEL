@@ -45,13 +45,13 @@ if [ -n "$APP_URL" ]; then
     fi
 fi
 
-# Gunakan COOKIE session driver - paling reliable di cloud
-# Session disimpan di encrypted browser cookie, tidak butuh DB/file
-# CSRF token selalu ada karena ikut cookie di setiap request
+# Gunakan FILE session driver - reliable di cloud container
+# File session disimpan di storage/framework/sessions (sudah dibuat di bawah)
+# Cookie driver punya batas 4KB yang sering menyebabkan 419 error
 if grep -q "^SESSION_DRIVER=" /var/www/html/.env 2>/dev/null; then
-    sed -i "s|^SESSION_DRIVER=.*|SESSION_DRIVER=cookie|" /var/www/html/.env
+    sed -i "s|^SESSION_DRIVER=.*|SESSION_DRIVER=file|" /var/www/html/.env
 else
-    echo "SESSION_DRIVER=cookie" >> /var/www/html/.env
+    echo "SESSION_DRIVER=file" >> /var/www/html/.env
 fi
 
 # SESSION_SECURE_COOKIE=true - Wajib true karena Railway pakai HTTPS

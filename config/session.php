@@ -18,9 +18,9 @@ return [
     |
     */
 
-    // HARDCODED ke 'cookie' agar tidak bisa di-override oleh Railway env var SESSION_DRIVER=database
-    // Cookie session: tersimpan di encrypted browser cookie, tidak perlu database/file
-    'driver' => 'cookie',
+    // Gunakan file session driver - reliable di cloud container
+    // Cookie driver punya batas 4KB yang sering menyebabkan 419 error
+    'driver' => env('SESSION_DRIVER', 'file'),
 
     /*
     |--------------------------------------------------------------------------
