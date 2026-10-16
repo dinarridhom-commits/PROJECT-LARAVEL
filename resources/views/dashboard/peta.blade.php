@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>FEWS BWS KALIMANTAN I - Peta Daerah Irigasi (DIR)</title>
+    <title> BWS KALIMANTAN I - Peta Daerah Irigasi (DIR)</title>
 
     <!-- Google Fonts: Inter & Nunito -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -723,7 +723,7 @@
             <div class="bws-breadcrumb">
                 <span class="bws-breadcrumb-parent">Dashboard Data</span>
                 <i class="fas fa-chevron-right bws-breadcrumb-arrow"></i>
-                <span class="bws-breadcrumb-current">Pos Daerah Irigasi (DIR)</span>
+                <span class="bws-breadcrumb-current">Peta Daerah Irigasi (DIR)</span>
             </div>
 
             {{-- Flash Alert Notifikasi --}}
