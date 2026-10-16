@@ -183,13 +183,24 @@ class DashboardController extends Controller
             'file_name.required' => 'Nama file wajib ditentukan.',
         ]);
 
-        // Cegah path traversal dengan basename
-        $fileName = basename($request->input('file_name'));
-        $filePath = public_path('geojson/' . $fileName);
+        // Cegah path traversal dan atasi URL-encoding
+        $fileName = basename(urldecode($request->input('file_name')));
+        $folderPath = public_path('geojson');
+        $filePath = $folderPath . DIRECTORY_SEPARATOR . $fileName;
 
         if (File::exists($filePath)) {
-            File::delete($filePath);
-            return redirect()->route('peta')->with('success', "File GIS '{$fileName}' berhasil dihapus dari sistem!");
+            @chmod($folderPath, 0777);
+            @chmod($filePath, 0777);
+            $deleted = @unlink($filePath);
+            if (!$deleted && File::exists($filePath)) {
+                $deleted = File::delete($filePath);
+            }
+
+            if ($deleted || !File::exists($filePath)) {
+                return redirect()->route('peta')->with('success', "File GIS '{$fileName}' berhasil dihapus dari sistem dan peta!");
+            }
+
+            return redirect()->route('peta')->with('error', "Gagal menghapus file '{$fileName}'. Server tidak memiliki izin hapus (permission denied).");
         }
 
         return redirect()->route('peta')->with('error', "File '{$fileName}' tidak ditemukan di folder public/geojson.");
@@ -208,17 +219,29 @@ class DashboardController extends Controller
             'file_names.min'      => 'Pilih minimal satu file untuk dihapus.',
         ]);
 
+        $folderPath = public_path('geojson');
+        @chmod($folderPath, 0777);
+
         $deleted = [];
+        $failed = [];
         $notFound = [];
 
         foreach ($request->input('file_names') as $rawName) {
-            // Cegah path traversal
-            $fileName = basename($rawName);
-            $filePath = public_path('geojson/' . $fileName);
+            $fileName = basename(urldecode($rawName));
+            $filePath = $folderPath . DIRECTORY_SEPARATOR . $fileName;
 
             if (File::exists($filePath)) {
-                File::delete($filePath);
-                $deleted[] = $fileName;
+                @chmod($filePath, 0777);
+                $isDel = @unlink($filePath);
+                if (!$isDel && File::exists($filePath)) {
+                    $isDel = File::delete($filePath);
+                }
+
+                if ($isDel || !File::exists($filePath)) {
+                    $deleted[] = $fileName;
+                } else {
+                    $failed[] = $fileName;
+                }
             } else {
                 $notFound[] = $fileName;
             }
@@ -226,10 +249,17 @@ class DashboardController extends Controller
 
         if (count($deleted) > 0) {
             $msg = count($deleted) . ' file GIS berhasil dihapus (' . implode(', ', $deleted) . ').';
+            if (count($failed) > 0) {
+                $msg .= ' Beberapa file gagal dihapus (masalah izin akses server): ' . implode(', ', $failed);
+            }
             if (count($notFound) > 0) {
                 $msg .= ' ' . count($notFound) . ' file tidak ditemukan: ' . implode(', ', $notFound);
             }
             return redirect()->route('peta')->with('success', $msg);
+        }
+
+        if (count($failed) > 0) {
+            return redirect()->route('peta')->with('error', 'Gagal menghapus file dari server karena izin akses (permission denied): ' . implode(', ', $failed));
         }
 
         return redirect()->route('peta')->with('error', 'Tidak ada file yang berhasil dihapus. Pastikan file masih tersedia di server.');

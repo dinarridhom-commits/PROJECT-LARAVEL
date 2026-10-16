@@ -76,13 +76,14 @@ else
     echo "APP_DEBUG=false" >> /var/www/html/.env
 fi
 
-# Ensure storage, cache, and database folders exist
+# Ensure storage, cache, database, and public/geojson folders exist
 mkdir -p /var/www/html/storage/framework/cache/data \
          /var/www/html/storage/framework/sessions \
          /var/www/html/storage/framework/views \
          /var/www/html/storage/logs \
          /var/www/html/bootstrap/cache \
-         /var/www/html/database
+         /var/www/html/database \
+         /var/www/html/public/geojson
 
 # Create SQLite database file if DB_CONNECTION is sqlite
 if [ "$DB_CONNECTION" = "sqlite" ] || [ -z "$DB_CONNECTION" ]; then
@@ -91,8 +92,9 @@ if [ "$DB_CONNECTION" = "sqlite" ] || [ -z "$DB_CONNECTION" ]; then
     fi
 fi
 
-chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database /var/www/html/.env
+chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database /var/www/html/public/geojson /var/www/html/.env
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database
+chmod -R 777 /var/www/html/public/geojson
 chmod 664 /var/www/html/.env
 
 # Run database migrations automatically so tables (sessions, users, etc.) always exist
