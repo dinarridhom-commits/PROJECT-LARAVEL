@@ -31,9 +31,9 @@ use App\Http\Controllers\UserController;
 
 //  Route yang Memerlukan Login (Auth Middleware)
     Route::middleware('auth')->group(function () {
-    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/home', [DashboardController::class, 'index'])->name('home');
-    Route::get('/dashboard', [DashboardController::class, 'index']);
+    Route::get('/', [DashboardController::class, 'peta'])->name('dashboard');
+    Route::get('/home', [DashboardController::class, 'peta'])->name('home');
+    Route::get('/dashboard', [DashboardController::class, 'peta']);
     Route::get('/peta', [DashboardController::class, 'peta'])->name('peta');
     Route::post('/peta/upload-geojson', [DashboardController::class, 'uploadGeojson'])->name('peta.upload-geojson');
     Route::delete('/peta/delete-geojson', [DashboardController::class, 'deleteGeojson'])->name('peta.delete-geojson');

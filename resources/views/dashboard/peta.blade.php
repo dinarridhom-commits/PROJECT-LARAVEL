@@ -4,9 +4,9 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Peta Daerah Irigasi (DIR) - FEWS BWS KALIMANTAN I</title>
+    <title>FEWS BWS KALIMANTAN I - Peta Daerah Irigasi (DIR)</title>
 
-    <!-- Google Fonts: Inter & Roboto -->
+    <!-- Google Fonts: Inter & Nunito -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -26,9 +26,8 @@
             --bws-primary-dark: #1e40af;
             --bws-primary-light: #3b82f6;
             --bws-accent-yellow: #f59e0b; /* Kuning Emas PU */
-            --bws-navy: #0f172a;          /* Dark Navy table header */
-            --bws-navy-header: #1e293b;
-            --bws-bg: #f1f5f9;            /* Slate light background */
+            --bws-navy-header: #1e293b;   /* Dark Slate/Navy Header Tabel */
+            --bws-bg: #f8fafc;            /* Background abu sangat bersih */
             --bws-card: #ffffff;
             --bws-border: #e2e8f0;
             --bws-text-main: #1e293b;
@@ -49,14 +48,14 @@
         }
 
         /* ========================================================
-           1. TOPBAR HEADER (Sesuai Screenshot 1 & 2)
+           1. TOPBAR HEADER RESMI BWS KALIMANTAN I
            ======================================================== */
         .bws-navbar {
             background-color: var(--bws-primary);
             position: sticky;
             top: 0;
             z-index: 1030;
-            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.12);
         }
 
         .bws-navbar-inner {
@@ -73,7 +72,7 @@
             gap: 16px;
         }
 
-        /* Tombol Kembali / Back Lingkaran Putih */
+        /* Tombol Reset Tampilan Peta (Lingkaran Putih <) */
         .bws-back-btn {
             width: 42px;
             height: 42px;
@@ -88,16 +87,17 @@
             transition: all 0.2s ease;
             font-size: 16px;
             border: none;
+            cursor: pointer;
         }
 
         .bws-back-btn:hover {
-            background: #f8fafc;
+            background: #f1f5f9;
             color: var(--bws-primary);
             transform: scale(1.05);
             text-decoration: none;
         }
 
-        /* Logo PU & Teks Kementerian */
+        /* Logo PU & Identitas Instansi */
         .bws-brand-wrapper {
             display: flex;
             align-items: center;
@@ -130,13 +130,13 @@
 
         .bws-brand-subtitle {
             font-size: 12px;
-            color: rgba(255, 255, 255, 0.92);
+            color: rgba(255, 255, 255, 0.95);
             font-weight: 500;
         }
 
         .bws-brand-dept {
             font-size: 11px;
-            color: rgba(255, 255, 255, 0.8);
+            color: rgba(255, 255, 255, 0.82);
             font-weight: 400;
         }
 
@@ -152,8 +152,8 @@
             border: none;
             color: #ffffff;
             font-size: 18px;
-            width: 38px;
-            height: 38px;
+            width: 40px;
+            height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -164,7 +164,7 @@
         }
 
         .bws-header-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.16);
             color: #ffffff;
         }
 
@@ -182,7 +182,7 @@
             border: 1.5px solid var(--bws-primary);
         }
 
-        /* Profile Pill Header */
+        /* Profile Pill Header (Admin Dinar) */
         .bws-profile-pill {
             display: flex;
             align-items: center;
@@ -215,12 +215,7 @@
             justify-content: center;
             color: var(--bws-primary);
             overflow: hidden;
-        }
-
-        .bws-profile-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+            font-size: 15px;
         }
 
         /* Garis Aksen Emas PU di Bawah Navbar */
@@ -340,7 +335,7 @@
         }
 
         /* ========================================================
-           3. MAP CONTAINER (Sesuai Screenshot 1)
+           3. MAP CONTAINER & KONTROL
            ======================================================== */
         .bws-map-card {
             background: #ffffff;
@@ -380,7 +375,7 @@
         }
 
         /* ========================================================
-           4. DATA TABLE SECTION (Sesuai Screenshot 2)
+           4. DATA TABLE SECTION (Header Gelap / Dark Slate)
            ======================================================== */
         .bws-table-card {
             background: #ffffff;
@@ -468,7 +463,7 @@
             transform: translateY(-1px);
         }
 
-        /* TABEL DENGAN HEADER GELAP (DARK SLATE) - PERSIS SCREENSHOT 2 */
+        /* TABEL DENGAN HEADER GELAP (DARK SLATE) */
         .bws-table-responsive {
             max-height: 540px;
             overflow-y: auto;
@@ -558,7 +553,7 @@
             border-color: var(--bws-primary);
         }
 
-        /* Leaflet Controls Modernization */
+        /* Leaflet Legend */
         .map-legend {
             background: rgba(255,255,255,0.96);
             padding: 10px 14px;
@@ -582,7 +577,7 @@
         .legend-line { width: 20px; height: 4px; border-radius: 2px; flex-shrink: 0; }
         .legend-circle { width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid #fff; box-shadow: 0 0 0 1px #999; flex-shrink: 0; }
 
-        /* Responsif untuk Layar Mobile */
+        /* Responsif Layar Mobile */
         @media (max-width: 991.98px) {
             .bws-page-container {
                 flex-direction: column;
@@ -612,10 +607,10 @@
     <header class="bws-navbar">
         <div class="bws-navbar-inner">
             <div class="bws-nav-left">
-                <!-- Tombol Kembali / Back Lingkaran Putih -->
-                <a href="{{ route('dashboard') }}" class="bws-back-btn" title="Kembali ke Dashboard Utama">
+                <!-- Tombol Reset / Home Tampilan Peta (Lingkaran Putih <) -->
+                <button type="button" class="bws-back-btn" onclick="resetMapView()" title="Reset Tampilan Peta ke Awal">
                     <i class="fas fa-chevron-left"></i>
-                </a>
+                </button>
 
                 <!-- Logo PU & Teks Instansi -->
                 <div class="bws-brand-wrapper">
@@ -634,42 +629,36 @@
                     <i class="fas fa-expand"></i>
                 </button>
 
-                <!-- Tombol Notifikasi -->
+                <!-- Tombol Notifikasi (Total File GIS Aktif) -->
                 <div class="position-relative">
-                    <button type="button" class="bws-header-btn" title="Total File GIS">
+                    <button type="button" class="bws-header-btn" title="Total File GIS Tersimpan">
                         <i class="fas fa-bell"></i>
-                        <span class="bws-badge-pill">{{ count($fileList ?? []) }}</span>
+                        <span class="bws-badge-pill" id="header-file-count">{{ count($fileList ?? []) }}</span>
                     </button>
                 </div>
 
-                <!-- User Profile Pill & Dropdown -->
+                <!-- User Profile Pill (Admin Dinar) & Dropdown Bersih -->
                 <div class="dropdown">
                     <div class="bws-profile-pill" id="userMenuDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <div class="bws-profile-avatar">
                             <i class="fas fa-user"></i>
                         </div>
-                        <span>{{ Auth::user()->name ?? 'Admin' }}</span>
+                        <span class="font-weight-bold">{{ Auth::user()->name ?? 'Admin Dinar' }}</span>
                         <i class="fas fa-chevron-down ml-1 small text-white-50"></i>
                     </div>
                     <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in py-2" aria-labelledby="userMenuDropdown">
-                        <div class="dropdown-header text-uppercase font-weight-bold text-xs text-muted">Aplikasi BWSK I</div>
-                        <a class="dropdown-item py-2" href="{{ route('dashboard') }}">
-                            <i class="fas fa-tachometer-alt fa-sm fa-fw mr-2 text-primary"></i>Dashboard Utama
-                        </a>
-                        <a class="dropdown-item py-2" href="{{ route('produk.index') }}">
-                            <i class="fas fa-boxes fa-sm fa-fw mr-2 text-info"></i>Data Produk
-                        </a>
-                        <a class="dropdown-item py-2" href="{{ route('kategori.index') }}">
-                            <i class="fas fa-tags fa-sm fa-fw mr-2 text-warning"></i>Kategori
-                        </a>
-                        @if(Auth::check() && in_array(Auth::user()->role, ['superadmin', 'admin']))
-                        <a class="dropdown-item py-2" href="{{ route('users.index') }}">
-                            <i class="fas fa-users-cog fa-sm fa-fw mr-2 text-success"></i>Manajemen User
-                        </a>
-                        @endif
+                        <div class="dropdown-header text-uppercase font-weight-bold text-xs text-muted">
+                            Sistem WebGIS BWSK I
+                        </div>
+                        <div class="px-3 py-1 small text-dark font-weight-bold">
+                            <i class="fas fa-user-circle mr-1 text-primary"></i> {{ Auth::user()->name ?? 'Admin Dinar' }}
+                        </div>
+                        <div class="px-3 pb-2 small text-muted">
+                            Role: <span class="badge badge-primary">{{ strtoupper(Auth::user()->role ?? 'ADMIN') }}</span>
+                        </div>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-danger py-2" href="#" data-toggle="modal" data-target="#logoutModal">
-                            <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2"></i>Logout
+                            <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2"></i>Keluar / Logout
                         </a>
                     </div>
                 </div>
@@ -679,44 +668,20 @@
         <div class="bws-accent-strip"></div>
     </header>
 
-    <!-- 2. LAYOUT 2 KOLOM (Sidebar Filter di Kiri + Konten Peta & Tabel di Kanan) -->
+    <!-- 2. LAYOUT SINGLE-PAGE DASHBOARD (Sidebar Filter di Kiri + Konten Peta & Tabel di Kanan) -->
     <div class="bws-page-container">
 
-        <!-- PANEL FILTER (SISI KIRI) -->
+        <!-- PANEL FILTER (SISI KIRI - TANPA FILTER KATEGORI) -->
         <aside class="bws-sidebar">
             <!-- 1. Dashboard Type -->
             <div class="bws-filter-group">
                 <label class="bws-filter-label">Dashboard Type</label>
                 <select class="form-control bws-select-control" id="filterDashboardType">
                     <option value="data" selected>Dashboard Data</option>
-                    <option value="summary">Ringkasan Spasial GIS</option>
                 </select>
             </div>
 
-            <!-- 2. Filter Kategori GIS (Pengganti filter sebaran & pos yang tidak dibuat) -->
-            <div class="bws-filter-group">
-                <label class="bws-filter-label">Filter Kategori GIS</label>
-                <select class="form-control bws-select-control" id="filterKategoriGis" onchange="filterByCategory(this.value)">
-                    <option value="all" selected>Semua Data GIS ({{ count($fileList ?? []) }} File)</option>
-                    @if($availableTypes['baku'] ?? false)
-                        <option value="baku">Daerah Irigasi Baku (Hijau)</option>
-                    @endif
-                    @if($availableTypes['fungsional'] ?? false)
-                        <option value="fungsional">Daerah Irigasi Fungsional (Biru)</option>
-                    @endif
-                    @if($availableTypes['potensial'] ?? false)
-                        <option value="potensial">Daerah Irigasi Potensial (Oranye)</option>
-                    @endif
-                    @if($availableTypes['saluran'] ?? false)
-                        <option value="saluran">Jaringan Saluran Irigasi</option>
-                    @endif
-                    @if($availableTypes['bangunan'] ?? false)
-                        <option value="bangunan">Bangunan Air / Pelengkap</option>
-                    @endif
-                </select>
-            </div>
-
-            <!-- 3. Filter Tanggal (Format 16 October 2026 sesuai gambar) -->
+            <!-- 2. Filter Tanggal (Format: 16 October 2026) -->
             <div class="bws-filter-group">
                 <label class="bws-filter-label">Filter Tanggal</label>
                 <div class="input-group">
@@ -727,7 +692,7 @@
                 </div>
             </div>
 
-            <!-- 4. View Mode (Table + Maps / Maps Only / Table Only) -->
+            <!-- 3. View Mode (Table + Maps / Maps Only / Table Only) -->
             <div class="bws-filter-group">
                 <label class="bws-filter-label">View</label>
                 <select class="form-control bws-select-control" id="filterViewMode" onchange="switchViewMode(this.value)">
@@ -737,12 +702,12 @@
                 </select>
             </div>
 
-            <!-- Quick Action Buttons -->
+            <!-- Tombol Kelola File & Upload GeoJSON -->
             <div class="bws-btn-block">
                 <button type="button" class="btn btn-outline-primary bws-btn-action shadow-sm" data-toggle="modal" data-target="#modalKelolaGeojson">
                     <i class="fas fa-folder-open"></i>
                     <span>Kelola File GIS</span>
-                    <span class="badge badge-primary ml-auto">{{ count($fileList ?? []) }}</span>
+                    <span class="badge badge-primary ml-auto" id="sidebar-file-count">{{ count($fileList ?? []) }}</span>
                 </button>
                 <button type="button" class="btn btn-primary bws-btn-action shadow-sm text-white" data-toggle="modal" data-target="#modalUploadGeojson">
                     <i class="fas fa-cloud-upload-alt"></i>
@@ -780,7 +745,7 @@
             </div>
             @endif
 
-            <!-- 1. MAP CARD (Sesuai Screenshot 1) -->
+            <!-- 1. MAP CARD (Leaflet Interactive Map) -->
             <div class="bws-map-card" id="section-map">
                 <div class="bws-map-loading" id="map-loading">
                     <i class="fas fa-spinner fa-spin"></i>
@@ -789,7 +754,7 @@
                 <div id="map"></div>
             </div>
 
-            <!-- 2. DATA TABLE CARD (Sesuai Screenshot 2) -->
+            <!-- 2. DATA TABLE CARD (Header Gelap / Dark Slate) -->
             <div class="bws-table-card" id="section-table">
                 <div class="bws-table-toolbar">
                     <div class="bws-table-title">
@@ -800,7 +765,7 @@
                     </div>
 
                     <div class="bws-table-controls">
-                        <!-- Pencarian Data -->
+                        <!-- Pencarian Data Realtime -->
                         <div class="bws-search-input-wrap">
                             <i class="fas fa-search"></i>
                             <input type="text" id="cari-tabel-koordinat" placeholder="Cari nama pos/objek/file..." onkeyup="filterTabelKoordinat(this.value)">
@@ -814,7 +779,7 @@
                     </div>
                 </div>
 
-                <!-- Tabel Data GIS (Dark Header sesuai Screenshot 2) -->
+                <!-- Tabel Data GIS (Dark Header) -->
                 <div class="bws-table-responsive">
                     <table class="bws-custom-table" id="tabel-lokasi">
                         <thead>
@@ -847,7 +812,7 @@
         </main>
     </div>
 
-    <!-- MODAL 1: UPLOAD GEOJSON -->
+    <!-- MODAL 1: UPLOAD GEOJSON (Dukungan Batch Chunked Upload Anti-PostTooLargeException) -->
     <div class="modal fade" id="modalUploadGeojson" tabindex="-1" role="dialog" aria-labelledby="modalUploadGeojsonLabel" aria-hidden="true" data-backdrop="static">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <form id="formUploadGeojson" action="{{ route('peta.upload-geojson') }}" method="POST" enctype="multipart/form-data" class="modal-content border-0 shadow">
@@ -870,7 +835,7 @@
                             <label class="custom-file-label" for="inputGeojsonFile" id="labelGeojsonFile">Pilih satu atau beberapa file...</label>
                         </div>
                         <small class="form-text text-muted mt-2">
-                            <i class="fas fa-info-circle mr-1"></i>Format yang didukung: <code>.geojson</code> atau <code>.json</code>. Anda dapat memilih puluhan file sekaligus.
+                            <i class="fas fa-info-circle mr-1"></i>Format yang didukung: <code>.geojson</code> atau <code>.json</code>. Anda dapat memilih banyak file sekaligus, otomatis diunggah bertahap tanpa error ukuran.
                         </small>
                     </div>
 
@@ -1030,7 +995,7 @@
                         <span aria-hidden="true">×</span>
                     </button>
                 </div>
-                <div class="modal-body p-4">Apakah Anda yakin ingin keluar dari akun ini?</div>
+                <div class="modal-body p-4">Apakah Anda yakin ingin keluar dari akun WebGIS ini?</div>
                 <div class="modal-footer bg-light">
                     <button class="btn btn-secondary font-weight-bold" type="button" data-dismiss="modal">Batal</button>
                     <form action="{{ route('logout') }}" method="POST" class="d-inline">
@@ -1049,6 +1014,15 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 
     <script>
+    // 0. REGISTRASI PROJ4 DEFINISI UNTUK KOORDINAT ARCMAP / ESRI
+    if (typeof proj4 !== 'undefined') {
+        proj4.defs("EPSG:54034", "+proj=eqc +lat_ts=0 +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs");
+        proj4.defs("ESRI:54034", "+proj=eqc +lat_ts=0 +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs");
+        proj4.defs("EPSG:3857", "+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs");
+        proj4.defs("EPSG:32649", "+proj=utm +zone=49 +datum=WGS84 +units=m +no_defs");
+        proj4.defs("EPSG:32749", "+proj=utm +zone=49 +south +datum=WGS84 +units=m +no_defs");
+    }
+
     // 1. FULLSCREEN TOGGLE
     var btnFs = document.getElementById('btnFullscreenToggle');
     if (btnFs) {
@@ -1101,8 +1075,9 @@
         maxZoom: 20
     });
 
+    var defaultCenter = [-0.0263, 109.3425]; // Kalimantan Barat / Pontianak
     var map = L.map('map', {
-        center: [-0.0263, 109.3425], // Default Kalimantan Barat / Pontianak
+        center: defaultCenter,
         zoom: 8,
         layers: [osm],
         zoomControl: true
@@ -1129,7 +1104,7 @@
     if (availableTypes.saluran)    overlayMaps["Jaringan Saluran Irigasi"]           = layerSaluran;
     if (availableTypes.bangunan)   overlayMaps["Bangunan Air / Pelengkap"]           = layerBangunan;
 
-    var layerControl = L.control.layers(baseMaps, overlayMaps, { collapsed: false, position: 'topright' }).addTo(map);
+    L.control.layers(baseMaps, overlayMaps, { collapsed: false, position: 'topright' }).addTo(map);
 
     // Legenda Dinamis
     var legend = L.control({ position: 'bottomleft' });
@@ -1150,23 +1125,55 @@
     };
     legend.addTo(map);
 
-    // 4. PROJ4 REPROJECTION HELPER
+    // Tombol Reset Peta (Kembali ke Bounds Awal)
+    window.resetMapView = function() {
+        if (mapBounds.isValid && mapBounds.isValid()) {
+            map.fitBounds(mapBounds, { padding: [40, 40] });
+        } else {
+            map.setView(defaultCenter, 8);
+        }
+    };
+
+    // 4. REPROYEKSI KOORDINAT (Mendukung WKID 54034, 3857, UTM 49, WGS84)
     function projectCoordinate(x, y, wkid) {
         if (typeof x !== 'number' || typeof y !== 'number' || isNaN(x) || isNaN(y)) return [x, y];
-        if (wkid === 4326 || (Math.abs(x) <= 180 && Math.abs(y) <= 90 && (!wkid || wkid === 'EPSG:4326'))) return [x, y];
+        // Jika sudah derajat WGS84 normal (lon ~108-111, lat -3 s/d 2)
+        if (Math.abs(x) <= 180 && Math.abs(y) <= 90) return [x, y];
+
+        // Jika koordinat dalam meter (Mercator / Equidistant Cylindrical untuk Kalimantan / Indonesia)
+        if (Math.abs(x) >= 5000000 && Math.abs(x) <= 20000000 && Math.abs(y) <= 2000000) {
+            var lon = (x / 6378137.0) * (180.0 / Math.PI);
+            var lat = (2.0 * Math.atan(Math.exp(y / 6378137.0)) - (Math.PI / 2.0)) * (180.0 / Math.PI);
+            return [lon, lat];
+        }
+
         try {
             var wkidStr = String(wkid || '');
-            if (wkidStr.indexOf('3857') !== -1 || wkid === 3857 || wkid === 102100 || wkid === 900913) {
+            if (wkid === 54034 || wkidStr.indexOf('54034') !== -1) {
+                var lonEqc = (x / 6378137.0) * (180.0 / Math.PI);
+                var latEqc = (2.0 * Math.atan(Math.exp(y / 6378137.0)) - (Math.PI / 2.0)) * (180.0 / Math.PI);
+                return [lonEqc, latEqc];
+            }
+            if (wkid === 3857 || wkidStr.indexOf('3857') !== -1) {
                 return proj4('EPSG:3857', 'EPSG:4326', [x, y]);
             }
-            if (wkidStr.indexOf('54034') !== -1 || wkid === 54034) return proj4('EPSG:54034', 'EPSG:4326', [x, y]);
-            if (wkidStr.indexOf('32749') !== -1 || wkid === 32749) return proj4('EPSG:32749', 'EPSG:4326', [x, y]);
-            if (wkidStr.indexOf('32649') !== -1 || wkid === 32649) return proj4('EPSG:32649', 'EPSG:4326', [x, y]);
-            if (Math.abs(x) > 2000000 || Math.abs(y) > 2000000) return proj4('EPSG:3857', 'EPSG:4326', [x, y]);
-            if (y > 2000000) return proj4('EPSG:32749', 'EPSG:4326', [x, y]);
-            if (x > 100000)  return proj4('EPSG:32649', 'EPSG:4326', [x, y]);
-            return [x, y];
-        } catch(e) { return [x, y]; }
+            if (wkid === 32649 || wkidStr.indexOf('32649') !== -1) {
+                return proj4('EPSG:32649', 'EPSG:4326', [x, y]);
+            }
+            if (wkid === 32749 || wkidStr.indexOf('32749') !== -1) {
+                return proj4('EPSG:32749', 'EPSG:4326', [x, y]);
+            }
+            if (wkid && proj4.defs['EPSG:' + wkid]) {
+                return proj4('EPSG:' + wkid, 'EPSG:4326', [x, y]);
+            }
+        } catch(e) {}
+
+        // Fallback UTM zona 49
+        if (x > 100000 && x < 1000000) {
+            try { return proj4('EPSG:32649', 'EPSG:4326', [x, y]); } catch(e){}
+        }
+
+        return [x, y];
     }
 
     function transformGeoJsonCoords(coords, geomType, wkid) {
@@ -1230,11 +1237,10 @@
         return gj;
     }
 
-    // 5. FETCH & LOAD GEOJSON FILES
+    // 5. FETCH & LOAD GEOJSON FILES DARI SERVER SECARA OTOMATIS
     var geojsonFiles = {!! json_encode($geojsonFiles ?? []) !!};
     var mapLoadingEl = document.getElementById('map-loading');
     var allTableRows = [];
-    var currentFilterCategory = 'all';
     var currentSearchText = '';
     var mapBounds = L.latLngBounds();
 
@@ -1316,7 +1322,7 @@
 
                     targetLayer.addLayer(gjLayer);
 
-                    // Ambil estimasi koordinat & bounds
+                    // Ambil koordinat pusat & batas wilayah
                     var b = gjLayer.getBounds();
                     if (b.isValid()) {
                         mapBounds.extend(b);
@@ -1348,29 +1354,45 @@
         renderTable();
     }
 
-    // 6. RENDER DATA TABLE (Dark Header sesuai Screenshot 2)
+    // 6. RENDER DATA TABLE (Dark Header & State Kosong Rapi)
     function renderTable() {
         var tbody = document.getElementById('tbody-lokasi');
         var footerInfo = document.getElementById('tabel-footer-info');
         if (!tbody) return;
 
         var filtered = allTableRows.filter(function(row) {
-            var matchCategory = (currentFilterCategory === 'all') || (row.categoryType === currentFilterCategory);
-            var matchSearch = true;
-            if (currentSearchText !== '') {
-                var term = currentSearchText.toLowerCase();
-                matchSearch = (row.name && row.name.toLowerCase().indexOf(term) !== -1) ||
-                              (row.fileName && row.fileName.toLowerCase().indexOf(term) !== -1);
-            }
-            return matchCategory && matchSearch;
+            if (currentSearchText === '') return true;
+            var term = currentSearchText.toLowerCase();
+            return (row.name && row.name.toLowerCase().indexOf(term) !== -1) ||
+                   (row.fileName && row.fileName.toLowerCase().indexOf(term) !== -1);
         });
 
         if (footerInfo) {
             footerInfo.innerHTML = 'Menampilkan <b>' + filtered.length + '</b> dari <b>' + allTableRows.length + '</b> file GIS';
         }
 
+        // STATE KOSONG RAPI (Jika tidak ada file atau hasil filter nihil)
         if (filtered.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-muted"><i class="fas fa-info-circle mr-2"></i>Tidak ada data GIS yang cocok dengan filter.</td></tr>';
+            if (allTableRows.length === 0) {
+                tbody.innerHTML = 
+                    '<tr>' +
+                        '<td colspan="7" class="text-center py-5 text-muted">' +
+                            '<div class="mb-2"><i class="fas fa-folder-open fa-3x text-gray-300"></i></div>' +
+                            '<div class="font-weight-bold text-gray-700 mb-1" style="font-size:15px;">Belum Ada Data GIS Tersimpan</div>' +
+                            '<p class="small text-muted mb-3">Silakan klik tombol "Upload GeoJSON" untuk menambahkan file koordinat dan layer ke peta.</p>' +
+                            '<button type="button" class="btn btn-sm btn-primary font-weight-bold shadow-sm" data-toggle="modal" data-target="#modalUploadGeojson">' +
+                                '<i class="fas fa-cloud-upload-alt mr-1"></i> Upload GeoJSON Sekarang' +
+                            '</button>' +
+                        '</td>' +
+                    '</tr>';
+            } else {
+                tbody.innerHTML = 
+                    '<tr>' +
+                        '<td colspan="7" class="text-center py-4 text-muted">' +
+                            '<i class="fas fa-info-circle mr-2 text-info"></i>Tidak ditemukan data GIS yang cocok dengan pencarian "<b>' + currentSearchText + '</b>".' +
+                        '</td>' +
+                    '</tr>';
+            }
             return;
         }
 
@@ -1386,23 +1408,31 @@
                 '<td>' + row.categoryBadge + '</td>' +
                 '<td class="text-center font-weight-bold text-dark"><code>' + latStr + '</code></td>' +
                 '<td class="text-center font-weight-bold text-dark"><code>' + lngStr + '</code></td>' +
-                '<td><span class="badge badge-light border text-monospace text-truncate d-inline-block" style="max-width:200px;">' + row.fileName + '</span></td>' +
+                '<td><span class="badge badge-light border text-monospace text-truncate d-inline-block" style="max-width:200px;" title="' + row.fileName + '">' + row.fileName + '</span></td>' +
                 '<td class="text-center">' +
-                    '<button type="button" class="btn-focus-row" title="Fokuskan peta ke lokasi ini">' +
+                    '<button type="button" class="btn-focus-row" title="Fokuskan peta ke objek ini">' +
                         '<i class="fas fa-crosshairs"></i> Fokus' +
                     '</button>' +
                 '</td>';
 
+            // TOMBOL FOKUS KE OBJEK SPASIAL SECARA PRESISI
             var btn = tr.querySelector('.btn-focus-row');
             btn.addEventListener('click', function() {
                 if (row.bounds && row.bounds.isValid && row.bounds.isValid()) {
                     map.fitBounds(row.bounds, { padding: [50, 50], maxZoom: 16 });
-                } else if (row.lat && row.lng) {
-                    map.flyTo([row.lat, row.lng], 15);
+                } else if (row.lat && row.lng && !isNaN(row.lat) && !isNaN(row.lng)) {
+                    map.flyTo([row.lat, row.lng], 15, { animate: true, duration: 1.0 });
+                }
+                if (row.layerObj) {
+                    if (row.layerObj.openPopup) {
+                        row.layerObj.openPopup();
+                    } else if (row.layerObj.eachLayer) {
+                        row.layerObj.eachLayer(function(l) { if (l.openPopup) { l.openPopup(); return; } });
+                    }
                 }
                 var mapSec = document.getElementById('section-map');
                 if (mapSec) {
-                    window.scrollTo({ top: mapSec.offsetTop - 80, behavior: 'smooth' });
+                    window.scrollTo({ top: mapSec.offsetTop - 85, behavior: 'smooth' });
                 }
             });
 
@@ -1413,50 +1443,27 @@
         tbody.appendChild(frag);
     }
 
-    // 7. FILTER CATEGORY & SEARCH FUNCTIONS
-    window.filterByCategory = function(cat) {
-        currentFilterCategory = cat;
-        // Atur visibilitas layer di peta sesuai dropdown
-        if (cat === 'all') {
-            if (availableTypes.baku)       layerBaku.addTo(map);
-            if (availableTypes.fungsional) layerFungsional.addTo(map);
-            if (availableTypes.potensial)  layerPotensial.addTo(map);
-            if (availableTypes.saluran)    layerSaluran.addTo(map);
-            if (availableTypes.bangunan)   layerBangunan.addTo(map);
-        } else {
-            map.removeLayer(layerBaku);
-            map.removeLayer(layerFungsional);
-            map.removeLayer(layerPotensial);
-            map.removeLayer(layerSaluran);
-            map.removeLayer(layerBangunan);
-
-            if (cat === 'baku' && availableTypes.baku)             layerBaku.addTo(map);
-            else if (cat === 'fungsional' && availableTypes.fungsional) layerFungsional.addTo(map);
-            else if (cat === 'potensial' && availableTypes.potensial)   layerPotensial.addTo(map);
-            else if (cat === 'saluran' && availableTypes.saluran)       layerSaluran.addTo(map);
-            else if (cat === 'bangunan' && availableTypes.bangunan)     layerBangunan.addTo(map);
-        }
-        renderTable();
-    };
-
+    // 7. PENCARIAN DATA REALTIME
     window.filterTabelKoordinat = function(val) {
         currentSearchText = (val || '').trim();
         renderTable();
     };
 
-    // 8. EXPORT DATA TO CSV (Sesuai Tombol Hijau Export Data di Screenshot 2)
+    // 8. EXPORT DATA TO CSV (Export Data Spasial Realtime)
     window.exportDataToCsv = function() {
         if (!allTableRows || allTableRows.length === 0) {
-            alert('Tidak ada data GIS yang dapat diexport.');
+            alert('Belum ada data GIS yang dapat diexport.');
             return;
         }
 
-        var csv = 'No,Nama Objek / Pos DIR,Kategori Layer,Latitude (Y),Longitude (X),Sumber File GIS\n';
+        var csv = 'No,Nama Pos / Objek DIR,Kategori Layer,Latitude (Y),Longitude (X),Sumber File GIS\n';
         allTableRows.forEach(function(r, i) {
             var clean = (r.name || '').replace(/,/g, ' ');
             var cat = r.categoryType || '';
             var file = r.fileName || '';
-            csv += (i + 1) + ',"' + clean + '","' + cat + '",' + (r.lat || '') + ',' + (r.lng || '') + ',"' + file + '"\n';
+            var lat = (r.lat !== null && !isNaN(r.lat)) ? Number(r.lat).toFixed(5) : '';
+            var lng = (r.lng !== null && !isNaN(r.lng)) ? Number(r.lng).toFixed(5) : '';
+            csv += (i + 1) + ',"' + clean + '","' + cat + '",' + lat + ',' + lng + ',"' + file + '"\n';
         });
 
         var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -1564,7 +1571,7 @@
 
                 var files = Array.from(input.files);
                 var totalFiles = files.length;
-                var BATCH_SIZE = 5; // Unggah 5 file per batch agar sangat aman di bawah batas POST
+                var BATCH_SIZE = 5; // Unggah 5 file per batch secara aman
                 var totalBatches = Math.ceil(totalFiles / BATCH_SIZE);
 
                 var progressSection = document.getElementById('uploadProgressSection');
