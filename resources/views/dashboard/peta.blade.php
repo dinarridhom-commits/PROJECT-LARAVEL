@@ -616,7 +616,7 @@
                 <div class="bws-brand-wrapper">
                     <img src="{{ asset('sbadmin/img/logo-pu.jpeg') }}" alt="Logo Kementerian PU" class="bws-logo-pu">
                     <div class="bws-brand-text">
-                        <div class="bws-brand-title">FEWS BWS KALIMANTAN I</div>
+                        <div class="bws-brand-title">WEBGIS BWS KALIMANTAN I</div>
                         <div class="bws-brand-subtitle">Direktorat Jenderal Sumber Daya Air</div>
                         <div class="bws-brand-dept">Kementerian Pekerjaan Umum</div>
                     </div>
