@@ -126,9 +126,39 @@ if (window.availableTypes) {
     if (window.availableTypes.saluran)    overlayMaps["Jaringan Saluran Irigasi"]           = layerSaluran;
     if (window.availableTypes.bangunan)   overlayMaps["Bangunan Air / Pelengkap"]           = layerBangunan;
 }
-L.control.layers(baseMaps, overlayMaps, { collapsed: false, position: 'topright' }).addTo(map);
+var layerControl = L.control.layers(baseMaps, overlayMaps, { collapsed: false, position: 'topright' }).addTo(map);
 
-// Legenda Dinamis (hanya tampil jika ada layer yang aktif)
+// Inisialisasi Header & Fitur Minimize pada Layer Control (Kanan Atas)
+var layerContainer = layerControl.getContainer();
+if (layerContainer) {
+    L.DomEvent.disableClickPropagation(layerContainer);
+    L.DomEvent.disableScrollPropagation(layerContainer);
+
+    var layerHeader = document.createElement('div');
+    layerHeader.className = 'map-ctrl-header';
+    layerHeader.id = 'layer-header';
+    layerHeader.title = 'Klik untuk minimize / expand';
+    layerHeader.innerHTML = 
+        '<span><i class="fas fa-layer-group text-primary mr-1"></i> Layer Peta</span>' +
+        '<button type="button" class="map-ctrl-min-btn" aria-label="Minimize Layer" title="Minimize / Expand"><i class="fas fa-minus" id="layer-min-icon"></i></button>';
+
+    var formList = layerContainer.querySelector('.leaflet-control-layers-list');
+    if (formList) {
+        formList.classList.add('map-ctrl-body');
+        layerContainer.insertBefore(layerHeader, formList);
+    }
+
+    layerHeader.addEventListener('click', function(e) {
+        e.stopPropagation();
+        layerContainer.classList.toggle('is-minimized');
+        var icon = layerContainer.querySelector('#layer-min-icon');
+        if (icon) {
+            icon.className = layerContainer.classList.contains('is-minimized') ? 'fas fa-plus' : 'fas fa-minus';
+        }
+    });
+}
+
+// Legenda Dinamis dengan Fitur Minimize (Pojok Kiri Bawah)
 var legend = L.control({ position: 'bottomleft' });
 legend.onAdd = function() {
     var div = L.DomUtil.create('div', 'map-legend');
@@ -141,7 +171,29 @@ legend.onAdd = function() {
         if (window.availableTypes.bangunan)   legendItems += '<div class="legend-item"><span class="legend-circle" style="background:#d63031;"></span> <b>Bangunan Air</b></div>';
     }
     if (!legendItems) { div.style.display = 'none'; return div; }
-    div.innerHTML = '<h6><i class="fas fa-palette text-primary mr-1"></i> Legenda Peta</h6>' + legendItems;
+
+    div.innerHTML = 
+        '<div class="map-ctrl-header" id="legend-header" title="Klik untuk minimize / expand">' +
+            '<span><i class="fas fa-palette text-primary mr-1"></i> Legenda Peta</span>' +
+            '<button type="button" class="map-ctrl-min-btn" aria-label="Minimize Legenda" title="Minimize / Expand"><i class="fas fa-minus" id="legend-min-icon"></i></button>' +
+        '</div>' +
+        '<div class="map-ctrl-body" id="legend-body">' + legendItems + '</div>';
+
+    L.DomEvent.disableClickPropagation(div);
+    L.DomEvent.disableScrollPropagation(div);
+
+    var header = div.querySelector('#legend-header');
+    if (header) {
+        header.addEventListener('click', function(e) {
+            e.stopPropagation();
+            div.classList.toggle('is-minimized');
+            var icon = div.querySelector('#legend-min-icon');
+            if (icon) {
+                icon.className = div.classList.contains('is-minimized') ? 'fas fa-plus' : 'fas fa-minus';
+            }
+        });
+    }
+
     return div;
 };
 legend.addTo(map);

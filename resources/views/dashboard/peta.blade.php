@@ -242,7 +242,7 @@
     </script>
 
     {{-- JavaScript utama peta (dipisah ke public/js/peta-map.js) --}}
-    <script src="{{ asset('js/peta-map.js') }}"></script>
+    <script src="{{ asset('js/peta-map.js') }}?v={{ filemtime(public_path('js/peta-map.js')) }}"></script>
 
 </body>
 </html>
