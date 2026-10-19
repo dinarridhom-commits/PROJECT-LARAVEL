@@ -125,35 +125,50 @@
                 {{-- Hanya Infrastruktur sesuai permintaan user --}}
                 <div class="bws-dropdown-submenu">
                     <a href="#" class="bws-dropdown-item" onclick="return false;">
-                        <span>
+                        <span class="d-flex align-items-center">
                             <i class="fas fa-layer-group text-primary mr-2"></i>
-                            Infrastruktur
+                            <span>Infrastruktur</span>
                         </span>
                         <i class="fas fa-chevron-right text-muted small ml-3"></i>
                     </a>
 
-                    {{-- Submenu Flyout Infrastruktur (Mengikuti Data Website) --}}
+                    {{-- Submenu Flyout Infrastruktur (Mengikuti 54 Data GeoJSON Website) --}}
                     <div class="bws-flyout-menu shadow">
                         <a href="{{ route('peta', ['layer' => 'baku']) }}" class="bws-dropdown-item {{ request('layer') == 'baku' ? 'font-weight-bold text-primary' : '' }}">
-                            <span class="bws-flyout-badge" style="background:#27ae60;"></span>
-                            <span>Daerah Irigasi Baku</span>
+                            <span class="d-flex align-items-center">
+                                <span class="bws-flyout-badge mr-2" style="background:#27ae60;"></span>
+                                <span>Daerah Irigasi Baku</span>
+                            </span>
+                            <span class="badge badge-light border text-muted px-1.5 py-0.5 ml-2" style="font-size: 10px;">9 Data</span>
                         </a>
                         <a href="{{ route('peta', ['layer' => 'fungsional']) }}" class="bws-dropdown-item {{ request('layer') == 'fungsional' ? 'font-weight-bold text-primary' : '' }}">
-                            <span class="bws-flyout-badge" style="background:#2980b9;"></span>
-                            <span>Daerah Irigasi Fungsional</span>
+                            <span class="d-flex align-items-center">
+                                <span class="bws-flyout-badge mr-2" style="background:#2980b9;"></span>
+                                <span>Daerah Irigasi Fungsional</span>
+                            </span>
+                            <span class="badge badge-light border text-muted px-1.5 py-0.5 ml-2" style="font-size: 10px;">6 Data</span>
                         </a>
                         <a href="{{ route('peta', ['layer' => 'potensial']) }}" class="bws-dropdown-item {{ request('layer') == 'potensial' ? 'font-weight-bold text-primary' : '' }}">
-                            <span class="bws-flyout-badge" style="background:#e67e22;"></span>
-                            <span>Daerah Irigasi Potensial</span>
+                            <span class="d-flex align-items-center">
+                                <span class="bws-flyout-badge mr-2" style="background:#e67e22;"></span>
+                                <span>Daerah Irigasi Potensial</span>
+                            </span>
+                            <span class="badge badge-light border text-muted px-1.5 py-0.5 ml-2" style="font-size: 10px;">10 Data</span>
                         </a>
                         <div class="dropdown-divider my-1"></div>
                         <a href="{{ route('peta', ['layer' => 'saluran']) }}" class="bws-dropdown-item {{ request('layer') == 'saluran' ? 'font-weight-bold text-primary' : '' }}">
-                            <span class="bws-flyout-badge" style="background:#0984e3;"></span>
-                            <span>Jaringan Saluran Irigasi</span>
+                            <span class="d-flex align-items-center">
+                                <span class="bws-flyout-badge mr-2" style="background:#0984e3;"></span>
+                                <span>Jaringan Saluran Irigasi</span>
+                            </span>
+                            <span class="badge badge-light border text-muted px-1.5 py-0.5 ml-2" style="font-size: 10px;">15 Data</span>
                         </a>
                         <a href="{{ route('peta', ['layer' => 'bangunan']) }}" class="bws-dropdown-item {{ request('layer') == 'bangunan' ? 'font-weight-bold text-primary' : '' }}">
-                            <span class="bws-flyout-badge" style="background:#d63031;"></span>
-                            <span>Bangunan Air / Pelengkap</span>
+                            <span class="d-flex align-items-center">
+                                <span class="bws-flyout-badge mr-2" style="background:#d63031;"></span>
+                                <span>Bangunan Air / Pelengkap</span>
+                            </span>
+                            <span class="badge badge-light border text-muted px-1.5 py-0.5 ml-2" style="font-size: 10px;">14 Data</span>
                         </a>
                     </div>
                 </div>
@@ -182,38 +197,69 @@
 </nav>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var dropdown = document.querySelector('.bws-subnav-dropdown');
-        var submenu = document.querySelector('.bws-dropdown-submenu');
+    (function() {
+        function initSubnavDropdowns() {
+            var dropdown = document.querySelector('.bws-subnav-dropdown');
+            var submenu = document.querySelector('.bws-dropdown-submenu');
 
-        if (dropdown) {
-            var btn = dropdown.querySelector('.bws-subnav-link');
-            if (btn) {
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    dropdown.classList.toggle('show');
-                });
+            if (dropdown) {
+                var btn = dropdown.querySelector('.bws-subnav-link');
+                var menu = dropdown.querySelector('.bws-dropdown-menu');
+
+                if (btn && menu) {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        var isOpen = dropdown.classList.contains('show');
+                        if (isOpen) {
+                            dropdown.classList.remove('show');
+                            menu.classList.remove('show');
+                            if (submenu) {
+                                submenu.classList.remove('show');
+                                var f = submenu.querySelector('.bws-flyout-menu');
+                                if (f) f.classList.remove('show');
+                            }
+                        } else {
+                            dropdown.classList.add('show');
+                            menu.classList.add('show');
+                        }
+                    });
+                }
             }
+
+            if (submenu) {
+                var subLink = submenu.querySelector('a.bws-dropdown-item');
+                var flyout = submenu.querySelector('.bws-flyout-menu');
+
+                if (subLink && flyout) {
+                    subLink.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        submenu.classList.toggle('show');
+                        flyout.classList.toggle('show');
+                    });
+                }
+            }
+
+            document.addEventListener('click', function(e) {
+                if (dropdown && !dropdown.contains(e.target)) {
+                    dropdown.classList.remove('show');
+                    var m = dropdown.querySelector('.bws-dropdown-menu');
+                    if (m) m.classList.remove('show');
+                    if (submenu) {
+                        submenu.classList.remove('show');
+                        var f = submenu.querySelector('.bws-flyout-menu');
+                        if (f) f.classList.remove('show');
+                    }
+                }
+            });
         }
 
-        if (submenu) {
-            var subLink = submenu.querySelector('a.bws-dropdown-item');
-            if (subLink) {
-                subLink.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    submenu.classList.toggle('show');
-                });
-            }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initSubnavDropdowns);
+        } else {
+            initSubnavDropdowns();
         }
-
-        document.addEventListener('click', function(e) {
-            if (dropdown && !dropdown.contains(e.target)) {
-                dropdown.classList.remove('show');
-                if (submenu) submenu.classList.remove('show');
-            }
-        });
-    });
+    })();
 </script>
 @endif
