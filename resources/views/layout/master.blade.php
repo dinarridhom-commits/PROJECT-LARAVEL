@@ -8,7 +8,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>@yield('title', 'DINAR SHOP')</title>
+    <title>@yield('title', 'FEWS BWS KALIMANTAN I - Sistem Informasi Irigasi')</title>
 
     <!-- Custom fonts for this template-->
     <link href="{{asset('sbadmin')}}/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -20,6 +20,9 @@
     <!-- Leaflet CSS (untuk peta interaktif) -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <!-- CSS Khusus BWS Kalimantan I WebGIS & Navigasi -->
+    <link rel="stylesheet" href="{{ asset('css/peta.css') }}?v={{ filemtime(public_path('css/peta.css')) }}">
 
     <!-- Responsive Styles untuk Tampilan Layar HP & Berbagai Perangkat -->
     <style>
@@ -130,43 +133,21 @@
     @stack('styles')
 </head>
 
-<body id="page-top">
+<body id="page-top" class="bg-light">
 
-    <!-- Backdrop Gelap untuk Menu Mobile -->
-    <div id="sidebarMobileBackdrop" class="sidebar-mobile-backdrop"></div>
+    {{-- Header & Navigasi Horizontal FEWS BWS KALIMANTAN I
+         (Dashboard, Master Data Infrastruktur, Manajemen User, Log Aktivitas) --}}
+    @include('layout._top_nav')
 
-    <!-- Page Wrapper -->
-    <div id="wrapper">
-
-        <!-- Sidebar -->
-        @include('layout.sidebar')
-
-        <!-- Content Wrapper -->
-        <div id="content-wrapper" class="d-flex flex-column">
-
-            <!-- Main Content -->
-            <div id="content">
-
-                <!-- Topbar -->
-                @include('layout.navbar')
-
-                <!-- Begin Page Content -->
-                <div class="container-fluid">
-                    @yield('konten')
-                </div>
-                <!-- /.container-fluid -->
-
-            </div>
-            <!-- End of Main Content -->
-
-            <!-- Footer -->
-            @include('layout.footer')
-
+    <!-- Main Content Container (Full Width / Standar Portal FEWS BWS) -->
+    <main class="py-4" style="min-height: calc(100vh - 160px);">
+        <div class="container-fluid px-4">
+            @yield('konten')
         </div>
-        <!-- End of Content Wrapper -->
+    </main>
 
-    </div>
-    <!-- End of Page Wrapper -->
+    <!-- Footer -->
+    @include('layout.footer')
 
     <!-- Scroll to Top Button-->
     <a class="scroll-to-top rounded" href="#page-top">
@@ -272,6 +253,25 @@
 
     <!-- Leaflet JS (untuk peta interaktif) - harus sebelum @stack('scripts') -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
+    <!-- Fullscreen toggle script -->
+    <script>
+        var btnFsMaster = document.getElementById('btnFullscreenToggle');
+        if (btnFsMaster && !window.btnFsInitialized) {
+            window.btnFsInitialized = true;
+            btnFsMaster.addEventListener('click', function() {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(function(err){});
+                    btnFsMaster.innerHTML = '<i class="fas fa-compress"></i>';
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                        btnFsMaster.innerHTML = '<i class="fas fa-expand"></i>';
+                    }
+                }
+            });
+        }
+    </script>
 
     @stack('scripts')
 

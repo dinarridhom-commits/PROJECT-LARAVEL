@@ -396,12 +396,40 @@ if (window.geojsonFiles && window.geojsonFiles.length > 0) {
                     if (mapLoadingEl) mapLoadingEl.style.display = 'none';
                     if (mapBounds.isValid()) map.fitBounds(mapBounds, { padding: [40, 40] });
                     renderTable();
+                    applyUrlLayerFilter();
                 }
             });
     });
 } else {
     if (mapLoadingEl) mapLoadingEl.style.display = 'none';
     renderTable();
+    applyUrlLayerFilter();
+}
+
+/**
+ * Otomatis memfilter tabel dan zoom ke layer irigasi
+ * jika user membuka link dari menu Master Data > Infrastruktur (?layer=...)
+ */
+function applyUrlLayerFilter() {
+    var urlParams = new URLSearchParams(window.location.search);
+    var layerParam = (urlParams.get('layer') || '').toLowerCase().trim();
+    if (!layerParam) return;
+
+    var searchInput = document.getElementById('cari-tabel-koordinat');
+    if (searchInput) {
+        searchInput.value = layerParam;
+    }
+    filterTabelKoordinat(layerParam);
+
+    var layerBounds = L.latLngBounds();
+    allTableRows.forEach(function(r) {
+        if (r.categoryType === layerParam && r.bounds && r.bounds.isValid && r.bounds.isValid()) {
+            layerBounds.extend(r.bounds);
+        }
+    });
+    if (layerBounds.isValid && layerBounds.isValid()) {
+        map.fitBounds(layerBounds, { padding: [50, 50], maxZoom: 14 });
+    }
 }
 
 /* ============================================================
@@ -419,7 +447,8 @@ function renderTable() {
         if (currentSearchText === '') return true;
         var term = currentSearchText.toLowerCase();
         return (row.name && row.name.toLowerCase().indexOf(term) !== -1) ||
-               (row.fileName && row.fileName.toLowerCase().indexOf(term) !== -1);
+               (row.fileName && row.fileName.toLowerCase().indexOf(term) !== -1) ||
+               (row.categoryType && row.categoryType.toLowerCase().indexOf(term) !== -1);
     });
 
     if (footerInfo) {

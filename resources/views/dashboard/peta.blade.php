@@ -26,104 +26,13 @@
 <body>
 
     {{-- ============================================================
-         1. TOPBAR NAVBAR RESMI BWS KALIMANTAN I
-         Berisi: tombol reset peta, logo PU, nama instansi,
-         tombol fullscreen, notifikasi jumlah file, dan profil user.
+         1. TOPBAR & SUB-NAVBAR HORIZONTAL BWS KALIMANTAN I
+         Berisi: Logo PU, Teks Instansi, Fullscreen, Notifikasi,
+         Profil User, serta Menu Horizontal (Dashboard, Master Data
+         Infrastruktur, Manajemen User, Log Aktivitas).
+         Partial: resources/views/layout/_top_nav.blade.php
          ============================================================ --}}
-    <header class="bws-navbar">
-        <div class="bws-navbar-inner">
-            <div class="bws-nav-left">
-                {{-- Tombol Reset / Home Tampilan Peta --}}
-                <button type="button" class="bws-back-btn" onclick="resetMapView()" title="Reset Tampilan Peta ke Awal">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-
-                {{-- Logo PU & Teks Instansi --}}
-                <div class="bws-brand-wrapper">
-                    <img src="{{ asset('sbadmin/img/logo-pu.jpeg') }}" alt="Logo Kementerian PU" class="bws-logo-pu">
-                    <div class="bws-brand-text">
-                        <div class="bws-brand-title">WEBGIS BWS KALIMANTAN I</div>
-                        <div class="bws-brand-subtitle">Direktorat Jenderal Sumber Daya Air</div>
-                        <div class="bws-brand-dept">Kementerian Pekerjaan Umum</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bws-nav-right">
-                {{-- Tombol Fullscreen --}}
-                <button type="button" class="bws-header-btn" id="btnFullscreenToggle" title="Tampilan Layar Penuh">
-                    <i class="fas fa-expand"></i>
-                </button>
-
-                {{-- Badge jumlah file GIS aktif --}}
-                <div class="position-relative">
-                    <button type="button" class="bws-header-btn" title="Total File GIS Tersimpan">
-                        <i class="fas fa-bell"></i>
-                        <span class="bws-badge-pill" id="header-file-count">{{ count($fileList ?? []) }}</span>
-                    </button>
-                </div>
-
-                @auth
-                {{-- Dropdown profil user (Logged In) --}}
-                <div class="dropdown">
-                    <div class="bws-profile-pill" id="userMenuDropdown"
-                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <div class="bws-profile-avatar">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <span class="font-weight-bold">{{ Auth::user()->name }}</span>
-                        <i class="fas fa-chevron-down ml-1 small text-white-50"></i>
-                    </div>
-                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in py-2"
-                         aria-labelledby="userMenuDropdown">
-                        <div class="dropdown-header text-uppercase font-weight-bold text-xs text-muted">
-                            Sistem WebGIS BWSK I
-                        </div>
-                        <div class="px-3 py-1 small text-dark font-weight-bold">
-                            <i class="fas fa-user-circle mr-1 text-primary"></i> {{ Auth::user()->name }}
-                        </div>
-                        <div class="px-3 pb-2 small text-muted">
-                            Role: <span class="badge {{ Auth::user()->role === 'superadmin' ? 'badge-danger' : (Auth::user()->role === 'admin' ? 'badge-primary' : 'badge-secondary') }}">{{ strtoupper(Auth::user()->role ?? 'USER') }}</span>
-                        </div>
-                        <div class="dropdown-divider"></div>
-
-                        @if(Auth::user()->role === 'superadmin')
-                        <a class="dropdown-item py-2" href="{{ route('users.index') }}">
-                            <i class="fas fa-users-cog fa-sm fa-fw mr-2 text-danger"></i> Manajemen User
-                        </a>
-                        <a class="dropdown-item py-2" href="{{ route('activity-logs.index') }}">
-                            <i class="fas fa-history fa-sm fa-fw mr-2 text-primary"></i> Log Aktivitas Sistem
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        @elseif(Auth::user()->role === 'admin')
-                        <a class="dropdown-item py-2" href="{{ route('users.index') }}">
-                            <i class="fas fa-users fa-sm fa-fw mr-2 text-primary"></i> Daftar Pengguna
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        @endif
-
-                        <a class="dropdown-item text-danger py-2" href="#"
-                           data-toggle="modal" data-target="#logoutModal">
-                            <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2"></i>Keluar / Logout
-                        </a>
-                    </div>
-                </div>
-                @else
-                {{-- Mode Publik / Tamu (Belum Login) --}}
-                <div class="d-flex align-items-center">
-                    <span class="badge badge-light border text-muted px-2 py-1 mr-2 d-none d-sm-inline" style="font-size: 11px;">
-                        <i class="fas fa-globe mr-1 text-success"></i> Mode Publik
-                    </span>
-                    <a href="{{ route('login') }}" class="btn btn-sm btn-warning text-dark font-weight-bold px-3 shadow-sm" style="font-size: 12px; border-radius: 6px;">
-                        <i class="fas fa-sign-in-alt mr-1"></i> Login Staf
-                    </a>
-                </div>
-                @endauth
-            </div>
-        </div>
-        {{-- Garis Aksen Emas PU --}}
-        <div class="bws-accent-strip"></div>
-    </header>
+    @include('layout._top_nav')
 
 
     {{-- ============================================================

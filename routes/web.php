@@ -62,6 +62,11 @@ Route::middleware('auth')->group(function () {
         Route::delete('/produk/{id}', [ProdukController::class, 'destroy'])->name('produk.destroy');
         Route::resource('kategori', KategoriController::class);
 
+        // Akses Utama Admin Panel
+        Route::get('/admin', function() {
+            return redirect()->route('users.index');
+        })->name('admin.panel');
+
         // Melihat daftar pengguna
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
     });

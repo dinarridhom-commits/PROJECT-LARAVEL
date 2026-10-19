@@ -98,17 +98,19 @@ body {
 
 /* Profile Pill */
 .bws-profile-pill {
-    display: flex; align-items: center; gap: 10px;
-    background: rgba(255,255,255,0.18); backdrop-filter: blur(4px);
-    padding: 5px 14px 5px 6px; border-radius: 50px; color: #ffffff;
-    border: 1px solid rgba(255,255,255,0.25);
-    cursor: pointer; transition: all 0.2s ease; font-weight: 600; font-size: 13px;
+    display: flex; align-items: center; gap: 8px;
+    background: transparent;
+    padding: 4px 10px 4px 6px; border-radius: 50px; color: #ffffff;
+    border: none;
+    cursor: pointer; transition: all 0.2s ease; font-weight: 600; font-size: 13.5px;
 }
-.bws-profile-pill:hover { background: rgba(255,255,255,0.28); color: #ffffff; text-decoration: none; }
+.bws-profile-pill:hover { background: rgba(255,255,255,0.15); color: #ffffff; text-decoration: none; }
 .bws-profile-avatar {
-    width: 32px; height: 32px; border-radius: 50%; background: #ffffff;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: rgba(255,255,255,0.32);
     display: flex; align-items: center; justify-content: center;
-    color: var(--bws-primary); overflow: hidden; font-size: 15px;
+    color: #ffffff; overflow: hidden; font-size: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 /* Garis Aksen Emas PU */
@@ -116,6 +118,140 @@ body {
     height: 4px;
     background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 50%, #f59e0b 100%);
     width: 100%;
+}
+
+/* ============================================================
+   1.1 SUB-NAVBAR HORIZONTAL & MASTER DATA DROPDOWN
+   Fungsi: Baris navigasi putih di bawah header biru (FEWS BWS).
+   Berisi Dashboard, Master Data (Infrastruktur), Manajemen User.
+   ============================================================ */
+.bws-subnav {
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    box-shadow: 0 2px 5px rgba(15, 23, 42, 0.05);
+    position: relative;
+    z-index: 1025;
+}
+.bws-subnav-inner {
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    height: 48px;
+    gap: 10px;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.bws-subnav-inner::-webkit-scrollbar {
+    display: none;
+}
+.bws-subnav-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+    text-decoration: none !important;
+    border-radius: 6px;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+}
+.bws-subnav-link i {
+    margin-right: 8px;
+    font-size: 13.5px;
+}
+.bws-subnav-link:hover {
+    color: var(--bws-primary);
+    background: #f1f5f9;
+}
+.bws-subnav-link.active {
+    color: var(--bws-primary);
+    background: #eff6ff;
+}
+
+/* Master Data Dropdown */
+.bws-subnav-dropdown {
+    position: relative;
+    display: inline-block;
+}
+.bws-subnav-dropdown .bws-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: #ffffff;
+    min-width: 190px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+    padding: 6px 0;
+    margin-top: 2px;
+    z-index: 1060;
+    list-style: none;
+}
+.bws-subnav-dropdown:hover > .bws-dropdown-menu,
+.bws-subnav-dropdown.show > .bws-dropdown-menu {
+    display: block;
+}
+
+/* Flyout Submenu: Infrastruktur -> Data Website */
+.bws-dropdown-submenu {
+    position: relative;
+}
+.bws-dropdown-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #334155;
+    text-decoration: none !important;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    background: transparent;
+    border: none;
+    width: 100%;
+    text-align: left;
+}
+.bws-dropdown-item:hover {
+    background: #f8fafc;
+    color: var(--bws-primary);
+}
+.bws-dropdown-submenu .bws-flyout-menu {
+    display: none;
+    position: absolute;
+    top: -6px;
+    left: 100%;
+    background: #ffffff;
+    min-width: 250px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.12), 0 8px 10px -6px rgba(0,0,0,0.1);
+    padding: 6px 0;
+    margin-left: 2px;
+    z-index: 1070;
+    list-style: none;
+}
+.bws-dropdown-submenu:hover > .bws-flyout-menu,
+.bws-dropdown-submenu.show > .bws-flyout-menu {
+    display: block;
+}
+.bws-flyout-menu .bws-dropdown-item {
+    font-size: 12.5px;
+    padding: 8px 14px;
+    gap: 8px;
+    justify-content: flex-start;
+}
+.bws-flyout-badge {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
 }
 
 /* ============================================================
