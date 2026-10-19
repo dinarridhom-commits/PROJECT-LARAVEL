@@ -26,26 +26,7 @@
         </select>
     </div>
 
-    {{-- 2. FILTER TANGGAL
-         Fungsi: Menampilkan tanggal hari ini sebagai informasi referensi.
-         Field ini readonly (tidak bisa diubah oleh user). --}}
-    <div class="bws-filter-group">
-        <label class="bws-filter-label">Filter Tanggal</label>
-        <div class="input-group">
-            <input type="text"
-                   class="form-control bws-input-control bg-white"
-                   id="filterTanggal"
-                   value="{{ date('d F Y') }}"
-                   readonly>
-            <div class="input-group-append">
-                <span class="input-group-text bg-white border-left-0 text-muted">
-                    <i class="far fa-calendar-alt"></i>
-                </span>
-            </div>
-        </div>
-    </div>
-
-    {{-- 3. VIEW MODE SWITCHER
+    {{-- 2. VIEW MODE SWITCHER
          Fungsi: Dropdown untuk memilih tampilan halaman:
          - "Table + Maps" → Tampilkan peta DAN tabel (default)
          - "Maps Only"    → Hanya peta, diperbesar penuh layar
@@ -62,7 +43,7 @@
         </select>
     </div>
 
-    {{-- 4. TOMBOL AKSI GIS
+    {{-- 3. TOMBOL AKSI GIS
          Tombol "Kelola File GIS": Membuka modal daftar file GeoJSON
          yang tersimpan di server (folder public/geojson/).
          Badge angka menampilkan jumlah file yang tersedia.

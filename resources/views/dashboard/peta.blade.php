@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
 
     {{-- CSS Khusus Peta (dipisah ke public/css/peta.css) --}}
-    <link rel="stylesheet" href="{{ asset('css/peta.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/peta.css') }}?v={{ filemtime(public_path('css/peta.css')) }}">
 </head>
 <body>
 
