@@ -11,7 +11,7 @@
     5. Tombol Upload GeoJSON (buka modal upload)
 
     Digunakan di: resources/views/dashboard/peta.blade.php
-    Dipanggil via: @include('dashboard.partials._sidebar')
+    Dipanggil via: @include('layout._sidebar')
 --}}
 
 <aside class="bws-sidebar">
