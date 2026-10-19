@@ -3,11 +3,11 @@
 
             <!-- Sidebar - Brand -->
             <div class="sidebar-brand d-flex align-items-center justify-content-between px-3">
-                <a class="d-flex align-items-center text-white text-decoration-none flex-grow-1" href="/home">
+                <a class="d-flex align-items-center text-white text-decoration-none flex-grow-1" href="{{ route('peta') }}">
                     <div class="sidebar-brand-icon">
-                        <i class="fas fa-home"></i>
+                        <i class="fas fa-water"></i>
                     </div>
-                    <div class="sidebar-brand-text mx-2">TOKO KAMI</div>
+                    <div class="sidebar-brand-text mx-2" style="font-size: 13px; font-weight: 800; letter-spacing: 0.5px;">BWS KALIMANTAN I</div>
                 </a>
                 <button class="btn btn-sm btn-link text-white d-md-none p-1" id="sidebarMobileClose" type="button" title="Tutup Menu" style="opacity: 0.85;">
                     <i class="fas fa-times fa-lg"></i>
@@ -17,36 +17,16 @@
             <!-- Divider -->
             <hr class="sidebar-divider my-0">
 
-            <!-- Nav Item - Dashboard -->
-            <li class="nav-item {{ request()->is('home') || request()->is('/') || request()->is('dashboard') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('dashboard') }}">
-                    <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>Dashboard</span></a>
-            </li>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider">
-
             <!-- Heading -->
-            <div class="sidebar-heading">
-                Menu Utama
+            <div class="sidebar-heading mt-3">
+                Menu WebGIS
             </div>
 
-            <!-- Nav Item - Tables -->
-            <li class="nav-item {{ request()->is('produk*') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('produk.index')}}">
-                    <i class="fas fa-fw fa-boxes"></i>
-                    <span>Produk</span></a>
-            </li>
-            <li class="nav-item {{ request()->is('kategori*') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('kategori.index')}}">
-                    <i class="fas fa-fw fa-tags"></i>
-                    <span>Kategori</span></a>
-            </li>
-            <li class="nav-item {{ request()->is('peta') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('peta')}}">
+            <!-- Nav Item - Peta Lokasi / Dashboard -->
+            <li class="nav-item {{ request()->is('peta') || request()->is('/') || request()->is('home') || request()->is('dashboard') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('peta') }}">
                     <i class="fas fa-fw fa-map-marked-alt"></i>
-                    <span>Peta Lokasi</span></a>
+                    <span>Peta Daerah Irigasi</span></a>
             </li>
 
             @if(Auth::check() && Auth::user()->role === 'superadmin')

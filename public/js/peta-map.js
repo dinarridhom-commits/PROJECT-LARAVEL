@@ -109,6 +109,7 @@ var googleSat = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}'
 var defaultCenter = [-0.0263, 109.3425]; // Kalimantan Barat / Pontianak
 var map = L.map('map', { center: defaultCenter, zoom: 8, layers: [osm], zoomControl: true });
 window.map = map;
+var mapBounds = L.latLngBounds();
 
 // Layer Groups per Kategori GIS
 var layerBaku       = L.layerGroup(); if (window.availableTypes && window.availableTypes.baku)       layerBaku.addTo(map);
@@ -306,12 +307,20 @@ function convertEsriToGeoJson(data) {
 var mapLoadingEl = document.getElementById('map-loading');
 var allTableRows = [];
 var currentSearchText = '';
-var mapBounds = L.latLngBounds();
-
 if (window.geojsonFiles && window.geojsonFiles.length > 0) {
     var loadedCount = 0;
+
+    // Safety timeout: jika ada kendala jaringan/file corrupt, pastikan loading indikator ditutup maksimal 8 detik
+    setTimeout(function() {
+        if (mapLoadingEl && mapLoadingEl.style.display !== 'none') {
+            mapLoadingEl.style.display = 'none';
+            if (mapBounds.isValid()) map.fitBounds(mapBounds, { padding: [40, 40] });
+            renderTable();
+        }
+    }, 8000);
+
     window.geojsonFiles.forEach(function(fileName) {
-        fetch('/geojson/' + fileName)
+        fetch('/geojson/' + encodeURIComponent(fileName))
             .then(function(res) { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
             .then(function(rawData) {
                 var gj = convertEsriToGeoJson(rawData);
@@ -418,6 +427,7 @@ function renderTable() {
     }
 
     if (filtered.length === 0) {
+        if (allTableRows.length === 0) {
             var actionBtnHtml = (window.canManageGis)
                 ? '<p class="small text-muted mb-3">Silakan klik tombol "Upload GeoJSON" untuk menambahkan file koordinat dan layer ke peta.</p>' +
                   '<button type="button" class="btn btn-sm btn-primary font-weight-bold shadow-sm" data-toggle="modal" data-target="#modalUploadGeojson">' +
