@@ -34,7 +34,7 @@
 
             <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title font-weight-bold" id="modalUploadGeojsonLabel">
-                    <i class="fas fa-cloud-upload-alt mr-2"></i>Upload File GeoJSON
+                    <i class="fas fa-cloud-upload-alt mr-2"></i>Upload File GIS (GeoJSON / SHP / KML)
                 </h5>
                 <button type="button" class="close text-white" data-dismiss="modal"
                         aria-label="Close" id="btnCloseUploadModal">
@@ -47,7 +47,7 @@
                 {{-- Input pilih file --}}
                 <div class="form-group mb-3" id="uploadInputContainer">
                     <label class="font-weight-bold text-gray-800">
-                        <i class="fas fa-file-code text-primary mr-1"></i>Pilih File GeoJSON / JSON:
+                        <i class="fas fa-file-code text-primary mr-1"></i>Pilih File GIS Spasial:
                     </label>
                     <div class="custom-file">
                         <input type="file"
@@ -55,17 +55,17 @@
                                class="custom-file-input"
                                id="inputGeojsonFile"
                                multiple
-                               accept=".geojson,.json"
+                               accept=".geojson,.json,.kml,.kmz,.zip"
                                required
                                onchange="updateFileInputLabel(this)">
                         <label class="custom-file-label" for="inputGeojsonFile" id="labelGeojsonFile">
-                            Pilih satu atau beberapa file...
+                            Pilih file GeoJSON, Shapefile (.zip), atau KML/KMZ...
                         </label>
                     </div>
                     <small class="form-text text-muted mt-2">
                         <i class="fas fa-info-circle mr-1"></i>
-                        Format yang didukung: <code>.geojson</code> atau <code>.json</code>.
-                        Anda dapat memilih banyak file sekaligus, otomatis diunggah bertahap tanpa error ukuran.
+                        Format yang didukung: <code>.geojson</code>, <code>.json</code>, Shapefile ArcMap (<code>.zip</code>), atau Google Earth (<code>.kml</code>, <code>.kmz</code>).
+                        Data akan otomatis dikonversi ke GeoJSON standar oleh sistem.
                     </small>
                 </div>
 

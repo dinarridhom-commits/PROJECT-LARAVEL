@@ -107,14 +107,58 @@
                                    onkeyup="filterTabelKoordinat(this.value)">
                         </div>
 
-                        {{-- Export ke CSV --}}
+                        {{-- Export ke CSV / Excel --}}
                         <button type="button"
                                 class="btn-export-green"
                                 onclick="exportDataToCsv()"
                                 title="Unduh data dalam format CSV/Excel">
                             <i class="fas fa-file-excel"></i>
-                            <span>Export Data</span>
+                            <span>Export CSV</span>
                         </button>
+
+                        {{-- Unduh / Export GeoJSON Per Kategori (.ZIP) --}}
+                        <div class="dropdown d-inline-block">
+                            <button type="button"
+                                    class="btn btn-sm btn-primary dropdown-toggle font-weight-bold shadow-sm px-3"
+                                    data-toggle="dropdown"
+                                    aria-haspopup="true"
+                                    aria-expanded="false"
+                                    style="height: 38px; border-radius: 6px; font-size: 13px;">
+                                <i class="fas fa-file-download mr-1"></i>
+                                <span>Unduh GeoJSON</span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right shadow border-0 py-2" style="border-radius: 8px; min-width: 250px; z-index: 1060;">
+                                <div class="dropdown-header text-uppercase font-weight-bold text-xs text-muted">
+                                    Unduh Arsip GeoJSON (.ZIP)
+                                </div>
+                                <a class="dropdown-item py-2 d-flex align-items-center justify-content-between" href="{{ route('peta.download-category', 'all') }}">
+                                    <span><i class="fas fa-archive text-primary mr-2"></i> Semua Data GIS</span>
+                                    <span class="badge badge-primary px-2">{{ count($fileList) }}</span>
+                                </a>
+                                <div class="dropdown-divider my-1"></div>
+                                <a class="dropdown-item py-2 d-flex align-items-center justify-content-between" href="{{ route('peta.download-category', 'baku') }}">
+                                    <span class="d-flex align-items-center"><span class="bws-flyout-badge mr-2" style="background:#27ae60;"></span> DIR Baku</span>
+                                    <span class="badge badge-light border text-muted">9 File</span>
+                                </a>
+                                <a class="dropdown-item py-2 d-flex align-items-center justify-content-between" href="{{ route('peta.download-category', 'fungsional') }}">
+                                    <span class="d-flex align-items-center"><span class="bws-flyout-badge mr-2" style="background:#2980b9;"></span> DIR Fungsional</span>
+                                    <span class="badge badge-light border text-muted">6 File</span>
+                                </a>
+                                <a class="dropdown-item py-2 d-flex align-items-center justify-content-between" href="{{ route('peta.download-category', 'potensial') }}">
+                                    <span class="d-flex align-items-center"><span class="bws-flyout-badge mr-2" style="background:#e67e22;"></span> DIR Potensial</span>
+                                    <span class="badge badge-light border text-muted">10 File</span>
+                                </a>
+                                <div class="dropdown-divider my-1"></div>
+                                <a class="dropdown-item py-2 d-flex align-items-center justify-content-between" href="{{ route('peta.download-category', 'saluran') }}">
+                                    <span class="d-flex align-items-center"><span class="bws-flyout-badge mr-2" style="background:#0984e3;"></span> Saluran Irigasi</span>
+                                    <span class="badge badge-light border text-muted">15 File</span>
+                                </a>
+                                <a class="dropdown-item py-2 d-flex align-items-center justify-content-between" href="{{ route('peta.download-category', 'bangunan') }}">
+                                    <span class="d-flex align-items-center"><span class="bws-flyout-badge mr-2" style="background:#d63031;"></span> Bangunan Air</span>
+                                    <span class="badge badge-light border text-muted">14 File</span>
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -124,12 +168,12 @@
                         <thead>
                             <tr>
                                 <th width="5%"  class="text-center">No.</th>
-                                <th width="28%">Nama Pos / Objek</th>
-                                <th width="18%">Wilayah / Kategori</th>
+                                <th width="26%">Nama Pos / Objek</th>
+                                <th width="17%">Wilayah / Kategori</th>
                                 <th width="12%" class="text-center">Latitude (Y)</th>
                                 <th width="12%" class="text-center">Longitude (X)</th>
-                                <th width="17%">Sumber File GIS</th>
-                                <th width="8%"  class="text-center">Aksi</th>
+                                <th width="16%">Sumber File GIS</th>
+                                <th width="12%" class="text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody id="tbody-lokasi">
@@ -178,6 +222,10 @@
         window.geojsonFiles   = {!! json_encode($geojsonFiles ?? []) !!};
         window.canManageGis   = {{ (Auth::check() && in_array(Auth::user()->role, ['admin', 'superadmin'])) ? 'true' : 'false' }};
     </script>
+
+    {{-- Konverter Otomatis File Spasial: Shapefile (.zip) & KML/KMZ ke GeoJSON --}}
+    <script src="{{ asset('vendor/shpjs/shp.js') }}"></script>
+    <script src="{{ asset('vendor/shpjs/togeojson.umd.js') }}"></script>
 
     {{-- JavaScript utama peta (dipisah ke public/js/peta-map.js) --}}
     <script src="{{ asset('js/peta-map.js') }}?v={{ filemtime(public_path('js/peta-map.js')) }}"></script>

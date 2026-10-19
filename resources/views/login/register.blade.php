@@ -9,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title> Register</title>
+    <title>Register - FEWS BWS KALIMANTAN I</title>
     
     <!-- Custom fonts for this template-->
     <link href="{{ asset('sbadmin/vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css">
@@ -85,27 +85,37 @@
                                     @enderror
                                 </div>
                                 <div class="form-group row">
-                                    <div class="col-sm-6 mb-3 mb-sm-0">
-                                    <input type="password"
-                                    class="form-control form-control-user"
-                                    id="exampleInputPassword"
-                                    name="password"
-                                    placeholder="Password">
-                                </div>
-
-                                <div class="col-sm-6">
-                                    <input type="password"
-                                    class="form-control form-control-user"
-                                    id="exampleRepeatPassword"
-                                    name="password_confirmation"
-                                    placeholder="Repeat Password">
-                                </div>
-                                <!-- <div class="form-group row">
-                                    <div class="col-sm-6 mb-3 mb-sm-0">
-                                        <input type="password" class="form-control form-control-user"
-                                            id="exampleRepeatPassword" placeholder="Repeat Password">
+                                    <div class="col-sm-6 mb-3 mb-sm-0 position-relative">
+                                        <input type="password"
+                                               class="form-control form-control-user pr-5"
+                                               id="exampleInputPassword"
+                                               name="password"
+                                               placeholder="Password"
+                                               required>
+                                        <button type="button" 
+                                                class="btn-toggle-password" 
+                                                onclick="togglePasswordVisibility('exampleInputPassword', this)" 
+                                                title="Lihat Password"
+                                                style="position: absolute; right: 25px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #6e707e; z-index: 5; padding: 4px 6px; outline: none;">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
                                     </div>
-                                </div> -->
+
+                                    <div class="col-sm-6 position-relative">
+                                        <input type="password"
+                                               class="form-control form-control-user pr-5"
+                                               id="exampleRepeatPassword"
+                                               name="password_confirmation"
+                                               placeholder="Ulangi Password"
+                                               required>
+                                        <button type="button" 
+                                                class="btn-toggle-password" 
+                                                onclick="togglePasswordVisibility('exampleRepeatPassword', this)" 
+                                                title="Lihat Password"
+                                                style="position: absolute; right: 25px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #6e707e; z-index: 5; padding: 4px 6px; outline: none;">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
                                 </div>
                                 <button type="submit" class="btn btn-primary btn-user btn-block">
                                     Register Account
@@ -134,15 +144,31 @@
     </div>
 
     <!-- Bootstrap core JavaScript-->
-    <script src="vendor/jquery/jquery.min.js"></script>
-    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ asset('sbadmin/vendor/jquery/jquery.min.js') }}"></script>
+    <script src="{{ asset('sbadmin/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ asset('sbadmin/vendor/jquery-easing/jquery.easing.min.js') }}"></script>
+    <script src="{{ asset('sbadmin/js/sb-admin-2.min.js') }}"></script>
 
-    <!-- Core plugin JavaScript-->
-    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+    <!-- Script Toggle Password Visibility -->
+    <script>
+        function togglePasswordVisibility(inputId, btn) {
+            var input = document.getElementById(inputId);
+            var icon = btn.querySelector('i');
+            if (!input || !icon) return;
 
-    <!-- Custom scripts for all pages-->
-    <script src="js/sb-admin-2.min.js"></script>
-
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+                btn.setAttribute('title', 'Sembunyikan Password');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+                btn.setAttribute('title', 'Lihat Password');
+            }
+        }
+    </script>
 </body>
 
 </html>

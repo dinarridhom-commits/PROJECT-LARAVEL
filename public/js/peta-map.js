@@ -490,10 +490,12 @@ function renderTable() {
             '<td>' + row.categoryBadge + '</td>' +
             '<td class="text-center font-weight-bold text-dark"><code>' + latStr + '</code></td>' +
             '<td class="text-center font-weight-bold text-dark"><code>' + lngStr + '</code></td>' +
-            '<td><span class="badge badge-light border text-monospace text-truncate d-inline-block" style="max-width:200px;" title="' + row.fileName + '">' + row.fileName + '</span></td>' +
-            '<td class="text-center">' +
-                '<button type="button" class="btn-focus-row" title="Fokuskan peta ke objek ini">' +
+            '<td><span class="badge badge-light border text-monospace text-truncate d-inline-block" style="max-width:180px;" title="' + row.fileName + '">' + row.fileName + '</span></td>' +
+            '<td class="text-center" style="white-space:nowrap;">' +
+                '<button type="button" class="btn-focus-row mr-1" title="Fokuskan peta ke objek ini">' +
                 '<i class="fas fa-crosshairs"></i> Fokus</button>' +
+                '<a href="/peta/download-file/' + encodeURIComponent(row.fileName) + '" class="btn-download-row" title="Unduh GeoJSON (' + row.fileName + ')">' +
+                '<i class="fas fa-download"></i></a>' +
             '</td>';
 
         // Tombol Fokus: klik → peta zoom ke bounds objek tersebut
@@ -648,13 +650,9 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             var input = document.getElementById('inputGeojsonFile');
             if (!input || !input.files || input.files.length === 0) {
-                alert('Silakan pilih setidaknya satu file GeoJSON/JSON terlebih dahulu.');
+                alert('Silakan pilih setidaknya satu file spasial (GeoJSON, SHP .zip, atau KML) terlebih dahulu.');
                 return;
             }
-            var files = Array.from(input.files);
-            var totalFiles   = files.length;
-            var BATCH_SIZE   = 5;
-            var totalBatches = Math.ceil(totalFiles / BATCH_SIZE);
 
             var progressSection = document.getElementById('uploadProgressSection');
             var progressBar     = document.getElementById('uploadProgressBar');
@@ -671,9 +669,60 @@ document.addEventListener('DOMContentLoaded', function() {
             if (errorSection)   { errorSection.style.display = 'none'; errorSection.innerText = ''; }
             if (successSection)   successSection.style.display = 'none';
             if (progressSection)  progressSection.style.display = 'block';
-            if (btnSubmit) { btnSubmit.disabled = true; btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Mengunggah...'; }
+            if (btnSubmit) { btnSubmit.disabled = true; btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Memproses file...'; }
             if (btnBatal)  btnBatal.disabled = true;
             if (btnClose)  btnClose.style.display = 'none';
+
+            var rawFiles = Array.from(input.files);
+            var files = [];
+
+            // Pra-pemrosesan: Konversi otomatis Shapefile (.zip) atau KML/KMZ ke GeoJSON
+            for (var i = 0; i < rawFiles.length; i++) {
+                var file = rawFiles[i];
+                var nameLower = file.name.toLowerCase();
+                var baseName = file.name.replace(/\.[^/.]+$/, "");
+
+                if (nameLower.endsWith('.zip') && typeof shp !== 'undefined') {
+                    if (statusText) statusText.innerHTML = '<i class="fas fa-cog fa-spin mr-1"></i>Mengkonversi Shapefile (' + file.name + ') ke GeoJSON...';
+                    try {
+                        var buffer = await file.arrayBuffer();
+                        var converted = await shp(buffer);
+                        if (Array.isArray(converted)) {
+                            converted.forEach(function(item, cIdx) {
+                                var subName = (item.fileName || baseName + '_' + (cIdx + 1)) + '.geojson';
+                                var blob = new Blob([JSON.stringify(item)], { type: 'application/geo+json' });
+                                files.push(new File([blob], subName, { type: 'application/geo+json' }));
+                            });
+                        } else if (converted && converted.type === 'FeatureCollection') {
+                            var blob = new Blob([JSON.stringify(converted)], { type: 'application/geo+json' });
+                            files.push(new File([blob], baseName + '.geojson', { type: 'application/geo+json' }));
+                        } else {
+                            files.push(file);
+                        }
+                    } catch (shpErr) {
+                        console.warn('shpjs conversion warning, fallback to server:', shpErr);
+                        files.push(file);
+                    }
+                } else if (nameLower.endsWith('.kml') && typeof toGeoJSON !== 'undefined') {
+                    if (statusText) statusText.innerHTML = '<i class="fas fa-cog fa-spin mr-1"></i>Mengkonversi KML (' + file.name + ') ke GeoJSON...';
+                    try {
+                        var kmlText = await file.text();
+                        var kmlDom = new DOMParser().parseFromString(kmlText, 'text/xml');
+                        var kmlGeojson = toGeoJSON.kml(kmlDom);
+                        var blob = new Blob([JSON.stringify(kmlGeojson)], { type: 'application/geo+json' });
+                        files.push(new File([blob], baseName + '.geojson', { type: 'application/geo+json' }));
+                    } catch (kmlErr) {
+                        console.warn('toGeoJSON conversion warning, fallback to server:', kmlErr);
+                        files.push(file);
+                    }
+                } else {
+                    files.push(file);
+                }
+            }
+
+            var totalFiles   = files.length;
+            var BATCH_SIZE   = 5;
+            var totalBatches = Math.ceil(totalFiles / BATCH_SIZE);
 
             var totalUploaded = 0, allUploadedNames = [], allFailed = [];
             var csrfToken = formUpload.querySelector('input[name="_token"]')

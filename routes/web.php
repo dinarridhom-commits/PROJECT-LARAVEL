@@ -17,8 +17,11 @@ use App\Http\Controllers\ActivityLogController;
    ============================================================ */
 Route::get('/', [DashboardController::class, 'peta'])->name('dashboard');
 Route::get('/home', [DashboardController::class, 'peta'])->name('home');
-Route::get('/dashboard', [DashboardController::class, 'peta']);
 Route::get('/peta', [DashboardController::class, 'peta'])->name('peta');
+
+// Export & Unduh Data Spasial GIS (File Tunggal & Arsip ZIP per Kategori)
+Route::get('/peta/download-category/{category?}', [DashboardController::class, 'downloadCategory'])->name('peta.download-category');
+Route::get('/peta/download-file/{filename}', [DashboardController::class, 'downloadFile'])->name('peta.download-file');
 
 Route::get('/contact', function () { return view('contact'); })->name('contact');
 Route::get('/about', function () { return view('About'); })->name('about');

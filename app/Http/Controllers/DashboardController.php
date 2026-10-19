@@ -138,18 +138,58 @@ class DashboardController extends Controller
 
         foreach ($files as $file) {
             $ext = strtolower($file->getClientOriginalExtension());
-            if (!in_array($ext, ['geojson', 'json'])) {
-                $failed[] = $file->getClientOriginalName() . ' (Bukan format .geojson/.json)';
-                continue;
-            }
-
             $originalName = $file->getClientOriginalName();
-            $file->move($destinationPath, $originalName);
-            $uploaded[] = $originalName;
+            $baseName = pathinfo($originalName, PATHINFO_FILENAME);
+
+            if (in_array($ext, ['geojson', 'json'])) {
+                $file->move($destinationPath, $originalName);
+                $uploaded[] = $originalName;
+            } elseif ($ext === 'kml') {
+                $kmlContent = file_get_contents($file->getRealPath());
+                $geojson = $this->parseKmlToGeoJson($kmlContent, $baseName);
+                if ($geojson) {
+                    $targetName = $baseName . '.geojson';
+                    File::put($destinationPath . DIRECTORY_SEPARATOR . $targetName, json_encode($geojson, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+                    $uploaded[] = $targetName . ' (dari .kml)';
+                } else {
+                    $failed[] = $originalName . ' (Gagal mengkonversi struktur KML ke GeoJSON)';
+                }
+            } elseif ($ext === 'kmz') {
+                $kmlContent = $this->extractKmlFromKmz($file->getRealPath());
+                if ($kmlContent) {
+                    $geojson = $this->parseKmlToGeoJson($kmlContent, $baseName);
+                    if ($geojson) {
+                        $targetName = $baseName . '.geojson';
+                        File::put($destinationPath . DIRECTORY_SEPARATOR . $targetName, json_encode($geojson, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+                        $uploaded[] = $targetName . ' (dari .kmz)';
+                    } else {
+                        $failed[] = $originalName . ' (Gagal mem-parsing KML di dalam KMZ)';
+                    }
+                } else {
+                    $failed[] = $originalName . ' (Tidak ditemukan file .kml di dalam arsip KMZ)';
+                }
+            } elseif ($ext === 'zip') {
+                // Periksa apakah ini arsip KMZ atau Shapefile yang sudah dikonversi
+                $kmlContent = $this->extractKmlFromKmz($file->getRealPath());
+                if ($kmlContent) {
+                    $geojson = $this->parseKmlToGeoJson($kmlContent, $baseName);
+                    if ($geojson) {
+                        $targetName = $baseName . '.geojson';
+                        File::put($destinationPath . DIRECTORY_SEPARATOR . $targetName, json_encode($geojson, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+                        $uploaded[] = $targetName . ' (dari .zip KML)';
+                    } else {
+                        $failed[] = $originalName . ' (Gagal mem-parsing KML di dalam ZIP)';
+                    }
+                } else {
+                    $failed[] = $originalName . ' (Arsip Shapefile .zip diproses otomatis via konverter browser)';
+                }
+            } else {
+                $failed[] = $originalName . ' (Format tidak didukung. Gunakan .geojson, .json, .kml, .kmz, atau Shapefile .zip)';
+            }
         }
 
         if (count($uploaded) > 0) {
-            $msg = count($uploaded) . ' file GeoJSON berhasil diunggah ke public/geojson (' . implode(', ', $uploaded) . ').';
+            $msg = count($uploaded) . ' file spasial berhasil diunggah dan disimpan ke GeoJSON (' . implode(', ', $uploaded) . ').';
             if (count($failed) > 0) {
                 $msg .= ' Beberapa file dilewati: ' . implode(', ', $failed);
             }
@@ -168,11 +208,11 @@ class DashboardController extends Controller
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal mengunggah file. Pastikan file berformat .geojson atau .json.'
+                'message' => 'Gagal mengunggah file. ' . (count($failed) > 0 ? implode(', ', $failed) : 'Pastikan file berformat .geojson, .json, .kml, .kmz, atau Shapefile .zip.')
             ], 422);
         }
 
-        return redirect()->route('peta')->with('error', 'Gagal mengunggah file. Pastikan file berformat .geojson atau .json.');
+        return redirect()->route('peta')->with('error', 'Gagal mengunggah file. Pastikan file berformat .geojson, .json, .kml, .kmz, atau Shapefile .zip.');
     }
 
     /**
@@ -268,6 +308,212 @@ class DashboardController extends Controller
         }
 
         return redirect()->route('peta')->with('error', 'Tidak ada file yang berhasil dihapus. Pastikan file masih tersedia di server.');
+    }
+
+    /**
+     * Unduh satu file GeoJSON spesifik
+     */
+    public function downloadFile($fileName)
+    {
+        $cleanName = basename(urldecode($fileName));
+        $filePath = public_path('geojson' . DIRECTORY_SEPARATOR . $cleanName);
+
+        if (!File::exists($filePath)) {
+            return redirect()->route('peta')->with('error', "File '{$cleanName}' tidak ditemukan di server.");
+        }
+
+        ActivityLog::record('DOWNLOAD_GEOJSON', "Mengunduh file GeoJSON: '{$cleanName}'");
+
+        return response()->download($filePath, $cleanName, [
+            'Content-Type' => 'application/geo+json',
+        ]);
+    }
+
+    /**
+     * Unduh koleksi file GeoJSON per kategori dalam format arsip .ZIP
+     */
+    public function downloadCategory($category = 'all')
+    {
+        $category = strtolower(trim($category ?? 'all'));
+        $folderPath = public_path('geojson');
+
+        if (!File::exists($folderPath)) {
+            return redirect()->route('peta')->with('error', 'Folder data GeoJSON tidak ditemukan.');
+        }
+
+        $allFiles = File::files($folderPath);
+        $filesToZip = [];
+
+        foreach ($allFiles as $file) {
+            $ext = strtolower($file->getExtension());
+            if (!in_array($ext, ['json', 'geojson'])) continue;
+
+            $filename = $file->getFilename();
+            $prefix = strtoupper(explode('_', $filename)[0] ?? '');
+
+            if ($category === 'all') {
+                $filesToZip[] = $file;
+            } elseif ($category === 'baku' && $prefix === 'BAKU') {
+                $filesToZip[] = $file;
+            } elseif ($category === 'fungsional' && $prefix === 'FUNGSIONAL') {
+                $filesToZip[] = $file;
+            } elseif ($category === 'potensial' && $prefix === 'POTENSIAL') {
+                $filesToZip[] = $file;
+            } elseif ($category === 'saluran' && $prefix === 'SALURAN') {
+                $filesToZip[] = $file;
+            } elseif ($category === 'bangunan' && $prefix === 'BANGUNAN') {
+                $filesToZip[] = $file;
+            } elseif ($category === 'custom' && !in_array($prefix, ['BAKU', 'FUNGSIONAL', 'POTENSIAL', 'SALURAN', 'BANGUNAN'])) {
+                $filesToZip[] = $file;
+            }
+        }
+
+        if (empty($filesToZip)) {
+            return redirect()->route('peta')->with('error', "Tidak ada file GeoJSON yang ditemukan untuk kategori '{$category}'.");
+        }
+
+        $zipFileName = 'Data_GIS_' . strtoupper($category) . '_BWS_KALIMANTAN_I_' . date('Ymd_His') . '.zip';
+        $tempDir = storage_path('app/temp');
+        if (!File::exists($tempDir)) {
+            File::makeDirectory($tempDir, 0755, true);
+        }
+        $zipPath = $tempDir . DIRECTORY_SEPARATOR . $zipFileName;
+
+        $zip = new \ZipArchive();
+        if ($zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
+            return redirect()->route('peta')->with('error', 'Gagal membuat file arsip ZIP di server.');
+        }
+
+        foreach ($filesToZip as $file) {
+            $zip->addFile($file->getRealPath(), $file->getFilename());
+        }
+        $zip->close();
+
+        ActivityLog::record('EXPORT_GEOJSON', "Mengekspor " . count($filesToZip) . " file GIS kategori '{$category}' ke dalam arsip ZIP");
+
+        return response()->download($zipPath, $zipFileName)->deleteFileAfterSend(true);
+    }
+
+    /**
+     * Konversi string XML KML menjadi GeoJSON FeatureCollection
+     */
+    protected function parseKmlToGeoJson(string $kmlContent, string $fallbackName = 'kml_layer'): ?array
+    {
+        $cleanXml = preg_replace('/xmlns[^=]*="[^"]*"/i', '', $kmlContent);
+        $cleanXml = preg_replace('/[a-zA-Z0-9]+:([a-zA-Z0-9]+[ =>])/', '$1', $cleanXml);
+
+        libxml_use_internal_errors(true);
+        $xml = simplexml_load_string($cleanXml);
+        if (!$xml) return null;
+
+        $features = [];
+        $placemarks = $xml->xpath('//Placemark');
+        if (!$placemarks) return null;
+
+        foreach ($placemarks as $idx => $pm) {
+            $props = [];
+            if (isset($pm->name)) $props['name'] = (string)$pm->name;
+            if (isset($pm->description)) $props['description'] = strip_tags((string)$pm->description);
+
+            if (isset($pm->ExtendedData)) {
+                if (isset($pm->ExtendedData->Data)) {
+                    foreach ($pm->ExtendedData->Data as $d) {
+                        $attrName = (string)$d['name'];
+                        $props[$attrName] = (string)$d->value;
+                    }
+                }
+                if (isset($pm->ExtendedData->SchemaData->SimpleData)) {
+                    foreach ($pm->ExtendedData->SchemaData->SimpleData as $sd) {
+                        $attrName = (string)$sd['name'];
+                        $props[$attrName] = (string)$sd;
+                    }
+                }
+            }
+
+            $geometry = $this->parseKmlGeometry($pm);
+            if ($geometry) {
+                $features[] = [
+                    'type'       => 'Feature',
+                    'id'         => $idx + 1,
+                    'properties' => $props,
+                    'geometry'   => $geometry,
+                ];
+            }
+        }
+
+        if (empty($features)) return null;
+
+        return [
+            'type'     => 'FeatureCollection',
+            'name'     => $fallbackName,
+            'features' => $features,
+        ];
+    }
+
+    protected function parseKmlGeometry($element): ?array
+    {
+        if (isset($element->Point) && isset($element->Point->coordinates)) {
+            $coords = $this->parseCoordsString((string)$element->Point->coordinates);
+            if (!empty($coords)) {
+                return ['type' => 'Point', 'coordinates' => $coords[0]];
+            }
+        }
+        if (isset($element->LineString) && isset($element->LineString->coordinates)) {
+            $coords = $this->parseCoordsString((string)$element->LineString->coordinates);
+            if (!empty($coords)) {
+                return ['type' => 'LineString', 'coordinates' => $coords];
+            }
+        }
+        if (isset($element->Polygon)) {
+            $rings = [];
+            if (isset($element->Polygon->outerBoundaryIs->LinearRing->coordinates)) {
+                $outer = $this->parseCoordsString((string)$element->Polygon->outerBoundaryIs->LinearRing->coordinates);
+                if (!empty($outer)) $rings[] = $outer;
+            }
+            if (isset($element->Polygon->innerBoundaryIs)) {
+                foreach ($element->Polygon->innerBoundaryIs as $inner) {
+                    $inRing = $this->parseCoordsString((string)$inner->LinearRing->coordinates);
+                    if (!empty($inRing)) $rings[] = $inRing;
+                }
+            }
+            if (!empty($rings)) {
+                return ['type' => 'Polygon', 'coordinates' => $rings];
+            }
+        }
+        return null;
+    }
+
+    protected function parseCoordsString(string $raw): array
+    {
+        $raw = trim($raw);
+        $pairs = preg_split('/[\s\r\n]+/', $raw);
+        $coords = [];
+        foreach ($pairs as $p) {
+            $parts = explode(',', trim($p));
+            if (count($parts) >= 2 && is_numeric($parts[0]) && is_numeric($parts[1])) {
+                $lng = (float)$parts[0];
+                $lat = (float)$parts[1];
+                $coords[] = [$lng, $lat];
+            }
+        }
+        return $coords;
+    }
+
+    protected function extractKmlFromKmz(string $kmzPath): ?string
+    {
+        $zip = new \ZipArchive();
+        if ($zip->open($kmzPath) === true) {
+            for ($i = 0; $i < $zip->numFiles; $i++) {
+                $stat = $zip->statIndex($i);
+                if (str_ends_with(strtolower($stat['name']), '.kml')) {
+                    $kmlContent = $zip->getFromIndex($i);
+                    $zip->close();
+                    return $kmlContent;
+                }
+            }
+            $zip->close();
+        }
+        return null;
     }
 }
 

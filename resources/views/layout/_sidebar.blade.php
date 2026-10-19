@@ -61,13 +61,13 @@
             </span>
         </button>
 
-        {{-- Tombol Upload GeoJSON --}}
+        {{-- Tombol Upload File GIS (GeoJSON, SHP, KML) --}}
         <button type="button"
                 class="btn btn-primary bws-btn-action shadow-sm text-white"
                 data-toggle="modal"
                 data-target="#modalUploadGeojson">
             <i class="fas fa-cloud-upload-alt"></i>
-            <span>Upload GeoJSON</span>
+            <span>Upload File GIS</span>
         </button>
 
     </div>

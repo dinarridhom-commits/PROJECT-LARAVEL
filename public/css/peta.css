@@ -359,6 +359,26 @@ body {
 .btn-focus-row { background: #ffffff; color: var(--bws-primary); border: 1px solid #bfdbfe; border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; transition: all 0.15s ease; cursor: pointer; }
 .btn-focus-row:hover { background: var(--bws-primary); color: #ffffff; border-color: var(--bws-primary); }
 
+.btn-download-row {
+    background: #f0fdf4;
+    color: #16a34a;
+    border: 1px solid #bbf7d0;
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+    text-decoration: none !important;
+}
+.btn-download-row:hover {
+    background: #16a34a;
+    color: #ffffff;
+    border-color: #16a34a;
+    text-decoration: none;
+}
+
 /* ============================================================
    7. LEAFLET MAP LEGEND & LAYER CONTROL (COMPACT)
    Fungsi: Kotak legenda dan kontrol layer dibuat lebih
