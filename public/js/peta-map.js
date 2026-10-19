@@ -1,0 +1,645 @@
+/**
+ * peta-map.js
+ * JavaScript khusus untuk halaman Peta Daerah Irigasi (DIR)
+ * BWS Kalimantan I - WebGIS
+ *
+ * Fungsi utama:
+ * 1. Registrasi sistem koordinat ESRI/ArcMap (Proj4)
+ * 2. Toggle Fullscreen
+ * 3. Switcher View Mode (Peta / Tabel / Keduanya)
+ * 4. Inisialisasi Leaflet Map + Layer Groups + Legenda
+ * 5. Konversi & Reproyeksi Koordinat GeoJSON (WKID 54034, 3857, UTM 49, WGS84)
+ * 6. Fetch & Load file GeoJSON dari server ke peta
+ * 7. Render Data Table koordinat GIS
+ * 8. Pencarian Realtime di tabel
+ * 9. Export data tabel ke CSV
+ * 10. Helper Modal Kelola File GIS (filter, checkbox, bulk delete)
+ * 11. Chunked Batch Upload GeoJSON (anti PostTooLargeException)
+ */
+
+/* ============================================================
+   0. REGISTRASI PROJ4 - SISTEM KOORDINAT ARCMAP / ESRI
+   Fungsi: Mendaftarkan definisi proyeksi peta yang dipakai
+   ArcMap/ESRI agar koordinat bisa dikonversi ke WGS84 (Leaflet).
+   ============================================================ */
+if (typeof proj4 !== 'undefined') {
+    proj4.defs("EPSG:54034", "+proj=eqc +lat_ts=0 +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs");
+    proj4.defs("ESRI:54034", "+proj=eqc +lat_ts=0 +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs");
+    proj4.defs("EPSG:3857",  "+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs");
+    proj4.defs("EPSG:32649", "+proj=utm +zone=49 +datum=WGS84 +units=m +no_defs");
+    proj4.defs("EPSG:32749", "+proj=utm +zone=49 +south +datum=WGS84 +units=m +no_defs");
+}
+
+/* ============================================================
+   1. FULLSCREEN TOGGLE
+   Fungsi: Membuat halaman masuk/keluar mode layar penuh.
+   Bisa dipanggil dari tombol manapun dengan id="btnFullscreenToggle".
+   ============================================================ */
+var btnFs = document.getElementById('btnFullscreenToggle');
+if (btnFs) {
+    btnFs.addEventListener('click', function() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(function(err){});
+            btnFs.innerHTML = '<i class="fas fa-compress"></i>';
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+                btnFs.innerHTML = '<i class="fas fa-expand"></i>';
+            }
+        }
+    });
+}
+
+// Fullscreen keyboard shortcut (F11 override)
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'F11' && document.getElementById('map')) {
+        e.preventDefault();
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(function(err){});
+        } else {
+            if (document.exitFullscreen) document.exitFullscreen();
+        }
+    }
+});
+
+/* ============================================================
+   2. VIEW SWITCHER
+   Fungsi: Dropdown "View" di sidebar untuk memilih tampilan:
+   - "both"  → Tampilkan peta DAN tabel sekaligus
+   - "maps"  → Tampilkan peta saja (peta diperbesar penuh)
+   - "table" → Tampilkan tabel saja (peta disembunyikan)
+   ============================================================ */
+window.switchViewMode = function(mode) {
+    var mapSec = document.getElementById('section-map');
+    var tblSec = document.getElementById('section-table');
+    var mapEl  = document.getElementById('map');
+
+    if (mode === 'maps') {
+        mapSec.style.display = 'block';
+        tblSec.style.display = 'none';
+        mapEl.style.height = 'calc(100vh - 190px)';
+    } else if (mode === 'table') {
+        mapSec.style.display = 'none';
+        tblSec.style.display = 'block';
+    } else {
+        mapSec.style.display = 'block';
+        tblSec.style.display = 'block';
+        mapEl.style.height = '480px';
+    }
+
+    // Paksa Leaflet untuk menghitung ulang ukuran peta
+    setTimeout(function() {
+        if (window.map) window.map.invalidateSize();
+    }, 200);
+};
+
+/* ============================================================
+   3. INISIALISASI LEAFLET MAP
+   Fungsi: Membuat peta interaktif Leaflet dengan 2 pilihan
+   basemap (OpenStreetMap & Google Satellite), layer groups
+   per kategori GIS, dan kontrol layer toggle di kanan atas.
+   ============================================================ */
+var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors', maxZoom: 19
+});
+var googleSat = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+    attribution: '&copy; Google Satellite', maxZoom: 20
+});
+
+var defaultCenter = [-0.0263, 109.3425]; // Kalimantan Barat / Pontianak
+var map = L.map('map', { center: defaultCenter, zoom: 8, layers: [osm], zoomControl: true });
+window.map = map;
+
+// Layer Groups per Kategori GIS
+var layerBaku       = L.layerGroup(); if (window.availableTypes && window.availableTypes.baku)       layerBaku.addTo(map);
+var layerFungsional = L.layerGroup(); if (window.availableTypes && window.availableTypes.fungsional) layerFungsional.addTo(map);
+var layerPotensial  = L.layerGroup(); if (window.availableTypes && window.availableTypes.potensial)  layerPotensial.addTo(map);
+var layerSaluran    = L.layerGroup(); if (window.availableTypes && window.availableTypes.saluran)    layerSaluran.addTo(map);
+var layerBangunan   = L.layerGroup(); if (window.availableTypes && window.availableTypes.bangunan)   layerBangunan.addTo(map);
+
+var baseMaps = { "Peta (OpenStreetMap)": osm, "Satelit (Google Hybrid)": googleSat };
+var overlayMaps = {};
+if (window.availableTypes) {
+    if (window.availableTypes.baku)       overlayMaps["Daerah Irigasi Baku (Hijau)"]       = layerBaku;
+    if (window.availableTypes.fungsional) overlayMaps["Daerah Irigasi Fungsional (Biru)"]  = layerFungsional;
+    if (window.availableTypes.potensial)  overlayMaps["Daerah Irigasi Potensial (Oranye)"] = layerPotensial;
+    if (window.availableTypes.saluran)    overlayMaps["Jaringan Saluran Irigasi"]           = layerSaluran;
+    if (window.availableTypes.bangunan)   overlayMaps["Bangunan Air / Pelengkap"]           = layerBangunan;
+}
+L.control.layers(baseMaps, overlayMaps, { collapsed: false, position: 'topright' }).addTo(map);
+
+// Legenda Dinamis (hanya tampil jika ada layer yang aktif)
+var legend = L.control({ position: 'bottomleft' });
+legend.onAdd = function() {
+    var div = L.DomUtil.create('div', 'map-legend');
+    var legendItems = '';
+    if (window.availableTypes) {
+        if (window.availableTypes.baku)       legendItems += '<div class="legend-item"><span class="legend-color-box" style="background:#27ae60;border-color:#1b7a43;"></span> <b>DIR Baku</b> (Hijau)</div>';
+        if (window.availableTypes.fungsional) legendItems += '<div class="legend-item"><span class="legend-color-box" style="background:#2980b9;border-color:#1a5276;"></span> <b>DIR Fungsional</b> (Biru)</div>';
+        if (window.availableTypes.potensial)  legendItems += '<div class="legend-item"><span class="legend-color-box" style="background:#e67e22;border-color:#b95c00;"></span> <b>DIR Potensial</b> (Oranye)</div>';
+        if (window.availableTypes.saluran)    legendItems += '<div class="legend-item"><span class="legend-line" style="background:#0984e3;"></span> <b>Jaringan Saluran</b></div>';
+        if (window.availableTypes.bangunan)   legendItems += '<div class="legend-item"><span class="legend-circle" style="background:#d63031;"></span> <b>Bangunan Air</b></div>';
+    }
+    if (!legendItems) { div.style.display = 'none'; return div; }
+    div.innerHTML = '<h6><i class="fas fa-palette text-primary mr-1"></i> Legenda Peta</h6>' + legendItems;
+    return div;
+};
+legend.addTo(map);
+
+// Tombol Reset Peta (kembali ke bounds awal semua layer)
+window.resetMapView = function() {
+    if (mapBounds.isValid && mapBounds.isValid()) {
+        map.fitBounds(mapBounds, { padding: [40, 40] });
+    } else {
+        map.setView(defaultCenter, 8);
+    }
+};
+
+/* ============================================================
+   4. REPROYEKSI KOORDINAT (WKID 54034, 3857, UTM 49, WGS84)
+   Fungsi: Mengkonversi koordinat dari sistem proyeksi ArcMap
+   ke WGS84 (derajat lat/lng) agar bisa ditampilkan di Leaflet.
+   Mendukung: Equidistant Cylindrical, Web Mercator, UTM Zone 49.
+   ============================================================ */
+function projectCoordinate(x, y, wkid) {
+    if (typeof x !== 'number' || typeof y !== 'number' || isNaN(x) || isNaN(y)) return [x, y];
+    // Sudah dalam derajat WGS84
+    if (Math.abs(x) <= 180 && Math.abs(y) <= 90) return [x, y];
+    // Koordinat dalam meter (Mercator)
+    if (Math.abs(x) >= 5000000 && Math.abs(x) <= 20000000 && Math.abs(y) <= 2000000) {
+        var lon = (x / 6378137.0) * (180.0 / Math.PI);
+        var lat = (2.0 * Math.atan(Math.exp(y / 6378137.0)) - (Math.PI / 2.0)) * (180.0 / Math.PI);
+        return [lon, lat];
+    }
+    try {
+        var wkidStr = String(wkid || '');
+        if (wkid === 54034 || wkidStr.indexOf('54034') !== -1) {
+            var lonEqc = (x / 6378137.0) * (180.0 / Math.PI);
+            var latEqc = (2.0 * Math.atan(Math.exp(y / 6378137.0)) - (Math.PI / 2.0)) * (180.0 / Math.PI);
+            return [lonEqc, latEqc];
+        }
+        if (wkid === 3857 || wkidStr.indexOf('3857') !== -1)  return proj4('EPSG:3857',  'EPSG:4326', [x, y]);
+        if (wkid === 32649 || wkidStr.indexOf('32649') !== -1) return proj4('EPSG:32649', 'EPSG:4326', [x, y]);
+        if (wkid === 32749 || wkidStr.indexOf('32749') !== -1) return proj4('EPSG:32749', 'EPSG:4326', [x, y]);
+        if (wkid && proj4.defs['EPSG:' + wkid]) return proj4('EPSG:' + wkid, 'EPSG:4326', [x, y]);
+    } catch(e) {}
+    // Fallback UTM zona 49
+    if (x > 100000 && x < 1000000) { try { return proj4('EPSG:32649', 'EPSG:4326', [x, y]); } catch(e){} }
+    return [x, y];
+}
+
+function transformGeoJsonCoords(coords, geomType, wkid) {
+    if (!coords) return coords;
+    if (geomType === 'Point') return projectCoordinate(coords[0], coords[1], wkid);
+    if (geomType === 'LineString' || geomType === 'MultiPoint')
+        return coords.map(function(c) { return projectCoordinate(c[0], c[1], wkid); });
+    if (geomType === 'Polygon' || geomType === 'MultiLineString')
+        return coords.map(function(ring) { return ring.map(function(c) { return projectCoordinate(c[0], c[1], wkid); }); });
+    if (geomType === 'MultiPolygon')
+        return coords.map(function(poly) { return poly.map(function(ring) { return ring.map(function(c) { return projectCoordinate(c[0], c[1], wkid); }); }); });
+    return coords;
+}
+
+// Konversi format ESRI FeatureService ke GeoJSON standar
+function convertEsriToGeoJson(data) {
+    if (!data) return null;
+    var wkid = null;
+    if (data.crs && data.crs.properties && data.crs.properties.name) wkid = String(data.crs.properties.name);
+    else if (data.spatialReference) wkid = data.spatialReference.wkid || data.spatialReference.latestWkid;
+
+    if (data.type === 'FeatureCollection' && Array.isArray(data.features)) {
+        data.features.forEach(function(f) {
+            if (f.geometry && f.geometry.coordinates)
+                f.geometry.coordinates = transformGeoJsonCoords(f.geometry.coordinates, f.geometry.type, wkid);
+        });
+        return data;
+    }
+    if (!data.features || !Array.isArray(data.features)) return null;
+
+    var geomType = data.geometryType;
+    var gj = { type: 'FeatureCollection', features: [] };
+    data.features.forEach(function(f, idx) {
+        if (!f.geometry) return;
+        var geom = null;
+        if (geomType === 'esriGeometryPoint' || (f.geometry.x !== undefined && f.geometry.y !== undefined)) {
+            var pt = projectCoordinate(f.geometry.x, f.geometry.y, wkid);
+            geom = { type: 'Point', coordinates: [pt[0], pt[1]] };
+        } else if (geomType === 'esriGeometryPolyline' || f.geometry.paths) {
+            var paths = f.geometry.paths || [];
+            if (paths.length === 1) geom = { type: 'LineString', coordinates: paths[0].map(function(c){ return projectCoordinate(c[0],c[1],wkid); }) };
+            else if (paths.length > 1) geom = { type: 'MultiLineString', coordinates: paths.map(function(p){ return p.map(function(c){ return projectCoordinate(c[0],c[1],wkid); }); }) };
+        } else if (geomType === 'esriGeometryPolygon' || f.geometry.rings) {
+            var rings = f.geometry.rings || [];
+            if (rings.length > 0) geom = { type: 'Polygon', coordinates: rings.map(function(r){ return r.map(function(c){ return projectCoordinate(c[0],c[1],wkid); }); }) };
+        }
+        if (geom) {
+            gj.features.push({
+                type: 'Feature',
+                id: (f.attributes && (f.attributes.FID || f.attributes.OBJECTID)) ? (f.attributes.FID || f.attributes.OBJECTID) : idx,
+                geometry: geom,
+                properties: f.attributes || {}
+            });
+        }
+    });
+    return gj;
+}
+
+/* ============================================================
+   5. FETCH & LOAD GEOJSON FILES KE PETA
+   Fungsi: Mengambil setiap file GeoJSON dari folder public/geojson/,
+   mengkonversi koordinatnya, lalu menampilkan layer di peta Leaflet
+   dengan warna sesuai kategori (Baku/Fungsional/Potensial/dll).
+   Data koordinat pusat juga disimpan untuk ditampilkan di tabel.
+   ============================================================ */
+var mapLoadingEl = document.getElementById('map-loading');
+var allTableRows = [];
+var currentSearchText = '';
+var mapBounds = L.latLngBounds();
+
+if (window.geojsonFiles && window.geojsonFiles.length > 0) {
+    var loadedCount = 0;
+    window.geojsonFiles.forEach(function(fileName) {
+        fetch('/geojson/' + fileName)
+            .then(function(res) { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
+            .then(function(rawData) {
+                var gj = convertEsriToGeoJson(rawData);
+                if (!gj || !gj.features || gj.features.length === 0) return;
+
+                var nameUpper = fileName.toUpperCase();
+                var cleanName = fileName.replace(/\.(json|geojson)$/i, '').replace(/_/g, ' ');
+                var targetLayer = layerBaku;
+                var categoryType = 'baku';
+                var categoryBadge = '<span class="badge badge-baku px-2 py-1">DIR Baku</span>';
+                var strokeColor = '#27ae60', fillColor = '#2ecc71';
+
+                if (nameUpper.indexOf('BAKU') === 0) {
+                    targetLayer = layerBaku; categoryType = 'baku';
+                    categoryBadge = '<span class="badge badge-baku px-2 py-1">DIR Baku</span>';
+                    strokeColor = '#1e824c'; fillColor = '#27ae60';
+                } else if (nameUpper.indexOf('FUNGSIONAL') === 0) {
+                    targetLayer = layerFungsional; categoryType = 'fungsional';
+                    categoryBadge = '<span class="badge badge-fungsional px-2 py-1">DIR Fungsional</span>';
+                    strokeColor = '#1f618d'; fillColor = '#2980b9';
+                } else if (nameUpper.indexOf('POTENSIAL') === 0) {
+                    targetLayer = layerPotensial; categoryType = 'potensial';
+                    categoryBadge = '<span class="badge badge-potensial px-2 py-1">DIR Potensial</span>';
+                    strokeColor = '#b95c00'; fillColor = '#e67e22';
+                } else if (nameUpper.indexOf('SALURAN') === 0) {
+                    targetLayer = layerSaluran; categoryType = 'saluran';
+                    categoryBadge = '<span class="badge badge-saluran px-2 py-1">Saluran Irigasi</span>';
+                    strokeColor = '#0984e3'; fillColor = '#0984e3';
+                } else if (nameUpper.indexOf('BANGUNAN') === 0) {
+                    targetLayer = layerBangunan; categoryType = 'bangunan';
+                    categoryBadge = '<span class="badge badge-bangunan px-2 py-1">Bangunan Air</span>';
+                    strokeColor = '#d63031'; fillColor = '#d63031';
+                }
+
+                var gjLayer = L.geoJSON(gj, {
+                    style: function() {
+                        return { color: strokeColor, weight: (categoryType === 'saluran') ? 2.5 : 1.8, fillOpacity: 0.45, fillColor: fillColor };
+                    },
+                    pointToLayer: function(feat, latlng) {
+                        return L.circleMarker(latlng, { radius: 6, fillColor: fillColor, color: '#ffffff', weight: 1.5, fillOpacity: 0.9 });
+                    },
+                    onEachFeature: function(feat, layer) {
+                        var p = feat.properties || {};
+                        var popup = '<div style="min-width:200px;font-size:12px;">' +
+                            '<div class="font-weight-bold text-primary mb-1">' + cleanName + '</div>' +
+                            '<div class="mb-1">' + categoryBadge + '</div>' +
+                            '<table class="table table-sm table-bordered mt-2 mb-0" style="font-size:11px;">';
+                        var countProp = 0;
+                        for (var k in p) {
+                            if (countProp < 5 && p[k] !== null && p[k] !== '') {
+                                popup += '<tr><th class="bg-light">' + k + '</th><td>' + p[k] + '</td></tr>';
+                                countProp++;
+                            }
+                        }
+                        popup += '</table></div>';
+                        layer.bindPopup(popup);
+                    }
+                });
+
+                targetLayer.addLayer(gjLayer);
+
+                var b = gjLayer.getBounds();
+                if (b.isValid()) {
+                    mapBounds.extend(b);
+                    var center = b.getCenter();
+                    allTableRows.push({ name: cleanName, categoryType: categoryType, categoryBadge: categoryBadge, lat: center.lat, lng: center.lng, fileName: fileName, bounds: b, layerObj: gjLayer });
+                }
+            })
+            .catch(function(err) {})
+            .finally(function() {
+                loadedCount++;
+                if (loadedCount >= window.geojsonFiles.length) {
+                    if (mapLoadingEl) mapLoadingEl.style.display = 'none';
+                    if (mapBounds.isValid()) map.fitBounds(mapBounds, { padding: [40, 40] });
+                    renderTable();
+                }
+            });
+    });
+} else {
+    if (mapLoadingEl) mapLoadingEl.style.display = 'none';
+    renderTable();
+}
+
+/* ============================================================
+   6. RENDER DATA TABLE
+   Fungsi: Mengisi baris tabel koordinat GIS secara dinamis dari
+   data yang sudah diload. Mendukung filter pencarian realtime dan
+   menampilkan state kosong yang informatif jika belum ada data.
+   ============================================================ */
+function renderTable() {
+    var tbody = document.getElementById('tbody-lokasi');
+    var footerInfo = document.getElementById('tabel-footer-info');
+    if (!tbody) return;
+
+    var filtered = allTableRows.filter(function(row) {
+        if (currentSearchText === '') return true;
+        var term = currentSearchText.toLowerCase();
+        return (row.name && row.name.toLowerCase().indexOf(term) !== -1) ||
+               (row.fileName && row.fileName.toLowerCase().indexOf(term) !== -1);
+    });
+
+    if (footerInfo) {
+        footerInfo.innerHTML = 'Menampilkan <b>' + filtered.length + '</b> dari <b>' + allTableRows.length + '</b> file GIS';
+    }
+
+    if (filtered.length === 0) {
+        if (allTableRows.length === 0) {
+            tbody.innerHTML =
+                '<tr><td colspan="7" class="text-center py-5 text-muted">' +
+                '<div class="mb-2"><i class="fas fa-folder-open fa-3x text-gray-300"></i></div>' +
+                '<div class="font-weight-bold text-gray-700 mb-1" style="font-size:15px;">Belum Ada Data GIS Tersimpan</div>' +
+                '<p class="small text-muted mb-3">Silakan klik tombol "Upload GeoJSON" untuk menambahkan file koordinat dan layer ke peta.</p>' +
+                '<button type="button" class="btn btn-sm btn-primary font-weight-bold shadow-sm" data-toggle="modal" data-target="#modalUploadGeojson">' +
+                '<i class="fas fa-cloud-upload-alt mr-1"></i> Upload GeoJSON Sekarang</button>' +
+                '</td></tr>';
+        } else {
+            tbody.innerHTML =
+                '<tr><td colspan="7" class="text-center py-4 text-muted">' +
+                '<i class="fas fa-info-circle mr-2 text-info"></i>Tidak ditemukan data GIS yang cocok dengan pencarian "<b>' + currentSearchText + '</b>".' +
+                '</td></tr>';
+        }
+        return;
+    }
+
+    var frag = document.createDocumentFragment();
+    filtered.forEach(function(row, idx) {
+        var tr = document.createElement('tr');
+        var latStr = (row.lat !== null && !isNaN(row.lat)) ? Number(row.lat).toFixed(5) : '-';
+        var lngStr = (row.lng !== null && !isNaN(row.lng)) ? Number(row.lng).toFixed(5) : '-';
+
+        tr.innerHTML =
+            '<td class="text-center font-weight-bold text-muted">' + (idx + 1) + '</td>' +
+            '<td class="font-weight-bold text-dark">' + row.name + '</td>' +
+            '<td>' + row.categoryBadge + '</td>' +
+            '<td class="text-center font-weight-bold text-dark"><code>' + latStr + '</code></td>' +
+            '<td class="text-center font-weight-bold text-dark"><code>' + lngStr + '</code></td>' +
+            '<td><span class="badge badge-light border text-monospace text-truncate d-inline-block" style="max-width:200px;" title="' + row.fileName + '">' + row.fileName + '</span></td>' +
+            '<td class="text-center">' +
+                '<button type="button" class="btn-focus-row" title="Fokuskan peta ke objek ini">' +
+                '<i class="fas fa-crosshairs"></i> Fokus</button>' +
+            '</td>';
+
+        // Tombol Fokus: klik → peta zoom ke bounds objek tersebut
+        var btn = tr.querySelector('.btn-focus-row');
+        btn.addEventListener('click', function() {
+            if (row.bounds && row.bounds.isValid && row.bounds.isValid()) {
+                map.fitBounds(row.bounds, { padding: [50, 50], maxZoom: 16 });
+            } else if (row.lat && row.lng && !isNaN(row.lat) && !isNaN(row.lng)) {
+                map.flyTo([row.lat, row.lng], 15, { animate: true, duration: 1.0 });
+            }
+            if (row.layerObj) {
+                if (row.layerObj.openPopup) row.layerObj.openPopup();
+                else if (row.layerObj.eachLayer) row.layerObj.eachLayer(function(l) { if (l.openPopup) { l.openPopup(); return; } });
+            }
+            var mapSec = document.getElementById('section-map');
+            if (mapSec) window.scrollTo({ top: mapSec.offsetTop - 85, behavior: 'smooth' });
+        });
+
+        frag.appendChild(tr);
+    });
+    tbody.innerHTML = '';
+    tbody.appendChild(frag);
+}
+
+/* ============================================================
+   7. PENCARIAN DATA REALTIME
+   Fungsi: Input cari di toolbar tabel, filter baris berdasarkan
+   nama objek atau nama file GeoJSON secara langsung (tanpa reload).
+   ============================================================ */
+window.filterTabelKoordinat = function(val) {
+    currentSearchText = (val || '').trim();
+    renderTable();
+};
+
+/* ============================================================
+   8. EXPORT DATA KE CSV
+   Fungsi: Mengunduh data koordinat GIS dari tabel sebagai file
+   CSV yang bisa dibuka di Excel / Google Sheets.
+   ============================================================ */
+window.exportDataToCsv = function() {
+    if (!allTableRows || allTableRows.length === 0) {
+        alert('Belum ada data GIS yang dapat diexport.');
+        return;
+    }
+    var csv = 'No,Nama Pos / Objek DIR,Kategori Layer,Latitude (Y),Longitude (X),Sumber File GIS\n';
+    allTableRows.forEach(function(r, i) {
+        var clean = (r.name || '').replace(/,/g, ' ');
+        var lat = (r.lat !== null && !isNaN(r.lat)) ? Number(r.lat).toFixed(5) : '';
+        var lng = (r.lng !== null && !isNaN(r.lng)) ? Number(r.lng).toFixed(5) : '';
+        csv += (i + 1) + ',"' + clean + '","' + (r.categoryType || '') + '",' + lat + ',' + lng + ',"' + (r.fileName || '') + '"\n';
+    });
+    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    var link = document.createElement('a');
+    link.setAttribute('href', URL.createObjectURL(blob));
+    link.setAttribute('download', 'Data_GIS_DIR_BWS_Kalimantan_I_' + new Date().toISOString().slice(0,10) + '.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+};
+
+/* ============================================================
+   9. HELPER MODAL KELOLA FILE GIS
+   Fungsi:
+   - updateFileInputLabel: Update label saat user pilih file upload
+   - filterTabelFileGeojson: Filter nama file di modal Kelola File GIS
+   - updateBulkDeleteUI: Update counter & state tombol hapus terpilih
+   - konfirmasiHapusTerpilih: Konfirmasi & submit form bulk delete
+   ============================================================ */
+function updateFileInputLabel(input) {
+    var label = document.getElementById('labelGeojsonFile');
+    if (input.files && input.files.length > 1)     label.textContent = input.files.length + ' file dipilih';
+    else if (input.files && input.files.length === 1) label.textContent = input.files[0].name;
+    else label.textContent = 'Pilih satu atau beberapa file...';
+}
+window.updateFileInputLabel = updateFileInputLabel;
+
+function filterTabelFileGeojson(query) {
+    var term = (query || '').toLowerCase().trim();
+    document.querySelectorAll('#tabel-kelola-geojson tbody tr.item-file-row').forEach(function(row) {
+        var text = row.querySelector('.nama-file-text');
+        if (!text) return;
+        row.style.display = (text.textContent.toLowerCase().indexOf(term) !== -1) ? '' : 'none';
+    });
+}
+window.filterTabelFileGeojson = filterTabelFileGeojson;
+
+function updateBulkDeleteUI() {
+    var checked = document.querySelectorAll('.chk-file-geojson:checked');
+    var total = checked.length;
+    var btn        = document.getElementById('btn-hapus-terpilih');
+    var countEl    = document.getElementById('bulk-selected-count');
+    var btnCountEl = document.getElementById('btn-bulk-count');
+    var infoEl     = document.getElementById('bulk-selected-info');
+
+    if (countEl) countEl.textContent = total;
+    if (btnCountEl) btnCountEl.textContent = total;
+    if (infoEl) infoEl.style.display = total > 0 ? '' : 'none';
+    if (btn) btn.disabled = total === 0;
+
+    var all = document.querySelectorAll('.chk-file-geojson');
+    var chkAll = document.getElementById('chk-select-all-geojson');
+    if (chkAll) {
+        if (total === 0)           { chkAll.checked = false; chkAll.indeterminate = false; }
+        else if (total === all.length) { chkAll.checked = true;  chkAll.indeterminate = false; }
+        else                        { chkAll.checked = false; chkAll.indeterminate = true; }
+    }
+}
+
+function konfirmasiHapusTerpilih() {
+    var checked = document.querySelectorAll('.chk-file-geojson:checked');
+    if (checked.length === 0) return;
+    var names = [];
+    checked.forEach(function(c) { names.push(c.value); });
+    var msg = 'Anda akan menghapus ' + checked.length + ' file GIS secara permanen:\n\n';
+    names.forEach(function(n, i) { msg += (i + 1) + '. ' + n + '\n'; });
+    msg += '\nLanjutkan penghapusan?';
+    if (!confirm(msg)) return;
+    var container = document.getElementById('bulk-delete-inputs');
+    container.innerHTML = '';
+    names.forEach(function(name) {
+        var inp = document.createElement('input');
+        inp.type = 'hidden'; inp.name = 'file_names[]'; inp.value = name;
+        container.appendChild(inp);
+    });
+    document.getElementById('form-bulk-delete').submit();
+}
+window.konfirmasiHapusTerpilih = konfirmasiHapusTerpilih;
+
+/* ============================================================
+   10. CHUNKED BATCH UPLOAD GEOJSON
+   Fungsi: Upload banyak file GeoJSON sekaligus secara bertahap
+   (5 file per batch) untuk menghindari error PostTooLargeException
+   dari PHP. Menampilkan progress bar realtime per batch.
+   ============================================================ */
+document.addEventListener('DOMContentLoaded', function() {
+    // Checkbox select-all di modal Kelola File
+    var chkAll = document.getElementById('chk-select-all-geojson');
+    if (chkAll) {
+        chkAll.addEventListener('change', function() {
+            document.querySelectorAll('.chk-file-geojson').forEach(function(c) { c.checked = chkAll.checked; });
+            updateBulkDeleteUI();
+        });
+    }
+    document.querySelectorAll('.chk-file-geojson').forEach(function(c) {
+        c.addEventListener('change', updateBulkDeleteUI);
+    });
+
+    // Form upload dengan chunked batch
+    var formUpload = document.getElementById('formUploadGeojson');
+    if (formUpload) {
+        formUpload.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            var input = document.getElementById('inputGeojsonFile');
+            if (!input || !input.files || input.files.length === 0) {
+                alert('Silakan pilih setidaknya satu file GeoJSON/JSON terlebih dahulu.');
+                return;
+            }
+            var files = Array.from(input.files);
+            var totalFiles   = files.length;
+            var BATCH_SIZE   = 5;
+            var totalBatches = Math.ceil(totalFiles / BATCH_SIZE);
+
+            var progressSection = document.getElementById('uploadProgressSection');
+            var progressBar     = document.getElementById('uploadProgressBar');
+            var percentText     = document.getElementById('uploadPercentText');
+            var statusText      = document.getElementById('uploadStatusText');
+            var detailText      = document.getElementById('uploadDetailText');
+            var batchCountText  = document.getElementById('uploadBatchCountText');
+            var successSection  = document.getElementById('uploadSuccessSection');
+            var errorSection    = document.getElementById('uploadErrorSection');
+            var btnSubmit       = document.getElementById('btnSubmitUpload');
+            var btnBatal        = document.getElementById('btnBatalUpload');
+            var btnClose        = document.getElementById('btnCloseUploadModal');
+
+            if (errorSection)   { errorSection.style.display = 'none'; errorSection.innerText = ''; }
+            if (successSection)   successSection.style.display = 'none';
+            if (progressSection)  progressSection.style.display = 'block';
+            if (btnSubmit) { btnSubmit.disabled = true; btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Mengunggah...'; }
+            if (btnBatal)  btnBatal.disabled = true;
+            if (btnClose)  btnClose.style.display = 'none';
+
+            var totalUploaded = 0, allUploadedNames = [], allFailed = [];
+            var csrfToken = formUpload.querySelector('input[name="_token"]')
+                ? formUpload.querySelector('input[name="_token"]').value : '';
+
+            try {
+                for (var b = 0; b < totalBatches; b++) {
+                    var start = b * BATCH_SIZE;
+                    var end   = Math.min(start + BATCH_SIZE, totalFiles);
+                    var batchFiles = files.slice(start, end);
+                    var currentBatchNum = b + 1;
+
+                    if (statusText) statusText.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Mengunggah batch ' + currentBatchNum + ' dari ' + totalBatches + '...';
+                    if (batchCountText) batchCountText.textContent = 'Batch ' + currentBatchNum + '/' + totalBatches + ' (' + batchFiles.length + ' file)';
+
+                    var formData = new FormData();
+                    formData.append('_token', csrfToken);
+                    for (var f = 0; f < batchFiles.length; f++) formData.append('file_geojson[]', batchFiles[f]);
+
+                    var uploadUrl = formUpload.getAttribute('action');
+                    var response = await fetch(uploadUrl, {
+                        method: 'POST',
+                        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        var errJson = await response.json().catch(function() { return {}; });
+                        throw new Error(errJson.message || ('Gagal pada pengunggahan batch ke-' + currentBatchNum + ' (HTTP ' + response.status + ')'));
+                    }
+
+                    var result = await response.json();
+                    if (result.uploaded && result.uploaded.length > 0) { allUploadedNames = allUploadedNames.concat(result.uploaded); totalUploaded += result.uploaded.length; }
+                    if (result.failed && result.failed.length > 0)     allFailed = allFailed.concat(result.failed);
+
+                    var pct = Math.round((end / totalFiles) * 100);
+                    if (progressBar)  { progressBar.style.width = pct + '%'; progressBar.textContent = pct + '%'; }
+                    if (percentText)    percentText.textContent = pct + '%';
+                    if (detailText) detailText.innerHTML = '<span>Tersimpan <b>' + totalUploaded + '</b> dari <b>' + totalFiles + '</b> file</span><span>Batch ' + currentBatchNum + '/' + totalBatches + '</span>';
+                }
+
+                if (statusText) statusText.innerHTML = '<i class="fas fa-check-circle text-success mr-1"></i>Semua file selesai diunggah!';
+                if (successSection) {
+                    var successMsg = totalUploaded + ' file GeoJSON berhasil diunggah! Memuat ulang halaman peta...';
+                    if (allFailed.length > 0) successMsg += '<br><small class="text-warning">File dilewati: ' + allFailed.join(', ') + '</small>';
+                    successSection.innerHTML = '<i class="fas fa-check-circle mr-1"></i>' + successMsg;
+                    successSection.style.display = 'block';
+                }
+                setTimeout(function() { window.location.reload(); }, 1200);
+
+            } catch (err) {
+                if (errorSection) {
+                    errorSection.innerHTML = '<i class="fas fa-exclamation-triangle mr-1"></i><b>Terjadi Kesalahan:</b> ' + err.message +
+                        (totalUploaded > 0 ? '<br><small>(' + totalUploaded + ' file sempat tersimpan sebelum error)</small>' : '');
+                    errorSection.style.display = 'block';
+                }
+                if (btnSubmit) { btnSubmit.disabled = false; btnSubmit.innerHTML = '<i class="fas fa-redo mr-1"></i>Coba Lagi'; }
+                if (btnBatal)  btnBatal.disabled = false;
+                if (btnClose)  btnClose.style.display = '';
+            }
+        });
+    }
+});
