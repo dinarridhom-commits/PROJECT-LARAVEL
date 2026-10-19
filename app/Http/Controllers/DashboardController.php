@@ -168,21 +168,9 @@ class DashboardController extends Controller
                 } else {
                     $failed[] = $originalName . ' (Tidak ditemukan file .kml di dalam arsip KMZ)';
                 }
-            } elseif ($ext === 'zip') {
-                // Periksa apakah ini arsip KMZ atau Shapefile yang sudah dikonversi
-                $kmlContent = $this->extractKmlFromKmz($file->getRealPath());
-                if ($kmlContent) {
-                    $geojson = $this->parseKmlToGeoJson($kmlContent, $baseName);
-                    if ($geojson) {
-                        $targetName = $baseName . '.geojson';
-                        File::put($destinationPath . DIRECTORY_SEPARATOR . $targetName, json_encode($geojson, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
-                        $uploaded[] = $targetName . ' (dari .zip KML)';
-                    } else {
-                        $failed[] = $originalName . ' (Gagal mem-parsing KML di dalam ZIP)';
-                    }
-                } else {
-                    $failed[] = $originalName . ' (Arsip Shapefile .zip diproses otomatis via konverter browser)';
-                }
+            } elseif (in_array($ext, ['zip', 'rar'])) {
+                // Ekstrak arsip ZIP/RAR dan konversi Shapefile (.shp), KML, atau GeoJSON di dalamnya
+                $this->processArchiveAndConvert($file->getRealPath(), $ext, $baseName, $destinationPath, $uploaded, $failed, $originalName);
             } else {
                 $failed[] = $originalName . ' (Format tidak didukung. Gunakan .geojson, .json, .kml, .kmz, atau Shapefile .zip)';
             }
@@ -514,6 +502,120 @@ class DashboardController extends Controller
             $zip->close();
         }
         return null;
+    }
+
+    /**
+     * Mengekstrak arsip (.ZIP atau .RAR) dan mengkonversi file Shapefile (.shp), KML, atau GeoJSON di dalamnya
+     */
+    protected function processArchiveAndConvert(string $archivePath, string $ext, string $baseName, string $destinationPath, array &$uploaded, array &$failed, string $originalName): void
+    {
+        $tempDir = storage_path('app/temp/arc_' . uniqid());
+        if (!File::exists($tempDir)) {
+            File::makeDirectory($tempDir, 0755, true);
+        }
+
+        $extracted = false;
+
+        if ($ext === 'zip') {
+            $zip = new \ZipArchive();
+            if ($zip->open($archivePath) === true) {
+                $zip->extractTo($tempDir);
+                $zip->close();
+                $extracted = true;
+            }
+        } elseif ($ext === 'rar') {
+            // Gunakan bsdtar bawaan sistem (Windows tar.exe atau Linux tar) untuk mengekstrak RAR jika didukung
+            $escapedArchive = escapeshellarg($archivePath);
+            $escapedDest = escapeshellarg($tempDir);
+            @exec("tar -xf {$escapedArchive} -C {$escapedDest} 2>&1", $output, $returnCode);
+            if ($returnCode === 0 && count(File::allFiles($tempDir)) > 0) {
+                $extracted = true;
+            }
+        }
+
+        if (!$extracted) {
+            File::deleteDirectory($tempDir);
+            if ($ext === 'rar') {
+                $failed[] = "{$originalName}: Format arsip .RAR tidak dapat diekstrak otomatis oleh server. Silakan ubah kompresi ke format .ZIP (Shapefile Zip) menggunakan WinRAR (Pilih opsi 'ZIP') atau klik kanan -> Kirim ke -> Folder Terkompresi (ZIP).";
+            } else {
+                $failed[] = "{$originalName}: Gagal mengekstrak file arsip .ZIP.";
+            }
+            return;
+        }
+
+        $allExtractedFiles = File::allFiles($tempDir);
+        $foundGis = false;
+
+        // 1. Cek file .shp (Shapefile)
+        foreach ($allExtractedFiles as $file) {
+            if (strtolower($file->getExtension()) === 'shp') {
+                $shpPath = $file->getRealPath();
+                $shpBaseName = pathinfo($file->getFilename(), PATHINFO_FILENAME);
+                try {
+                    $shapefile = new \Shapefile\ShapefileReader($shpPath, [
+                        \Shapefile\Shapefile::OPTION_ENFORCE_GEOMETRY_DATA_TYPE => false,
+                    ]);
+
+                    $features = [];
+                    $fIndex = 1;
+                    while ($record = $shapefile->readRecord()) {
+                        if ($record->isDeleted()) continue;
+                        $geoJsonString = $record->getGeoJSON();
+                        $featureData = json_decode($geoJsonString, true);
+                        if ($featureData) {
+                            $featureData['id'] = $fIndex++;
+                            $features[] = $featureData;
+                        }
+                    }
+
+                    if (!empty($features)) {
+                        $fc = [
+                            'type'     => 'FeatureCollection',
+                            'name'     => $shpBaseName,
+                            'features' => $features,
+                        ];
+                        $targetName = $shpBaseName . '.geojson';
+                        File::put($destinationPath . DIRECTORY_SEPARATOR . $targetName, json_encode($fc, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+                        $uploaded[] = $targetName . " (dikonversi dari Shapefile .{$ext})";
+                        $foundGis = true;
+                    }
+                } catch (\Throwable $e) {
+                    $failed[] = "{$file->getFilename()} (Gagal membaca Shapefile: " . $e->getMessage() . ")";
+                }
+            }
+        }
+
+        // 2. Cek file .kml
+        foreach ($allExtractedFiles as $file) {
+            if (strtolower($file->getExtension()) === 'kml') {
+                $kmlContent = file_get_contents($file->getRealPath());
+                $kmlBaseName = pathinfo($file->getFilename(), PATHINFO_FILENAME);
+                $geojson = $this->parseKmlToGeoJson($kmlContent, $kmlBaseName);
+                if ($geojson) {
+                    $targetName = $kmlBaseName . '.geojson';
+                    File::put($destinationPath . DIRECTORY_SEPARATOR . $targetName, json_encode($geojson, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+                    $uploaded[] = $targetName . " (dikonversi dari KML di .{$ext})";
+                    $foundGis = true;
+                }
+            }
+        }
+
+        // 3. Cek file .geojson / .json
+        foreach ($allExtractedFiles as $file) {
+            $extLower = strtolower($file->getExtension());
+            if (in_array($extLower, ['geojson', 'json'])) {
+                $targetName = $file->getFilename();
+                File::copy($file->getRealPath(), $destinationPath . DIRECTORY_SEPARATOR . $targetName);
+                $uploaded[] = $targetName . " (diekstrak dari .{$ext})";
+                $foundGis = true;
+            }
+        }
+
+        File::deleteDirectory($tempDir);
+
+        if (!$foundGis) {
+            $failed[] = "{$originalName}: Tidak ditemukan file Shapefile (.shp), KML, atau GeoJSON di dalam arsip.";
+        }
     }
 }
 

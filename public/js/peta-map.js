@@ -566,9 +566,40 @@ window.exportDataToCsv = function() {
    ============================================================ */
 function updateFileInputLabel(input) {
     var label = document.getElementById('labelGeojsonFile');
-    if (input.files && input.files.length > 1)     label.textContent = input.files.length + ' file dipilih';
-    else if (input.files && input.files.length === 1) label.textContent = input.files[0].name;
-    else label.textContent = 'Pilih satu atau beberapa file...';
+    var rarAlert = document.getElementById('rarWarningAlert');
+    var rarText = document.getElementById('rarWarningText');
+    var hasRar = false;
+    var rarNames = [];
+
+    if (input.files && input.files.length > 0) {
+        for (var i = 0; i < input.files.length; i++) {
+            if (input.files[i].name.toLowerCase().endsWith('.rar')) {
+                hasRar = true;
+                rarNames.push(input.files[i].name);
+            }
+        }
+    }
+
+    if (rarAlert) {
+        if (hasRar) {
+            if (rarText) {
+                rarText.innerHTML = 'File <strong>' + rarNames.join(', ') + '</strong> terdeteksi berformat <strong>.RAR</strong>.<br>' +
+                    'Sistem GIS dan Server membutuhkan Shapefile dalam format <strong>.ZIP</strong> (berisi file .shp, .dbf, .shx, .prj).<br>' +
+                    '<strong>Solusi:</strong> Ekstrak file RAR tersebut, lalu kompres ulang ke format <strong>ZIP</strong> (di WinRAR pilih opsi <em>ZIP</em>, atau di Windows klik kanan &rarr; <em>Send to / Kirim ke &rarr; Compressed (zipped) folder</em>).';
+            }
+            rarAlert.style.display = 'block';
+        } else {
+            rarAlert.style.display = 'none';
+        }
+    }
+
+    if (input.files && input.files.length > 1) {
+        label.textContent = input.files.length + ' file dipilih';
+    } else if (input.files && input.files.length === 1) {
+        label.textContent = input.files[0].name;
+    } else {
+        label.textContent = 'Pilih satu atau beberapa file...';
+    }
 }
 window.updateFileInputLabel = updateFileInputLabel;
 
@@ -674,6 +705,28 @@ document.addEventListener('DOMContentLoaded', function() {
             if (btnClose)  btnClose.style.display = 'none';
 
             var rawFiles = Array.from(input.files);
+
+            // Cek jika ada file .rar
+            var rarFiles = rawFiles.filter(function(f) { return f.name.toLowerCase().endsWith('.rar'); });
+            if (rarFiles.length > 0) {
+                var rarNames = rarFiles.map(function(f) { return f.name; }).join(', ');
+                if (errorSection) {
+                    errorSection.style.display = 'block';
+                    errorSection.innerHTML = '<i class="fas fa-exclamation-triangle mr-1"></i><strong>Format .RAR Tidak Didukung:</strong> ' + rarNames + '<br><br>' +
+                        'File Shapefile GIS harus dikompresi dalam format <strong>.ZIP</strong> (bukan .RAR) yang berisi file <code>.shp</code>, <code>.dbf</code>, <code>.shx</code>, dan <code>.prj</code>.<br><br>' +
+                        '<strong>Langkah Mengubah ke .ZIP:</strong><br>' +
+                        '1. Buka file <code>' + rarNames + '</code> dan ekstrak isinya ke folder.<br>' +
+                        '2. Pilih/blok file <code>.shp</code>, <code>.dbf</code>, <code>.shx</code>, <code>.prj</code>.<br>' +
+                        '3. Klik kanan &rarr; pilih <strong>Send to (Kirim ke) &rarr; Compressed (zipped) folder</strong>, ATAU di WinRAR pilih radio button <strong>ZIP</strong>.<br>' +
+                        '4. Unggah kembali file <code>.zip</code> yang baru dibuat tersebut.';
+                }
+                if (progressSection) progressSection.style.display = 'none';
+                if (btnSubmit) { btnSubmit.disabled = false; btnSubmit.innerHTML = '<i class="fas fa-upload mr-1"></i>Upload Sekarang'; }
+                if (btnBatal)  btnBatal.disabled = false;
+                if (btnClose)  btnClose.style.display = '';
+                return;
+            }
+
             var files = [];
 
             // Pra-pemrosesan: Konversi otomatis Shapefile (.zip) atau KML/KMZ ke GeoJSON

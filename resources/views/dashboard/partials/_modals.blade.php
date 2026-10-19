@@ -67,6 +67,13 @@
                         Format yang didukung: <code>.geojson</code>, <code>.json</code>, Shapefile ArcMap (<code>.zip</code>), atau Google Earth (<code>.kml</code>, <code>.kmz</code>).
                         Data akan otomatis dikonversi ke GeoJSON standar oleh sistem.
                     </small>
+
+                    {{-- Peringatan jika pengguna memilih file .rar --}}
+                    <div id="rarWarningAlert" class="alert alert-warning py-2 px-3 small mt-2 mb-0" style="display: none;">
+                        <i class="fas fa-exclamation-triangle mr-1 text-warning"></i>
+                        <strong>Perhatian:</strong>
+                        <span id="rarWarningText">Format .rar tidak didukung. Harap gunakan format .ZIP untuk Shapefile.</span>
+                    </div>
                 </div>
 
                 {{-- Progress bar upload --}}
