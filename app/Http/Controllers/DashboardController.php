@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Produk;
 use App\Models\Kategori;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
@@ -151,6 +153,7 @@ class DashboardController extends Controller
             if (count($failed) > 0) {
                 $msg .= ' Beberapa file dilewati: ' . implode(', ', $failed);
             }
+            ActivityLog::record('UPLOAD_GEOJSON', 'Mengunggah ' . count($uploaded) . ' file GIS: ' . implode(', ', $uploaded));
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success'  => true,
@@ -197,6 +200,7 @@ class DashboardController extends Controller
             }
 
             if ($deleted || !File::exists($filePath)) {
+                ActivityLog::record('DELETE_GEOJSON', "Menghapus file GIS '{$fileName}' dari server");
                 return redirect()->route('peta')->with('success', "File GIS '{$fileName}' berhasil dihapus dari sistem dan peta!");
             }
 
@@ -248,6 +252,7 @@ class DashboardController extends Controller
         }
 
         if (count($deleted) > 0) {
+            ActivityLog::record('DELETE_GEOJSON_BULK', 'Menghapus massal ' . count($deleted) . ' file GIS: ' . implode(', ', $deleted));
             $msg = count($deleted) . ' file GIS berhasil dihapus (' . implode(', ', $deleted) . ').';
             if (count($failed) > 0) {
                 $msg .= ' Beberapa file gagal dihapus (masalah izin akses server): ' . implode(', ', $failed);

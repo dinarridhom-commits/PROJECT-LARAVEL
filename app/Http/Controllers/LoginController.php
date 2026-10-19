@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -53,6 +54,7 @@ class LoginController extends Controller
     // Proses login
     if (Auth::attempt($credentials)) {
         $request->session()->regenerate();
+        ActivityLog::record('LOGIN', 'Pengguna berhasil login ke sistem WebGIS.');
 
         return redirect()->intended('/peta');
     }
@@ -64,14 +66,18 @@ class LoginController extends Controller
  }
     public function logout(Request $request)
     {
+        if (Auth::check()) {
+            ActivityLog::record('LOGOUT', 'Pengguna keluar dari sistem WebGIS.');
+        }
+
         Auth::logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/login')->with(
+        return redirect('/peta')->with(
             'success',
-            'Anda telah berhasil logout.'
+            'Anda telah berhasil logout. Saat ini Anda berada dalam Mode Publik / Tamu.'
         );
     }
 }

@@ -63,6 +63,12 @@
                     <i class="fas fa-fw fa-users-cog"></i>
                     <span>Manajemen User</span></a>
             </li>
+
+            <li class="nav-item {{ request()->is('activity-logs*') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('activity-logs.index') }}">
+                    <i class="fas fa-fw fa-history"></i>
+                    <span>Log Aktivitas</span></a>
+            </li>
             @elseif(Auth::check() && Auth::user()->role === 'admin')
             <!-- Divider -->
             <hr class="sidebar-divider">

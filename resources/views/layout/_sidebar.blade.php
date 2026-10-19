@@ -44,12 +44,9 @@
     </div>
 
     {{-- 3. TOMBOL AKSI GIS
-         Tombol "Kelola File GIS": Membuka modal daftar file GeoJSON
-         yang tersimpan di server (folder public/geojson/).
-         Badge angka menampilkan jumlah file yang tersedia.
-
-         Tombol "Upload GeoJSON": Membuka modal form upload file
-         GeoJSON baru ke server secara batch (chunked). --}}
+         Hanya tampil untuk pengguna dengan peran Admin atau Super Admin.
+         Pengguna Tamu / Publik hanya dalam mode lihat, filter, dan unduh data. --}}
+    @if(Auth::check() && in_array(Auth::user()->role, ['admin', 'superadmin']))
     <div class="bws-btn-block">
 
         {{-- Tombol Kelola File GIS --}}
@@ -74,5 +71,22 @@
         </button>
 
     </div>
+    @else
+    {{-- Info Box untuk Mode Publik / Tamu --}}
+    <div class="card border-0 bg-light shadow-sm text-center p-3 mt-2" style="border-radius: 8px;">
+        <div class="mb-1 text-primary">
+            <i class="fas fa-globe-asia fa-lg"></i>
+        </div>
+        <div class="font-weight-bold text-dark" style="font-size: 12px;">Mode Publik / Viewer</div>
+        <div class="text-muted mt-1" style="font-size: 10.5px; line-height: 1.4;">
+            Anda dapat melihat peta, menyaring data spasial, dan mengunduh tabel CSV.
+        </div>
+        @guest
+        <a href="{{ route('login') }}" class="btn btn-sm btn-outline-primary mt-2 font-weight-bold" style="font-size: 11px;">
+            <i class="fas fa-sign-in-alt mr-1"></i> Login Admin / Staf
+        </a>
+        @endguest
+    </div>
+    @endif
 
 </aside>

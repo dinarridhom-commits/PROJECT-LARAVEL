@@ -63,14 +63,15 @@
                     </button>
                 </div>
 
-                {{-- Dropdown profil user --}}
+                @auth
+                {{-- Dropdown profil user (Logged In) --}}
                 <div class="dropdown">
                     <div class="bws-profile-pill" id="userMenuDropdown"
                          data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <div class="bws-profile-avatar">
                             <i class="fas fa-user"></i>
                         </div>
-                        <span class="font-weight-bold">{{ Auth::user()->name ?? 'Admin Dinar' }}</span>
+                        <span class="font-weight-bold">{{ Auth::user()->name }}</span>
                         <i class="fas fa-chevron-down ml-1 small text-white-50"></i>
                     </div>
                     <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in py-2"
@@ -79,18 +80,45 @@
                             Sistem WebGIS BWSK I
                         </div>
                         <div class="px-3 py-1 small text-dark font-weight-bold">
-                            <i class="fas fa-user-circle mr-1 text-primary"></i> {{ Auth::user()->name ?? 'Admin Dinar' }}
+                            <i class="fas fa-user-circle mr-1 text-primary"></i> {{ Auth::user()->name }}
                         </div>
                         <div class="px-3 pb-2 small text-muted">
-                            Role: <span class="badge badge-primary">{{ strtoupper(Auth::user()->role ?? 'ADMIN') }}</span>
+                            Role: <span class="badge {{ Auth::user()->role === 'superadmin' ? 'badge-danger' : (Auth::user()->role === 'admin' ? 'badge-primary' : 'badge-secondary') }}">{{ strtoupper(Auth::user()->role ?? 'USER') }}</span>
                         </div>
                         <div class="dropdown-divider"></div>
+
+                        @if(Auth::user()->role === 'superadmin')
+                        <a class="dropdown-item py-2" href="{{ route('users.index') }}">
+                            <i class="fas fa-users-cog fa-sm fa-fw mr-2 text-danger"></i> Manajemen User
+                        </a>
+                        <a class="dropdown-item py-2" href="{{ route('activity-logs.index') }}">
+                            <i class="fas fa-history fa-sm fa-fw mr-2 text-primary"></i> Log Aktivitas Sistem
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        @elseif(Auth::user()->role === 'admin')
+                        <a class="dropdown-item py-2" href="{{ route('users.index') }}">
+                            <i class="fas fa-users fa-sm fa-fw mr-2 text-primary"></i> Daftar Pengguna
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        @endif
+
                         <a class="dropdown-item text-danger py-2" href="#"
                            data-toggle="modal" data-target="#logoutModal">
                             <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2"></i>Keluar / Logout
                         </a>
                     </div>
                 </div>
+                @else
+                {{-- Mode Publik / Tamu (Belum Login) --}}
+                <div class="d-flex align-items-center">
+                    <span class="badge badge-light border text-muted px-2 py-1 mr-2 d-none d-sm-inline" style="font-size: 11px;">
+                        <i class="fas fa-globe mr-1 text-success"></i> Mode Publik
+                    </span>
+                    <a href="{{ route('login') }}" class="btn btn-sm btn-warning text-dark font-weight-bold px-3 shadow-sm" style="font-size: 12px; border-radius: 6px;">
+                        <i class="fas fa-sign-in-alt mr-1"></i> Login Staf
+                    </a>
+                </div>
+                @endauth
             </div>
         </div>
         {{-- Garis Aksen Emas PU --}}
@@ -239,6 +267,7 @@
     <script>
         window.availableTypes = {!! json_encode($availableTypes) !!};
         window.geojsonFiles   = {!! json_encode($geojsonFiles ?? []) !!};
+        window.canManageGis   = {{ (Auth::check() && in_array(Auth::user()->role, ['admin', 'superadmin'])) ? 'true' : 'false' }};
     </script>
 
     {{-- JavaScript utama peta (dipisah ke public/js/peta-map.js) --}}

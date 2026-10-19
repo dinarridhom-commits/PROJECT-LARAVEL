@@ -21,6 +21,7 @@
      untuk menghindari error PostTooLargeException dari PHP.
      Progress bar realtime per batch ditampilkan saat upload.
      ============================================================ --}}
+@if(Auth::check() && in_array(Auth::user()->role, ['admin', 'superadmin']))
 <div class="modal fade" id="modalUploadGeojson" tabindex="-1" role="dialog"
      aria-labelledby="modalUploadGeojsonLabel" aria-hidden="true" data-backdrop="static">
     <div class="modal-dialog modal-dialog-centered" role="document">
@@ -289,8 +290,10 @@
     @method('DELETE')
     <div id="bulk-delete-inputs"></div>
 </form>
+@endif
 
 
+@auth
 {{-- ============================================================
      MODAL 3: KONFIRMASI LOGOUT
      Fungsi: Dialog konfirmasi sebelum user keluar dari sistem
@@ -328,3 +331,4 @@
         </div>
     </div>
 </div>
+@endauth

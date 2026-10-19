@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -68,10 +69,13 @@ class UserController extends Controller
         );
     }
 
+    $oldRole = $user->role;
     $user->update([
         'name' => $request->name,
         'role' => $request->role,
     ]);
+
+    ActivityLog::record('UPDATE_USER', "Memperbarui data user '{$user->name}' (Role: {$oldRole} -> {$request->role})");
 
     return redirect()
         ->route('users.index')
@@ -93,7 +97,10 @@ class UserController extends Controller
         }
 
         $userName = $user->name;
+        $userRole = $user->role;
         $user->delete();
+
+        ActivityLog::record('DELETE_USER', "Menghapus akun user '{$userName}' (Role: {$userRole})");
 
         return redirect()->route('users.index')->with('success', "User '{$userName}' berhasil dihapus.");
     }

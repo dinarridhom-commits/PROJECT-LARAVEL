@@ -418,14 +418,17 @@ function renderTable() {
     }
 
     if (filtered.length === 0) {
-        if (allTableRows.length === 0) {
+            var actionBtnHtml = (window.canManageGis)
+                ? '<p class="small text-muted mb-3">Silakan klik tombol "Upload GeoJSON" untuk menambahkan file koordinat dan layer ke peta.</p>' +
+                  '<button type="button" class="btn btn-sm btn-primary font-weight-bold shadow-sm" data-toggle="modal" data-target="#modalUploadGeojson">' +
+                  '<i class="fas fa-cloud-upload-alt mr-1"></i> Upload GeoJSON Sekarang</button>'
+                : '<p class="small text-muted mb-0">Data layer dan koordinat spasial belum diunggah oleh Administrator.</p>';
+
             tbody.innerHTML =
                 '<tr><td colspan="7" class="text-center py-5 text-muted">' +
                 '<div class="mb-2"><i class="fas fa-folder-open fa-3x text-gray-300"></i></div>' +
                 '<div class="font-weight-bold text-gray-700 mb-1" style="font-size:15px;">Belum Ada Data GIS Tersimpan</div>' +
-                '<p class="small text-muted mb-3">Silakan klik tombol "Upload GeoJSON" untuk menambahkan file koordinat dan layer ke peta.</p>' +
-                '<button type="button" class="btn btn-sm btn-primary font-weight-bold shadow-sm" data-toggle="modal" data-target="#modalUploadGeojson">' +
-                '<i class="fas fa-cloud-upload-alt mr-1"></i> Upload GeoJSON Sekarang</button>' +
+                actionBtnHtml +
                 '</td></tr>';
         } else {
             tbody.innerHTML =
