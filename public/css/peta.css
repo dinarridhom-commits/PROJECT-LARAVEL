@@ -472,6 +472,38 @@ body {
     flex-shrink: 0;
 }
 
+/* Swatch kecil untuk Leaflet Layer Control */
+.legend-color-box-sm {
+    display: inline-block;
+    width: 12px;
+    height: 10px;
+    border-radius: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.25);
+    margin-right: 6px;
+    flex-shrink: 0;
+    vertical-align: middle;
+}
+.legend-line-sm {
+    display: inline-block;
+    width: 14px;
+    height: 3px;
+    border-radius: 1px;
+    margin-right: 6px;
+    flex-shrink: 0;
+    vertical-align: middle;
+}
+.legend-circle-sm {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    margin-right: 6px;
+    border: 1px solid #ffffff;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.3);
+    flex-shrink: 0;
+    vertical-align: middle;
+}
+
 /* Layer Control Leaflet (Kanan Atas) */
 .leaflet-control-layers {
     background: rgba(255, 255, 255, 0.96) !important;
@@ -485,7 +517,13 @@ body {
 .leaflet-control-layers-expanded {
     font-size: 11px !important;
     line-height: 1.35 !important;
-    max-width: 220px !important;
+    max-width: 250px !important;
+    max-height: calc(100vh - 200px) !important;
+    overflow-y: auto !important;
+}
+.map-legend {
+    max-height: calc(100vh - 240px);
+    overflow-y: auto;
 }
 .leaflet-control-layers label {
     margin-bottom: 3px !important;

@@ -220,6 +220,7 @@
     <script>
         window.availableTypes = {!! json_encode($availableTypes) !!};
         window.geojsonFiles   = {!! json_encode($geojsonFiles ?? []) !!};
+        window.fileList       = {!! json_encode($fileList ?? []) !!};
         window.canManageGis   = {{ (Auth::check() && in_array(Auth::user()->role, ['admin', 'superadmin'])) ? 'true' : 'false' }};
     </script>
 

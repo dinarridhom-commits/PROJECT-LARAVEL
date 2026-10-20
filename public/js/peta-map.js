@@ -111,22 +111,122 @@ var map = L.map('map', { center: defaultCenter, zoom: 8, layers: [osm], zoomCont
 window.map = map;
 var mapBounds = L.latLngBounds();
 
-// Layer Groups per Kategori GIS
+// 54 File Baseline Default Sistem BWS
+var DEFAULT_BASELINE_FILES = [
+    'Baku_DIR_PEMANGKAT_KOMPLEK____OVERLAP.json',
+    'Baku_DIR_SEBANGKAU.json',
+    'Baku_Kubu_Komplek___Overlap_Hutan_Lindung.json',
+    'Baku_Pematang_Gadung_1.json',
+    'Baku_Pematang_Gadung_II.json',
+    'Baku_SEBUBUS.json',
+    'Baku_Sarang_Burung.json',
+    'Baku_Semelagi.json',
+    'Baku_Sungai_Kinjil____OVERLAP.json',
+    'Bangunan_KK.json',
+    'Bangunan_KRW.json',
+    'Bangunan_PGI.json',
+    'Bangunan_PGII.json',
+    'Bangunan_PMK.json',
+    'Bangunan_PPK.json',
+    'Bangunan_SBB.json',
+    'Bangunan_SBK.json',
+    'Bangunan_SBU.json',
+    'Bangunan_SBW.json',
+    'Bangunan_SKJ.json',
+    'Bangunan_SLK.json',
+    'Bangunan_SML.json',
+    'Bangunan_TB.json',
+    'Fungsional_DIR_PEMANGKAT_KOMPLEK.json',
+    'Fungsional_DIR_PIMPINAN_KOMPLEK.json',
+    'Fungsional_DIR_SEBANGKAU.json',
+    'Fungsional_Kubu_Komplek.json',
+    'Fungsional_SEBUBUS.json',
+    'Fungsional_Sarang_Burung.json',
+    'Potensial_DIR_PEMANGKAT_KOMPLEK____OVERLAP.json',
+    'Potensial_DIR_PIMPINAN_KOMPLEK.json',
+    'Potensial_DIR_SEBANGKAU.json',
+    'Potensial_Kerawang_Komplek.json',
+    'Potensial_Kubu_Komplek____Overlap_Hutan_Lindung.json',
+    'Potensial_Pematang_Gadung_II.json',
+    'Potensial_SEBUBUS.json',
+    'Potensial_Sarang_Burung.json',
+    'Potensial_Sungai_Kinjil____OVERLAP.json',
+    'Potensial_Teluk_Bayur.json',
+    'Saluran_KK.json',
+    'Saluran_KRW.json',
+    'Saluran_PGI.json',
+    'Saluran_PGII.json',
+    'Saluran_PMK.json',
+    'Saluran_PPK.json',
+    'Saluran_SBB.json',
+    'Saluran_SBK.json',
+    'Saluran_SBU.json',
+    'Saluran_SBW.json',
+    'Saluran_SKJ.json',
+    'Saluran_SLK.json',
+    'Saluran_SML.json',
+    'Saluran_Samalagi_full.json',
+    'Saluran_TB.json'
+];
+
+// Palet warna estetik untuk file GIS yang diunggah
+var CUSTOM_LAYER_COLORS = [
+    { stroke: '#7b1fa2', fill: '#9c27b0' }, // Ungu
+    { stroke: '#00796b', fill: '#009688' }, // Toska
+    { stroke: '#c2185b', fill: '#e91e63' }, // Pink
+    { stroke: '#e65100', fill: '#f57c00' }, // Oranye
+    { stroke: '#303f9f', fill: '#3f51b5' }, // Indigo
+    { stroke: '#0097a7', fill: '#00bcd4' }, // Cyan
+    { stroke: '#512da8', fill: '#673ab7' }, // Deep Purple
+    { stroke: '#d32f2f', fill: '#f44336' }, // Merah
+    { stroke: '#388e3c', fill: '#4caf50' }, // Hijau Daun
+    { stroke: '#afb42b', fill: '#cddc39' }, // Lime
+    { stroke: '#455a64', fill: '#607d8b' }  // Slate
+];
+
+// Layer Groups per Kategori GIS Sistem
 var layerBaku       = L.layerGroup(); if (window.availableTypes && window.availableTypes.baku)       layerBaku.addTo(map);
 var layerFungsional = L.layerGroup(); if (window.availableTypes && window.availableTypes.fungsional) layerFungsional.addTo(map);
 var layerPotensial  = L.layerGroup(); if (window.availableTypes && window.availableTypes.potensial)  layerPotensial.addTo(map);
 var layerSaluran    = L.layerGroup(); if (window.availableTypes && window.availableTypes.saluran)    layerSaluran.addTo(map);
 var layerBangunan   = L.layerGroup(); if (window.availableTypes && window.availableTypes.bangunan)   layerBangunan.addTo(map);
 
+// Inisialisasi Layer Group khusus per file upload (otomatis muncul & hilang sesuai file di server)
+var customFileMap = {};
+var cIdx = 0;
+var allGeojsonList = window.geojsonFiles || [];
+allGeojsonList.forEach(function(fn) {
+    if (DEFAULT_BASELINE_FILES.indexOf(fn) === -1) {
+        var clr = CUSTOM_LAYER_COLORS[cIdx % CUSTOM_LAYER_COLORS.length];
+        var grp = L.layerGroup().addTo(map);
+        var clean = fn.replace(/\.(json|geojson)$/i, '').replace(/_/g, ' ');
+        customFileMap[fn] = {
+            layerGroup: grp,
+            color: clr,
+            cleanName: clean,
+            geomType: 'polygon'
+        };
+        cIdx++;
+    }
+});
+
 var baseMaps = { "Peta (OpenStreetMap)": osm, "Satelit (Google Hybrid)": googleSat };
 var overlayMaps = {};
 if (window.availableTypes) {
-    if (window.availableTypes.baku)       overlayMaps["Daerah Irigasi Baku (Hijau)"]       = layerBaku;
-    if (window.availableTypes.fungsional) overlayMaps["Daerah Irigasi Fungsional (Biru)"]  = layerFungsional;
-    if (window.availableTypes.potensial)  overlayMaps["Daerah Irigasi Potensial (Oranye)"] = layerPotensial;
-    if (window.availableTypes.saluran)    overlayMaps["Jaringan Saluran Irigasi"]           = layerSaluran;
-    if (window.availableTypes.bangunan)   overlayMaps["Bangunan Air / Pelengkap"]           = layerBangunan;
+    if (window.availableTypes.baku)       overlayMaps['<span class="legend-color-box-sm" style="background:#27ae60;border-color:#1b7a43;"></span> Daerah Irigasi Baku (Hijau)']       = layerBaku;
+    if (window.availableTypes.fungsional) overlayMaps['<span class="legend-color-box-sm" style="background:#2980b9;border-color:#1a5276;"></span> Daerah Irigasi Fungsional (Biru)']  = layerFungsional;
+    if (window.availableTypes.potensial)  overlayMaps['<span class="legend-color-box-sm" style="background:#e67e22;border-color:#b95c00;"></span> Daerah Irigasi Potensial (Oranye)'] = layerPotensial;
+    if (window.availableTypes.saluran)    overlayMaps['<span class="legend-line-sm" style="background:#0984e3;"></span> Jaringan Saluran Irigasi']           = layerSaluran;
+    if (window.availableTypes.bangunan)   overlayMaps['<span class="legend-circle-sm" style="background:#d63031;"></span> Bangunan Air / Pelengkap']           = layerBangunan;
 }
+
+// Tambahkan setiap file upload kustom secara dinamis ke Layer Peta
+for (var cFn in customFileMap) {
+    var cInfo = customFileMap[cFn];
+    var cLabel = '<span class="legend-color-box-sm" id="layer-swatch-' + cFn.replace(/[^a-zA-Z0-9]/g, '_') + '" style="background:' + cInfo.color.fill + ';border-color:' + cInfo.color.stroke + ';"></span> ' + cInfo.cleanName;
+    overlayMaps[cLabel] = cInfo.layerGroup;
+}
+
 var layerControl = L.control.layers(baseMaps, overlayMaps, { collapsed: false, position: 'topright' }).addTo(map);
 
 // Inisialisasi Header & Fitur Minimize pada Layer Control (Kanan Atas)
@@ -159,18 +259,46 @@ if (layerContainer) {
     });
 }
 
-// Legenda Dinamis dengan Fitur Minimize (Pojok Kiri Bawah)
-var legend = L.control({ position: 'bottomleft' });
-legend.onAdd = function() {
-    var div = L.DomUtil.create('div', 'map-legend');
+// Fungsi render HTML untuk isi Legenda Peta (Kategori default + File Upload)
+function getLegendBodyHtml() {
     var legendItems = '';
     if (window.availableTypes) {
         if (window.availableTypes.baku)       legendItems += '<div class="legend-item"><span class="legend-color-box" style="background:#27ae60;border-color:#1b7a43;"></span> <b>DIR Baku</b> (Hijau)</div>';
         if (window.availableTypes.fungsional) legendItems += '<div class="legend-item"><span class="legend-color-box" style="background:#2980b9;border-color:#1a5276;"></span> <b>DIR Fungsional</b> (Biru)</div>';
         if (window.availableTypes.potensial)  legendItems += '<div class="legend-item"><span class="legend-color-box" style="background:#e67e22;border-color:#b95c00;"></span> <b>DIR Potensial</b> (Oranye)</div>';
-        if (window.availableTypes.saluran)    legendItems += '<div class="legend-item"><span class="legend-line" style="background:#0984e3;"></span> <b>Jaringan Saluran</b></div>';
-        if (window.availableTypes.bangunan)   legendItems += '<div class="legend-item"><span class="legend-circle" style="background:#d63031;"></span> <b>Bangunan Air</b></div>';
+        if (window.availableTypes.saluran)    legendItems += '<div class="legend-line" style="background:#0984e3;"></div> <b>Jaringan Saluran</b>';
+        if (window.availableTypes.bangunan)   legendItems += '<div class="legend-circle" style="background:#d63031;"></div> <b>Bangunan Air</b>';
     }
+
+    var customKeys = Object.keys(customFileMap);
+    if (customKeys.length > 0) {
+        legendItems += '<div class="legend-divider my-1 border-top pt-1 text-muted font-weight-bold" style="font-size: 10px; letter-spacing: 0.5px;">DATA TERUPLOAD:</div>';
+        customKeys.forEach(function(cFn) {
+            var cInfo = customFileMap[cFn];
+            var swatch = '';
+            if (cInfo.geomType === 'point') {
+                swatch = '<span class="legend-circle" style="background:' + cInfo.color.fill + ';border:1px solid ' + cInfo.color.stroke + ';"></span>';
+            } else if (cInfo.geomType === 'line') {
+                swatch = '<span class="legend-line" style="background:' + cInfo.color.fill + ';"></span>';
+            } else {
+                swatch = '<span class="legend-color-box" style="background:' + cInfo.color.fill + ';border-color:' + cInfo.color.stroke + ';"></span>';
+            }
+            var isHidden = !map.hasLayer(cInfo.layerGroup);
+            var opacityStyle = isHidden ? 'opacity: 0.35;' : '';
+            legendItems += '<div class="legend-item" id="legend-item-' + cFn.replace(/[^a-zA-Z0-9]/g, '_') + '" style="' + opacityStyle + '">' +
+                swatch + ' <b>' + cInfo.cleanName + '</b></div>';
+        });
+    }
+
+    return legendItems;
+}
+
+// Legenda Dinamis dengan Fitur Minimize (Pojok Kiri Bawah)
+var legend = L.control({ position: 'bottomleft' });
+legend.onAdd = function() {
+    var div = L.DomUtil.create('div', 'map-legend');
+    div.id = 'map-legend-box';
+    var legendItems = getLegendBodyHtml();
     if (!legendItems) { div.style.display = 'none'; return div; }
 
     div.innerHTML = 
@@ -198,6 +326,31 @@ legend.onAdd = function() {
     return div;
 };
 legend.addTo(map);
+
+function refreshLegendBody() {
+    var body = document.getElementById('legend-body');
+    if (body) {
+        body.innerHTML = getLegendBodyHtml();
+    }
+}
+
+// Sinkronisasi status layer tersembunyi dengan Legenda Peta
+map.on('overlayremove', function(e) {
+    for (var cFn in customFileMap) {
+        if (customFileMap[cFn].layerGroup === e.layer) {
+            var item = document.getElementById('legend-item-' + cFn.replace(/[^a-zA-Z0-9]/g, '_'));
+            if (item) item.style.opacity = '0.35';
+        }
+    }
+});
+map.on('overlayadd', function(e) {
+    for (var cFn in customFileMap) {
+        if (customFileMap[cFn].layerGroup === e.layer) {
+            var item = document.getElementById('legend-item-' + cFn.replace(/[^a-zA-Z0-9]/g, '_'));
+            if (item) item.style.opacity = '1';
+        }
+    }
+});
 
 // Tombol Reset Peta (kembali ke bounds awal semua layer)
 window.resetMapView = function() {
@@ -326,38 +479,77 @@ if (window.geojsonFiles && window.geojsonFiles.length > 0) {
                 var gj = convertEsriToGeoJson(rawData);
                 if (!gj || !gj.features || gj.features.length === 0) return;
 
-                var nameUpper = fileName.toUpperCase();
                 var cleanName = fileName.replace(/\.(json|geojson)$/i, '').replace(/_/g, ' ');
-                var targetLayer = layerBaku;
-                var categoryType = 'baku';
-                var categoryBadge = '<span class="badge badge-baku px-2 py-1">DIR Baku</span>';
+                var isDefault = DEFAULT_BASELINE_FILES.indexOf(fileName) !== -1;
+                var targetLayer = null;
+                var categoryType = '';
+                var categoryBadge = '';
                 var strokeColor = '#27ae60', fillColor = '#2ecc71';
+                var isSaluran = false;
 
-                if (nameUpper.indexOf('BAKU') === 0) {
-                    targetLayer = layerBaku; categoryType = 'baku';
-                    categoryBadge = '<span class="badge badge-baku px-2 py-1">DIR Baku</span>';
-                    strokeColor = '#1e824c'; fillColor = '#27ae60';
-                } else if (nameUpper.indexOf('FUNGSIONAL') === 0) {
-                    targetLayer = layerFungsional; categoryType = 'fungsional';
-                    categoryBadge = '<span class="badge badge-fungsional px-2 py-1">DIR Fungsional</span>';
-                    strokeColor = '#1f618d'; fillColor = '#2980b9';
-                } else if (nameUpper.indexOf('POTENSIAL') === 0) {
-                    targetLayer = layerPotensial; categoryType = 'potensial';
-                    categoryBadge = '<span class="badge badge-potensial px-2 py-1">DIR Potensial</span>';
-                    strokeColor = '#b95c00'; fillColor = '#e67e22';
-                } else if (nameUpper.indexOf('SALURAN') === 0) {
-                    targetLayer = layerSaluran; categoryType = 'saluran';
-                    categoryBadge = '<span class="badge badge-saluran px-2 py-1">Saluran Irigasi</span>';
-                    strokeColor = '#0984e3'; fillColor = '#0984e3';
-                } else if (nameUpper.indexOf('BANGUNAN') === 0) {
-                    targetLayer = layerBangunan; categoryType = 'bangunan';
-                    categoryBadge = '<span class="badge badge-bangunan px-2 py-1">Bangunan Air</span>';
-                    strokeColor = '#d63031'; fillColor = '#d63031';
+                if (!isDefault && customFileMap[fileName]) {
+                    var cInfo = customFileMap[fileName];
+                    targetLayer = cInfo.layerGroup;
+                    categoryType = 'custom';
+                    categoryBadge = '<span class="badge px-2 py-1 text-white shadow-sm" style="background:' + cInfo.color.fill + ';border:1px solid ' + cInfo.color.stroke + ';font-size:11px;">' + cInfo.cleanName + '</span>';
+                    strokeColor = cInfo.color.stroke;
+                    fillColor = cInfo.color.fill;
+
+                    // Deteksi tipe geometri aktual dari feature
+                    var f0 = gj.features[0];
+                    if (f0 && f0.geometry) {
+                        var gType = f0.geometry.type || '';
+                        if (gType.indexOf('Point') !== -1) {
+                            cInfo.geomType = 'point';
+                        } else if (gType.indexOf('Line') !== -1) {
+                            cInfo.geomType = 'line';
+                            isSaluran = true;
+                        } else {
+                            cInfo.geomType = 'polygon';
+                        }
+                        refreshLegendBody();
+                        var sw = document.getElementById('layer-swatch-' + fileName.replace(/[^a-zA-Z0-9]/g, '_'));
+                        if (sw) {
+                            if (cInfo.geomType === 'line') {
+                                sw.className = 'legend-line-sm';
+                                sw.style.border = 'none';
+                            } else if (cInfo.geomType === 'point') {
+                                sw.className = 'legend-circle-sm';
+                            }
+                        }
+                    }
+                } else {
+                    var nameUpper = fileName.toUpperCase();
+                    if (nameUpper.indexOf('BAKU') === 0) {
+                        targetLayer = layerBaku; categoryType = 'baku';
+                        categoryBadge = '<span class="badge badge-baku px-2 py-1">DIR Baku</span>';
+                        strokeColor = '#1e824c'; fillColor = '#27ae60';
+                    } else if (nameUpper.indexOf('FUNGSIONAL') === 0) {
+                        targetLayer = layerFungsional; categoryType = 'fungsional';
+                        categoryBadge = '<span class="badge badge-fungsional px-2 py-1">DIR Fungsional</span>';
+                        strokeColor = '#1f618d'; fillColor = '#2980b9';
+                    } else if (nameUpper.indexOf('POTENSIAL') === 0) {
+                        targetLayer = layerPotensial; categoryType = 'potensial';
+                        categoryBadge = '<span class="badge badge-potensial px-2 py-1">DIR Potensial</span>';
+                        strokeColor = '#b95c00'; fillColor = '#e67e22';
+                    } else if (nameUpper.indexOf('SALURAN') === 0) {
+                        targetLayer = layerSaluran; categoryType = 'saluran';
+                        categoryBadge = '<span class="badge badge-saluran px-2 py-1">Saluran Irigasi</span>';
+                        strokeColor = '#0984e3'; fillColor = '#0984e3';
+                        isSaluran = true;
+                    } else if (nameUpper.indexOf('BANGUNAN') === 0) {
+                        targetLayer = layerBangunan; categoryType = 'bangunan';
+                        categoryBadge = '<span class="badge badge-bangunan px-2 py-1">Bangunan Air</span>';
+                        strokeColor = '#d63031'; fillColor = '#d63031';
+                    } else {
+                        targetLayer = layerBaku; categoryType = 'baku';
+                        categoryBadge = '<span class="badge badge-baku px-2 py-1">DIR Baku</span>';
+                    }
                 }
 
                 var gjLayer = L.geoJSON(gj, {
                     style: function() {
-                        return { color: strokeColor, weight: (categoryType === 'saluran') ? 2.5 : 1.8, fillOpacity: 0.45, fillColor: fillColor };
+                        return { color: strokeColor, weight: isSaluran ? 2.5 : 1.8, fillOpacity: 0.45, fillColor: fillColor };
                     },
                     pointToLayer: function(feat, latlng) {
                         return L.circleMarker(latlng, { radius: 6, fillColor: fillColor, color: '#ffffff', weight: 1.5, fillOpacity: 0.9 });
@@ -380,7 +572,7 @@ if (window.geojsonFiles && window.geojsonFiles.length > 0) {
                     }
                 });
 
-                targetLayer.addLayer(gjLayer);
+                if (targetLayer) targetLayer.addLayer(gjLayer);
 
                 var b = gjLayer.getBounds();
                 if (b.isValid()) {
@@ -501,6 +693,11 @@ function renderTable() {
         // Tombol Fokus: klik → peta zoom ke bounds objek tersebut
         var btn = tr.querySelector('.btn-focus-row');
         btn.addEventListener('click', function() {
+            if (row.fileName && customFileMap[row.fileName]) {
+                if (!map.hasLayer(customFileMap[row.fileName].layerGroup)) {
+                    map.addLayer(customFileMap[row.fileName].layerGroup);
+                }
+            }
             if (row.bounds && row.bounds.isValid && row.bounds.isValid()) {
                 map.fitBounds(row.bounds, { padding: [50, 50], maxZoom: 16 });
             } else if (row.lat && row.lng && !isNaN(row.lat) && !isNaN(row.lng)) {

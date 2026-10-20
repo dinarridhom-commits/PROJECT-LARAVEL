@@ -271,7 +271,7 @@
         <div class="login-header">
             <img src="{{ asset('sbadmin/img/logo-pu.jpeg') }}" alt="Logo PU" class="login-logo">
             <div class="login-header-text">
-                <span class="login-header-title">Flood Early Warning System</span>
+                <span class="login-header-title">Login</span>
                 <span class="login-header-subtitle">BWS Kalimantan I Pontianak</span>
             </div>
         </div>
