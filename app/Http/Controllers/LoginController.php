@@ -24,46 +24,53 @@ class LoginController extends Controller
         ]);
     }
 
-   public function authenticate(Request $request)
-{
-    // Validasi input
-    $request->validate([
-        'email' => 'required|email',
-        'password' => 'required',
-        'captcha' => 'required',
-    ], [
-        'email.required' => 'Email wajib diisi.',
-        'email.email' => 'Format email tidak valid.',
-        'password.required' => 'Password wajib diisi.',
-        'captcha.required' => 'Kode CAPTCHA wajib diisi.',
-    ]);
+    public function authenticate(Request $request)
+    {
+        // Validasi input
+        $request->validate([
+            'email' => 'required',
+            'password' => 'required',
+            'captcha' => 'required',
+        ], [
+            'email.required' => 'Username atau Email wajib diisi.',
+            'password.required' => 'Password wajib diisi.',
+            'captcha.required' => 'Kode CAPTCHA wajib diisi.',
+        ]);
 
-    // Cek CAPTCHA
-    if (strtoupper($request->captcha) !== session('captcha_code')) {
+        // Cek CAPTCHA
+        if (strtoupper($request->captcha) !== session('captcha_code')) {
+            return back()
+                ->withInput()
+                ->with('loginError', 'Kode CAPTCHA salah.');
+        }
+
+        // Hapus CAPTCHA dari session setelah berhasil dicek
+        session()->forget('captcha_code');
+
+        // Dukung login dengan Username (name) atau Email
+        $loginInput = $request->input('email');
+        $field = filter_var($loginInput, FILTER_VALIDATE_EMAIL) ? 'email' : 'name';
+
+        $credentials = [
+            $field => $loginInput,
+            'password' => $request->password,
+        ];
+
+        // Proses login (dengan remember me jika dicentang)
+        $remember = $request->boolean('remember');
+
+        if (Auth::attempt($credentials, $remember)) {
+            $request->session()->regenerate();
+            ActivityLog::record('LOGIN', 'Pengguna berhasil login ke sistem WebGIS.');
+
+            return redirect()->intended('/peta');
+        }
+
+        // Jika username/email atau password salah
         return back()
             ->withInput()
-            ->with('loginError', 'Kode CAPTCHA salah.');
+            ->with('loginError', 'Login gagal! Periksa kembali username dan password Anda.');
     }
-
-    // Hapus CAPTCHA dari session setelah berhasil dicek
-    session()->forget('captcha_code');
-
-    // Hanya ambil email dan password untuk Auth
-    $credentials = $request->only('email', 'password');
-
-    // Proses login
-    if (Auth::attempt($credentials)) {
-        $request->session()->regenerate();
-        ActivityLog::record('LOGIN', 'Pengguna berhasil login ke sistem WebGIS.');
-
-        return redirect()->intended('/peta');
-    }
-
-    // Jika email/password salah
-    return back()
-        ->withInput()
-        ->with('loginError', 'Login gagal! Periksa kembali email dan password Anda.');
- }
     public function logout(Request $request)
     {
         if (Auth::check()) {
