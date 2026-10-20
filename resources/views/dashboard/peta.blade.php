@@ -107,6 +107,8 @@
                                    onkeyup="filterTabelKoordinat(this.value)">
                         </div>
 
+                        {{-- Tombol Export CSV & Unduh GeoJSON (Khusus Admin & Superadmin) --}}
+                        @if(Auth::check() && in_array(Auth::user()->role, ['admin', 'superadmin']))
                         {{-- Export ke CSV / Excel --}}
                         <button type="button"
                                 class="btn-export-green"
@@ -159,6 +161,7 @@
                                 </a>
                             </div>
                         </div>
+                        @endif
                     </div>
                 </div>
 

@@ -19,10 +19,6 @@ Route::get('/', [DashboardController::class, 'peta'])->name('dashboard');
 Route::get('/home', [DashboardController::class, 'peta'])->name('home');
 Route::get('/peta', [DashboardController::class, 'peta'])->name('peta');
 
-// Export & Unduh Data Spasial GIS (File Tunggal & Arsip ZIP per Kategori)
-Route::get('/peta/download-category/{category?}', [DashboardController::class, 'downloadCategory'])->name('peta.download-category');
-Route::get('/peta/download-file/{filename}', [DashboardController::class, 'downloadFile'])->name('peta.download-file');
-
 Route::get('/contact', function () { return view('contact'); })->name('contact');
 Route::get('/about', function () { return view('About'); })->name('about');
 
@@ -48,9 +44,11 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::middleware('auth')->group(function () {
 
     /* --- HAK AKSES: ADMIN & SUPER ADMIN ---
-       Memiliki akses untuk upload GeoJSON, hapus file GIS, dan edit data */
+       Memiliki akses untuk upload GeoJSON, hapus file GIS, download data, dan edit data */
     Route::middleware('role:superadmin,admin')->group(function () {
-        // Operasi GIS
+        // Operasi GIS & Unduh Data Spasial
+        Route::get('/peta/download-category/{category?}', [DashboardController::class, 'downloadCategory'])->name('peta.download-category');
+        Route::get('/peta/download-file/{filename}', [DashboardController::class, 'downloadFile'])->name('peta.download-file');
         Route::post('/peta/upload-geojson', [DashboardController::class, 'uploadGeojson'])->name('peta.upload-geojson');
         Route::delete('/peta/delete-geojson', [DashboardController::class, 'deleteGeojson'])->name('peta.delete-geojson');
         Route::delete('/peta/delete-geojson-bulk', [DashboardController::class, 'deleteGeojsonBulk'])->name('peta.delete-geojson-bulk');

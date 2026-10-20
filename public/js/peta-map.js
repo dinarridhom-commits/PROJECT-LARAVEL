@@ -676,6 +676,10 @@ function renderTable() {
         var latStr = (row.lat !== null && !isNaN(row.lat)) ? Number(row.lat).toFixed(5) : '-';
         var lngStr = (row.lng !== null && !isNaN(row.lng)) ? Number(row.lng).toFixed(5) : '-';
 
+        var downloadBtnHtml = (window.canManageGis)
+            ? '<a href="/peta/download-file/' + encodeURIComponent(row.fileName) + '" class="btn-download-row ml-1" title="Unduh GeoJSON (' + row.fileName + ')"><i class="fas fa-download"></i></a>'
+            : '';
+
         tr.innerHTML =
             '<td class="text-center font-weight-bold text-muted">' + (idx + 1) + '</td>' +
             '<td class="font-weight-bold text-dark">' + row.name + '</td>' +
@@ -684,10 +688,9 @@ function renderTable() {
             '<td class="text-center font-weight-bold text-dark"><code>' + lngStr + '</code></td>' +
             '<td><span class="badge badge-light border text-monospace text-truncate d-inline-block" style="max-width:180px;" title="' + row.fileName + '">' + row.fileName + '</span></td>' +
             '<td class="text-center" style="white-space:nowrap;">' +
-                '<button type="button" class="btn-focus-row mr-1" title="Fokuskan peta ke objek ini">' +
+                '<button type="button" class="btn-focus-row" title="Fokuskan peta ke objek ini">' +
                 '<i class="fas fa-crosshairs"></i> Fokus</button>' +
-                '<a href="/peta/download-file/' + encodeURIComponent(row.fileName) + '" class="btn-download-row" title="Unduh GeoJSON (' + row.fileName + ')">' +
-                '<i class="fas fa-download"></i></a>' +
+                downloadBtnHtml +
             '</td>';
 
         // Tombol Fokus: klik → peta zoom ke bounds objek tersebut
