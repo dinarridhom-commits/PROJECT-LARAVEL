@@ -23,14 +23,20 @@ Route::get('/contact', function () { return view('contact'); })->name('contact')
 Route::get('/about', function () { return view('About'); })->name('about');
 
 /* ============================================================
-   2. AUTHENTICATION (LOGIN & REGISTER)
+   2. AUTHENTICATION (LOGIN)
    Hanya untuk guest (belum login)
    ============================================================ */
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'index'])->name('login');
     Route::post('/login', [LoginController::class, 'authenticate']);
-    Route::get('/register', [RegistrasiController::class, 'index'])->name('register');
-    Route::post('/register', [RegistrasiController::class, 'store']);
+});
+
+// Registrasi mandiri dinonaktifkan (dialihkan ke halaman login)
+Route::get('/register', function () {
+    return redirect()->route('login')->with('info', 'Registrasi mandiri dinonaktifkan. Pembuatan akun staf/admin dilakukan langsung oleh Super Admin melalui menu Manajemen User.');
+});
+Route::post('/register', function () {
+    return redirect()->route('login')->with('loginError', 'Registrasi mandiri dinonaktifkan.');
 });
 
 /* ============================================================
@@ -75,7 +81,8 @@ Route::middleware('auth')->group(function () {
     /* --- HAK AKSES KHUSUS: SUPER ADMIN ---
        Mengatur manajemen pengguna dan log aktivitas sistem */
     Route::middleware('role:superadmin')->group(function () {
-        // Ubah role & hapus akun pengguna
+        // Pembuatan akun staf/admin, ubah role/password, & hapus akun pengguna
+        Route::post('/users', [UserController::class, 'store'])->name('users.store');
         Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
         Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 

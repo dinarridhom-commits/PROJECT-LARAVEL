@@ -12,14 +12,19 @@
             Manajemen User
         </h1>
         <p class="text-muted small mb-0">
-            Kelola nama, role, dan akun pengguna.
+            Pembuatan akun staf/admin langsung oleh Super Admin dan pengelolaan hak akses.
         </p>
     </div>
 
-    <span class="badge badge-danger px-3 py-2">
-        <i class="fas fa-crown mr-1"></i>
-        Super Admin
-    </span>
+    <div class="d-flex align-items-center">
+        <button type="button" class="btn btn-primary shadow-sm mr-2" data-toggle="modal" data-target="#modalCreateUser">
+            <i class="fas fa-user-plus mr-1"></i> Tambah Pengguna
+        </button>
+        <span class="badge badge-danger px-3 py-2">
+            <i class="fas fa-crown mr-1"></i>
+            Super Admin
+        </span>
+    </div>
 </div>
 
 
@@ -133,51 +138,40 @@
 <div class="card shadow mb-4">
 
     <!-- Header Tabel -->
-    <div class="card-header py-3
-                d-flex justify-content-between
-                align-items-center">
+    <div class="card-header py-3 d-flex flex-wrap justify-content-between align-items-center">
 
         <h6 class="m-0 font-weight-bold text-primary">
-
             <i class="fas fa-list mr-1"></i>
             Data Seluruh Pengguna
-
         </h6>
 
-
-        <!-- Search -->
-        <form action="{{ route('users.index') }}" method="GET">
-
-            <div class="input-group">
-
-                <input type="text"
-                       name="search"
-                       class="form-control form-control-sm"
-                       placeholder="Cari nama, email, role..."
-                       value="{{ $search ?? '' }}">
-
-                <div class="input-group-append">
-
-                    <button class="btn btn-primary btn-sm">
-                        <i class="fas fa-search"></i>
-                    </button>
-
-                    @if(!empty($search))
-
-                        <a href="{{ route('users.index') }}"
-                           class="btn btn-secondary btn-sm">
-
-                            <i class="fas fa-undo"></i>
-
-                        </a>
-
-                    @endif
-
+        <div class="d-flex align-items-center mt-2 mt-sm-0">
+            <!-- Search -->
+            <form action="{{ route('users.index') }}" method="GET" class="mr-2">
+                <div class="input-group">
+                    <input type="text"
+                           name="search"
+                           class="form-control form-control-sm"
+                           placeholder="Cari nama, email, role..."
+                           value="{{ $search ?? '' }}">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary btn-sm" type="submit" title="Cari">
+                            <i class="fas fa-search"></i>
+                        </button>
+                        @if(!empty($search))
+                            <a href="{{ route('users.index') }}"
+                               class="btn btn-secondary btn-sm" title="Reset Pencarian">
+                                <i class="fas fa-undo"></i>
+                            </a>
+                        @endif
+                    </div>
                 </div>
+            </form>
 
-            </div>
-
-        </form>
+            <button type="button" class="btn btn-success btn-sm font-weight-bold shadow-sm" data-toggle="modal" data-target="#modalCreateUser">
+                <i class="fas fa-plus mr-1"></i> Buat Akun
+            </button>
+        </div>
 
     </div>
 

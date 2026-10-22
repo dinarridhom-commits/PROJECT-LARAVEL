@@ -289,10 +289,30 @@
                 </div>
             @endif
 
+            {{-- Pesan Notifikasi Info --}}
+            @if(session()->has('info'))
+                <div class="alert alert-info alert-dismissible fade show py-2 px-3 mb-3" style="font-size: 13px; border-radius: 8px;" role="alert">
+                    <i class="fas fa-info-circle mr-1"></i> {{ session('info') }}
+                    <button type="button" class="close py-2" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            @endif
+
             {{-- Pesan Notifikasi Gagal Login --}}
             @if(session()->has('loginError'))
                 <div class="alert alert-danger alert-dismissible fade show py-2 px-3 mb-3" style="font-size: 13px; border-radius: 8px;" role="alert">
                     <i class="fas fa-exclamation-triangle mr-1"></i> {{ session('loginError') }}
+                    <button type="button" class="close py-2" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            @endif
+
+            {{-- Pesan Notifikasi Error --}}
+            @if(session()->has('error'))
+                <div class="alert alert-danger alert-dismissible fade show py-2 px-3 mb-3" style="font-size: 13px; border-radius: 8px;" role="alert">
+                    <i class="fas fa-exclamation-triangle mr-1"></i> {{ session('error') }}
                     <button type="button" class="close py-2" data-dismiss="alert" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -398,10 +418,11 @@
                 <span class="version-badge">Version 1.0.0</span>
             </div>
 
-            <!-- Link Registrasi (Opsional) -->
-            <div class="text-center mt-3 pt-1 border-top" style="border-color: #f1f5f9 !important;">
-                <span class="text-muted" style="font-size: 12px;">Belum punya akun?</span>
-                <a href="{{ route('register') }}" style="font-size: 12px; font-weight: 600; color: #2563eb; text-decoration: none; margin-left: 4px;">Daftar Sekarang</a>
+            <!-- Info Pembuatan Akun Super Admin -->
+            <div class="text-center mt-3 pt-2 border-top" style="border-color: #f1f5f9 !important;">
+                <span class="text-muted" style="font-size: 11.5px;">
+                    <i class="fas fa-shield-alt mr-1 text-primary"></i> Akun staf/admin dikelola langsung oleh Super Admin
+                </span>
             </div>
 
         </div>

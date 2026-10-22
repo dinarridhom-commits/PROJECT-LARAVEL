@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -48,42 +49,103 @@ class UserController extends Controller
     }
 
     /**
-     * Memperbarui nama dan role pengguna
+     * Membuat akun staf/admin baru secara langsung oleh Super Admin
      */
-   public function update(Request $request, User $user)
-{
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'role' => 'required|in:superadmin,admin,user',
-    ], [
-        'name.required' => 'Nama pengguna wajib diisi.',
-        'role.required' => 'Role wajib dipilih.',
-        'role.in' => 'Role yang dipilih tidak valid.',
-    ]);
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name'                  => 'required|string|max:255',
+            'email'                 => 'required|string|email|max:255|unique:users,email',
+            'password'              => 'required|string|min:6|confirmed',
+            'role'                  => 'required|in:superadmin,admin,user',
+        ], [
+            'name.required'         => 'Nama pengguna wajib diisi.',
+            'name.max'              => 'Nama pengguna maksimal 255 karakter.',
+            'email.required'        => 'Alamat email wajib diisi.',
+            'email.email'           => 'Format email tidak valid.',
+            'email.unique'          => 'Alamat email tersebut sudah terdaftar.',
+            'password.required'     => 'Password wajib diisi.',
+            'password.min'          => 'Password minimal 6 karakter.',
+            'password.confirmed'    => 'Konfirmasi password tidak cocok.',
+            'role.required'         => 'Role pengguna wajib dipilih.',
+            'role.in'               => 'Role yang dipilih tidak valid.',
+        ]);
 
-    // Super Admin tidak boleh mengubah role dirinya sendiri
-    if (Auth::id() === $user->id && $request->role !== 'superadmin') {
-        return back()->with(
-            'error',
-            'Anda tidak dapat mengubah role akun Super Admin milik Anda sendiri.'
+        $user = User::create([
+            'name'     => $request->name,
+            'email'    => $request->email,
+            'password' => Hash::make($request->password),
+            'role'     => $request->role,
+        ]);
+
+        $roleLabels = [
+            'superadmin' => 'Super Admin',
+            'admin'      => 'Admin / Staf GIS',
+            'user'       => 'User / Staf Biasa',
+        ];
+        $roleLabel = $roleLabels[$user->role] ?? $user->role;
+
+        ActivityLog::record(
+            'CREATE_USER',
+            "Super Admin membuat akun pengguna baru: '{$user->name}' ({$user->email}) dengan Role: {$roleLabel}"
         );
+
+        return redirect()
+            ->route('users.index')
+            ->with('success', "Akun '{$user->name}' ({$roleLabel}) berhasil dibuat.");
     }
 
-    $oldRole = $user->role;
-    $user->update([
-        'name' => $request->name,
-        'role' => $request->role,
-    ]);
+    /**
+     * Memperbarui nama, role, dan (opsional) password pengguna
+     */
+    public function update(Request $request, User $user)
+    {
+        $request->validate([
+            'name'                  => 'required|string|max:255',
+            'role'                  => 'required|in:superadmin,admin,user',
+            'password'              => 'nullable|string|min:6|confirmed',
+        ], [
+            'name.required'         => 'Nama pengguna wajib diisi.',
+            'role.required'         => 'Role wajib dipilih.',
+            'role.in'               => 'Role yang dipilih tidak valid.',
+            'password.min'          => 'Password baru minimal 6 karakter.',
+            'password.confirmed'    => 'Konfirmasi password baru tidak cocok.',
+        ]);
 
-    ActivityLog::record('UPDATE_USER', "Memperbarui data user '{$user->name}' (Role: {$oldRole} -> {$request->role})");
+        // Super Admin tidak boleh mengubah role dirinya sendiri
+        if (Auth::id() === $user->id && $request->role !== 'superadmin') {
+            return back()->with(
+                'error',
+                'Anda tidak dapat mengubah role akun Super Admin milik Anda sendiri.'
+            );
+        }
 
-    return redirect()
-        ->route('users.index')
-        ->with(
-            'success',
-            "Data user '{$user->name}' berhasil diperbarui."
-        );
-}
+        $oldRole = $user->role;
+        $updateData = [
+            'name' => $request->name,
+            'role' => $request->role,
+        ];
+
+        if ($request->filled('password')) {
+            $updateData['password'] = Hash::make($request->password);
+        }
+
+        $user->update($updateData);
+
+        $logDesc = "Memperbarui data user '{$user->name}' (Role: {$oldRole} -> {$request->role})";
+        if ($request->filled('password')) {
+            $logDesc .= " beserta reset password";
+        }
+
+        ActivityLog::record('UPDATE_USER', $logDesc);
+
+        return redirect()
+            ->route('users.index')
+            ->with(
+                'success',
+                "Data user '{$user->name}' berhasil diperbarui."
+            );
+    }
 
     /**
      * Menghapus pengguna
