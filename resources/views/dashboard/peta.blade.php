@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>BWS KALIMANTAN I - Peta Daerah Irigasi (DIR)</title>
+    <title>BALAI WILAYAH SUNGAI KALIMANTAN I - Peta Daerah Irigasi (DIR)</title>
 
     {{-- Google Fonts: Inter & Nunito --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
