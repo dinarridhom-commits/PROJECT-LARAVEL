@@ -1,8 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ProdukController;
-use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegistrasiController;
@@ -58,16 +56,6 @@ Route::middleware('auth')->group(function () {
         Route::post('/peta/upload-geojson', [DashboardController::class, 'uploadGeojson'])->name('peta.upload-geojson');
         Route::delete('/peta/delete-geojson', [DashboardController::class, 'deleteGeojson'])->name('peta.delete-geojson');
         Route::delete('/peta/delete-geojson-bulk', [DashboardController::class, 'deleteGeojsonBulk'])->name('peta.delete-geojson-bulk');
-
-        // Master Data Produk & Kategori
-        Route::get('/produk', [ProdukController::class, 'index'])->name('produk.index');
-        Route::get('/produk/create', [ProdukController::class, 'create'])->name('produk.create');
-        Route::post('/produk', [ProdukController::class, 'store'])->name('produk.store');
-        Route::get('/produk/{id}', [ProdukController::class, 'show'])->name('produk.show');
-        Route::get('/produk/{id}/edit', [ProdukController::class, 'edit'])->name('produk.edit');
-        Route::put('/produk/{id}', [ProdukController::class, 'update'])->name('produk.update');
-        Route::delete('/produk/{id}', [ProdukController::class, 'destroy'])->name('produk.destroy');
-        Route::resource('kategori', KategoriController::class);
 
         // Akses Utama Admin Panel
         Route::get('/admin', function() {

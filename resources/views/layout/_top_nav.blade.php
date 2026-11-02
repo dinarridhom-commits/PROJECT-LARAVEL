@@ -7,10 +7,10 @@
 <header class="bws-navbar">
     <div class="bws-navbar-inner">
         <div class="bws-nav-left">
-            {{-- Tombol Reset / Home Tampilan Peta (tampil jika di halaman peta) --}}
+            {{-- Tombol Kembali / Navigasi --}}
             @if(request()->is('peta') || request()->is('/') || request()->is('home') || request()->is('dashboard'))
-            <button type="button" class="bws-back-btn" onclick="if(window.resetMapView) resetMapView();" title="Reset Tampilan Peta ke Awal">
-                <i class="fas fa-chevron-left"></i>
+            <button type="button" class="bws-back-btn" onclick="bwsGoBack()" title="Kembali">
+                <i class="fas fa-arrow-left"></i>
             </button>
             @else
             <a href="{{ route('peta') }}" class="bws-back-btn" title="Kembali ke Peta">
@@ -91,6 +91,56 @@
     {{-- Garis Aksen Emas PU --}}
     <div class="bws-accent-strip"></div>
 </header>
+
+{{-- Handler Navigasi Tombol Kembali --}}
+<script>
+    function bwsGoBack() {
+        // 1. Cek apakah ada halaman sebelumnya dari domain yang sama
+        if (document.referrer && document.referrer !== window.location.href) {
+            try {
+                var refUrl = new URL(document.referrer);
+                if (refUrl.origin === window.location.origin) {
+                    if (window.history.length > 1) {
+                        window.history.back();
+                        return;
+                    }
+                    window.location.href = document.referrer;
+                    return;
+                }
+            } catch(e) {}
+        }
+
+        // 2. Jika ada riwayat penjelajahan di sesi browser saat ini
+        if (window.history.length > 1) {
+            window.history.back();
+            return;
+        }
+
+        // 3. Fallback cerdas sesuai status dan konteks halaman:
+        @if(request()->has('layer'))
+            {{-- Jika sedang memfilter layer spesifik (?layer=...), kembali ke peta utama --}}
+            window.location.href = "{{ route('peta') }}";
+        @else
+            @auth
+                @if(in_array(Auth::user()->role, ['superadmin', 'admin']))
+                    window.location.href = "{{ route('users.index') }}";
+                @else
+                    if (window.resetMapView) {
+                        resetMapView();
+                    } else {
+                        window.location.href = "{{ route('peta') }}";
+                    }
+                @endif
+            @else
+                if (window.resetMapView) {
+                    resetMapView();
+                } else {
+                    window.location.href = "{{ route('peta') }}";
+                }
+            @endauth
+        @endif
+    }
+</script>
 
 
 {{-- ============================================================

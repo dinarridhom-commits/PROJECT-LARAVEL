@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Produk;
-use App\Models\Kategori;
 use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -11,50 +9,7 @@ use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
-    public function index(Request $request)
-    {
-        $search = $request->input('search');
-
-        // Statistics
-        $totalProduk = Produk::count();
-        $totalKategori = Kategori::count();
-        $totalStok = Produk::sum('stok') ?? 0;
-        $totalNilaiInventaris = Produk::selectRaw('SUM(harga * stok) as total')->value('total') ?? 0;
-
-        // Query produk
-        $produkQuery = Produk::with('kategori');
-        if ($search) {
-            $produkQuery->where(function($q) use ($search) {
-                $q->where('nama_produk', 'like', "%{$search}%")
-                  ->orWhere('kode_produk', 'like', "%{$search}%")
-                  ->orWhereHas('kategori', function($k) use ($search) {
-                      $k->where('nama_kategori', 'like', "%{$search}%");
-                  });
-            });
-        }
-        $produks = $produkQuery->latest()->get();
-
-        // Query kategori dengan jumlah produk (withCount untuk produks_count)
-        $kategoriQuery = Kategori::withCount('produks');
-        if ($search) {
-            $kategoriQuery->where('nama_kategori', 'like', "%{$search}%")
-                          ->orWhere('deskripsi', 'like', "%{$search}%");
-        }
-        $kategori = $kategoriQuery->latest()->get();
-
-        return view('dashboard.index', [
-            'title' => 'Dashboard Utama',
-            'totalProduk' => $totalProduk,
-            'totalKategori' => $totalKategori,
-            'totalStok' => $totalStok,
-            'totalNilaiInventaris' => $totalNilaiInventaris,
-            'produks' => $produks,
-            'kategori' => $kategori,
-            'search' => $search
-        ]);
-    }
-
-   public function peta()
+    public function peta()
     {
         $defaultBaselineFiles = [
             'Baku_DIR_PEMANGKAT_KOMPLEK____OVERLAP.json',
