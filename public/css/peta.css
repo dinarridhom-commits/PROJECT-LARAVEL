@@ -426,21 +426,79 @@ body {
     margin-top: 6px !important;
     margin-bottom: 0 !important;
 }
-.bws-popup-card .table th {
+.bws-popup-card .table th,
+.bws-popup-card .table th.bws-attr-th {
     background-color: rgba(241, 245, 249, 0.75) !important;
     color: #475569 !important;
     font-weight: 700 !important;
     border: 1px solid rgba(226, 232, 240, 0.7) !important;
     vertical-align: middle !important;
-    white-space: nowrap !important;
-    width: 35% !important;
+    width: 36% !important;
+    min-width: 78px !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    line-height: 1.25 !important;
 }
-.bws-popup-card .table td {
+.bws-popup-card .table td,
+.bws-popup-card .table td.bws-attr-td {
     color: #1e293b !important;
     border: 1px solid rgba(226, 232, 240, 0.7) !important;
     vertical-align: middle !important;
     word-break: break-word !important;
 }
+
+/* Tombol Aksi Lapangan di Popup: Salin Koordinat & Google Maps */
+.bws-popup-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    padding-top: 7px;
+    border-top: 1px solid rgba(226, 232, 240, 0.7);
+}
+.bws-popup-act-btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 5px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none !important;
+    transition: all 0.15s ease;
+    border: 1px solid rgba(203, 213, 225, 0.8);
+    background: rgba(255, 255, 255, 0.9);
+    color: #334155 !important;
+    outline: none !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    white-space: nowrap;
+}
+.bws-popup-act-btn:hover {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    color: #1e293b !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+.bws-popup-act-btn.bws-btn-gmaps {
+    background: rgba(239, 246, 255, 0.9);
+    border-color: rgba(191, 219, 254, 0.9);
+    color: #1d4ed8 !important;
+}
+.bws-popup-act-btn.bws-btn-gmaps:hover {
+    background: #1d4ed8;
+    color: #ffffff !important;
+    border-color: #1d4ed8;
+}
+.bws-popup-act-btn.is-copied {
+    background: #f0fdf4 !important;
+    border-color: #86efac !important;
+    color: #166534 !important;
+}
+
 .leaflet-popup-tip-container {
     overflow: visible;
 }
@@ -456,7 +514,7 @@ body {
 
 /* --- Level 1: Zoom Sangat Dekat (>= 15) - Ukuran Penuh & Lega --- */
 #map.bws-popup-zoom-xl .leaflet-popup-content-wrapper { border-radius: 14px !important; }
-#map.bws-popup-zoom-xl .leaflet-popup-content { width: 250px !important; min-width: 250px !important; margin: 12px 16px !important; }
+#map.bws-popup-zoom-xl .leaflet-popup-content { width: 260px !important; min-width: 260px !important; margin: 12px 16px !important; }
 #map.bws-popup-zoom-xl .bws-popup-title { font-size: 14.5px !important; margin-bottom: 4px; }
 #map.bws-popup-zoom-xl .bws-popup-card { font-size: 12px !important; }
 #map.bws-popup-zoom-xl .bws-popup-badge-wrap { margin-bottom: 6px; }
@@ -467,7 +525,7 @@ body {
 
 /* --- Level 2: Zoom Sedang (12 - 14) - Standar Proporsional --- */
 #map.bws-popup-zoom-lg .leaflet-popup-content-wrapper { border-radius: 12px !important; }
-#map.bws-popup-zoom-lg .leaflet-popup-content { width: 215px !important; min-width: 215px !important; margin: 10px 14px !important; }
+#map.bws-popup-zoom-lg .leaflet-popup-content { width: 230px !important; min-width: 230px !important; margin: 10px 14px !important; }
 #map.bws-popup-zoom-lg .bws-popup-title { font-size: 13px !important; margin-bottom: 3px; }
 #map.bws-popup-zoom-lg .bws-popup-card { font-size: 11px !important; }
 #map.bws-popup-zoom-lg .bws-popup-badge-wrap { margin-bottom: 5px; }
@@ -478,18 +536,18 @@ body {
 
 /* --- Level 3: Zoom Kecamatan (9 - 11) - Kompak & Ramping --- */
 #map.bws-popup-zoom-md .leaflet-popup-content-wrapper { border-radius: 10px !important; }
-#map.bws-popup-zoom-md .leaflet-popup-content { width: 175px !important; min-width: 175px !important; margin: 8px 11px !important; }
+#map.bws-popup-zoom-md .leaflet-popup-content { width: 195px !important; min-width: 195px !important; margin: 8px 11px !important; }
 #map.bws-popup-zoom-md .bws-popup-title { font-size: 11.5px !important; margin-bottom: 2px; }
 #map.bws-popup-zoom-md .bws-popup-card { font-size: 10px !important; }
 #map.bws-popup-zoom-md .bws-popup-badge-wrap { margin-bottom: 4px; }
 #map.bws-popup-zoom-md .bws-popup-badge-wrap .badge { font-size: 9px !important; padding: 2px 6px; }
 #map.bws-popup-zoom-md .bws-popup-card .table { font-size: 9px !important; }
 #map.bws-popup-zoom-md .bws-popup-card .table th,
-#map.bws-popup-zoom-md .bws-popup-card .table td { padding: 2px 5px !important; }
+#map.bws-popup-zoom-md .bws-popup-card .table td { padding: 2.5px 5px !important; }
 
 /* --- Level 4: Zoom Jauh / Provinsi (<= 8) - Miniatur Rapi --- */
 #map.bws-popup-zoom-sm .leaflet-popup-content-wrapper { border-radius: 8px !important; }
-#map.bws-popup-zoom-sm .leaflet-popup-content { width: 140px !important; min-width: 140px !important; margin: 6px 9px !important; }
+#map.bws-popup-zoom-sm .leaflet-popup-content { width: 160px !important; min-width: 160px !important; margin: 6px 9px !important; }
 #map.bws-popup-zoom-sm .bws-popup-title { font-size: 10px !important; margin-bottom: 2px; }
 #map.bws-popup-zoom-sm .bws-popup-card { font-size: 8.5px !important; }
 #map.bws-popup-zoom-sm .bws-popup-badge-wrap { margin-bottom: 3px; }
@@ -978,12 +1036,14 @@ body.page-peta-v2 {
 }
 
 /* ============================================================
-   P4. SIDEBAR FILTER V2 (GLASSMORPHISM)
+   P4. SIDEBAR FILTER V2 (GLASSMORPHISM & COMPACT DENSITY)
+   Fungsi: Didesain kompak dan proporsional agar pas di layar laptop
+   (1366x768 / scaling 125%) tanpa harus scroll.
    ============================================================ */
 .peta-v2-sidebar {
-    width: 300px;
-    min-width: 300px;
-    max-width: 300px;
+    width: 290px;
+    min-width: 290px;
+    max-width: 290px;
     background: rgba(255, 255, 255, 0.72);
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
@@ -1001,50 +1061,50 @@ body.page-peta-v2 {
 .peta-v2-sidebar::-webkit-scrollbar-track { background: rgba(241, 245, 249, 0.4); }
 .peta-v2-sidebar::-webkit-scrollbar-thumb { background: rgba(203, 213, 225, 0.8); border-radius: 4px; }
 
-/* Header sidebar */
+/* Header sidebar (Kompak) */
 .psb-header {
     display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 18px 18px 14px;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
     border-bottom: 1px solid rgba(226, 232, 240, 0.6);
     background: rgba(255, 255, 255, 0.45);
 }
 .psb-header-icon {
-    width: 38px; height: 38px;
-    border-radius: 10px;
+    width: 32px; height: 32px;
+    border-radius: 8px;
     background: rgba(239, 246, 255, 0.85);
     border: 1px solid rgba(191, 219, 254, 0.6);
     color: #1d4ed8;
     display: flex; align-items: center; justify-content: center;
-    font-size: 16px;
+    font-size: 14px;
     flex-shrink: 0;
     box-shadow: 0 2px 6px rgba(29, 78, 216, 0.1);
 }
 .psb-header-title {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
     color: #1e293b;
-    line-height: 1.3;
+    line-height: 1.25;
 }
 .psb-header-sub {
-    font-size: 11.5px;
+    font-size: 10.5px;
     color: #64748b;
-    margin-top: 2px;
+    margin-top: 1px;
 }
 
-/* Section */
+/* Section (Kompak) */
 .psb-section {
-    padding: 14px 18px;
+    padding: 9px 14px;
     border-bottom: 1px solid rgba(226, 232, 240, 0.5);
 }
 .psb-label {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
     color: #475569;
     text-transform: uppercase;
     letter-spacing: 0.4px;
-    margin-bottom: 8px;
+    margin-bottom: 5px;
     display: block;
 }
 
@@ -1052,10 +1112,10 @@ body.page-peta-v2 {
 .psb-search-wrap { position: relative; }
 .psb-search-input {
     width: 100%;
-    padding: 9px 12px;
+    padding: 7px 10px;
     border: 1.5px solid rgba(203, 213, 225, 0.7);
-    border-radius: 10px;
-    font-size: 13px;
+    border-radius: 8px;
+    font-size: 12px;
     color: #1e293b;
     background: rgba(255, 255, 255, 0.65);
     backdrop-filter: blur(10px);
@@ -1072,29 +1132,29 @@ body.page-peta-v2 {
 }
 .psb-search-input::placeholder { color: #94a3b8; }
 .psb-search-hint {
-    font-size: 11px;
+    font-size: 10px;
     color: #94a3b8;
-    margin-top: 6px;
-    line-height: 1.5;
+    margin-top: 3px;
+    line-height: 1.35;
 }
 
 /* Select Wilayah */
 .psb-select-wrap { position: relative; }
 .psb-select-icon {
     position: absolute;
-    left: 10px;
+    left: 9px;
     top: 50%;
     transform: translateY(-50%);
     color: #64748b;
-    font-size: 12px;
+    font-size: 11px;
     z-index: 1;
 }
 .psb-select {
     width: 100%;
-    padding: 9px 12px 9px 30px;
+    padding: 7px 10px 7px 26px;
     border: 1.5px solid rgba(203, 213, 225, 0.7);
-    border-radius: 10px;
-    font-size: 13px;
+    border-radius: 8px;
+    font-size: 12px;
     color: #1e293b;
     background: rgba(255, 255, 255, 0.65);
     backdrop-filter: blur(10px);
@@ -1116,23 +1176,23 @@ body.page-peta-v2 {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 12px;
+    margin-bottom: 6px;
 }
 .psb-cat-link {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
     color: #1d4ed8;
     text-decoration: none;
 }
 .psb-cat-link:hover { text-decoration: underline; }
 
-/* Category Item */
+/* Category Item (Kompak) */
 .psb-cat-item {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 8px 10px;
-    border-radius: 10px;
+    gap: 8px;
+    padding: 5px 6px;
+    border-radius: 8px;
     border-bottom: 1px solid rgba(241, 245, 249, 0.6);
     transition: all 0.2s ease;
 }
@@ -1143,25 +1203,25 @@ body.page-peta-v2 {
 .psb-cat-item:last-child { border-bottom: none; }
 .psb-cat-item.disabled { opacity: 0.45; }
 .psb-cat-icon {
-    width: 34px; height: 34px;
-    border-radius: 10px;
+    width: 28px; height: 28px;
+    border-radius: 6px;
     border: 1px solid rgba(255, 255, 255, 0.85);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
     display: flex; align-items: center; justify-content: center;
-    font-size: 14px;
+    font-size: 12px;
     flex-shrink: 0;
 }
 .psb-cat-info { flex: 1; min-width: 0; }
-.psb-cat-name { font-size: 13px; font-weight: 600; color: #1e293b; }
-.psb-cat-desc { font-size: 11px; color: #64748b; margin-top: 1px; }
+.psb-cat-name { font-size: 12px; font-weight: 600; color: #1e293b; line-height: 1.25; }
+.psb-cat-desc { font-size: 10px; color: #64748b; margin-top: 1px; line-height: 1.2; }
 
 /* Toggle Button */
 .psb-toggle {
-    width: 30px; height: 30px;
+    width: 24px; height: 24px;
     border-radius: 50%;
     border: none;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 11px;
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
     transition: all 0.2s ease;
@@ -1174,34 +1234,34 @@ body.page-peta-v2 {
 
 /* Footer Info */
 .psb-footer-info {
-    padding: 12px 18px;
-    font-size: 11.5px;
+    padding: 8px 14px;
+    font-size: 10.5px;
     color: #64748b;
     background: rgba(248, 250, 252, 0.5);
     border-top: 1px solid rgba(226, 232, 240, 0.5);
-    line-height: 1.55;
+    line-height: 1.45;
     border-bottom: 1px solid rgba(226, 232, 240, 0.5);
 }
 
 /* Admin Actions */
 .psb-admin-actions {
-    padding: 14px 18px;
+    padding: 10px 14px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
 }
 .psb-btn-admin {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 9px 14px;
-    border-radius: 10px;
+    padding: 7px 12px;
+    border-radius: 8px;
     border: 1.5px solid rgba(203, 213, 225, 0.7);
     background: rgba(255, 255, 255, 0.65);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     color: #334155;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -1217,13 +1277,14 @@ body.page-peta-v2 {
     background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
     border-color: rgba(255, 255, 255, 0.3);
     color: #ffffff;
-    box-shadow: 0 4px 12px rgba(29, 78, 216, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    box-shadow: 0 3px 10px rgba(29, 78, 216, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 .psb-btn-admin.psb-btn-primary:hover {
     background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%);
     border-color: rgba(255, 255, 255, 0.4);
-    box-shadow: 0 6px 16px rgba(29, 78, 216, 0.35);
+    box-shadow: 0 4px 14px rgba(29, 78, 216, 0.35);
 }
+
 
 /* ============================================================
    P5. AREA PETA & TABEL V2 (GLASSMORPHISM)
@@ -1335,16 +1396,49 @@ body.page-peta-v2 {
     transform: translateY(-1px);
 }
 
-/* Peta Wrapper */
+/* Peta Wrapper & Mode Fullscreen */
 .peta-v2-map-wrap {
     flex: 1;
     position: relative;
     overflow: hidden;
+    transition: all 0.2s ease;
 }
 .peta-v2-map-wrap #map {
     width: 100%;
     height: 100%;
     min-height: 400px;
+}
+
+/* Mode Fullscreen Peta (Layar Penuh) */
+.peta-v2-map-wrap.is-fullscreen {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 99999 !important;
+    background: #ffffff !important;
+}
+.peta-v2-map-wrap.is-fullscreen #map {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 100vh !important;
+}
+
+/* Tombol Kontrol Fullscreen Leaflet */
+.leaflet-control-fullscreen a {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 13px !important;
+    color: #334155 !important;
+    cursor: pointer !important;
+    text-decoration: none !important;
+    transition: all 0.15s ease !important;
+}
+.leaflet-control-fullscreen a:hover {
+    color: #1d4ed8 !important;
+    background: #f8fafc !important;
 }
 
 /* Tabel Wrapper */

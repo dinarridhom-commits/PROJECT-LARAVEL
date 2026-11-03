@@ -123,6 +123,77 @@ var map = L.map('map', { center: defaultCenter, zoom: 8, layers: [osm], zoomCont
 window.map = map;
 var mapBounds = L.latLngBounds();
 
+// ============================================================
+// TOMBOL FULLSCREEN PETA (LAYAR PENUH)
+// ============================================================
+var FullscreenControl = L.Control.extend({
+    options: { position: 'topleft' },
+    onAdd: function() {
+        var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-fullscreen');
+        var btn = L.DomUtil.create('a', 'leaflet-control-fullscreen-button', container);
+        btn.href = '#';
+        btn.title = 'Layar Penuh (Fullscreen Peta)';
+        btn.setAttribute('role', 'button');
+        btn.setAttribute('aria-label', 'Layar Penuh');
+        btn.innerHTML = '<i class="fas fa-expand"></i>';
+
+        L.DomEvent.disableClickPropagation(container);
+        L.DomEvent.on(btn, 'click', function(e) {
+            L.DomEvent.stop(e);
+            toggleMapFullscreen(btn);
+        });
+        return container;
+    }
+});
+map.addControl(new FullscreenControl());
+
+function toggleMapFullscreen(btnEl) {
+    var mapWrap = document.querySelector('.peta-v2-map-wrap') || document.getElementById('section-map') || document.getElementById('map');
+    if (!mapWrap) return;
+
+    var isFs = mapWrap.classList.toggle('is-fullscreen');
+    document.body.classList.toggle('map-is-fullscreen', isFs);
+
+    var icon = btnEl ? btnEl.querySelector('i') : document.querySelector('.leaflet-control-fullscreen-button i');
+    if (isFs) {
+        if (icon) icon.className = 'fas fa-compress';
+        if (btnEl) btnEl.title = 'Keluar Layar Penuh (ESC)';
+        if (mapWrap.requestFullscreen && !document.fullscreenElement) {
+            mapWrap.requestFullscreen().catch(function() {});
+        }
+    } else {
+        if (icon) icon.className = 'fas fa-expand';
+        if (btnEl) btnEl.title = 'Layar Penuh (Fullscreen Peta)';
+        if (document.exitFullscreen && document.fullscreenElement) {
+            document.exitFullscreen().catch(function() {});
+        }
+    }
+
+    setTimeout(function() {
+        if (map && map.invalidateSize) map.invalidateSize();
+    }, 150);
+}
+
+// Listener tombol ESC & fullscreenchange browser
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' || e.key === 'Esc') {
+        var mapWrap = document.querySelector('.peta-v2-map-wrap.is-fullscreen');
+        if (mapWrap) {
+            var btn = document.querySelector('.leaflet-control-fullscreen-button');
+            toggleMapFullscreen(btn);
+        }
+    }
+});
+document.addEventListener('fullscreenchange', function() {
+    if (!document.fullscreenElement) {
+        var mapWrap = document.querySelector('.peta-v2-map-wrap.is-fullscreen');
+        if (mapWrap) {
+            var btn = document.querySelector('.leaflet-control-fullscreen-button');
+            toggleMapFullscreen(btn);
+        }
+    }
+});
+
 // 54 File Baseline Default Sistem BWS
 var DEFAULT_BASELINE_FILES = [
     'Baku_DIR_PEMANGKAT_KOMPLEK____OVERLAP.json',
@@ -650,6 +721,63 @@ function getFeatureAccurateLatLng(feat, layer) {
 }
 
 /**
+ * Format nama field GIS menjadi label yang rapi dan mudah dibaca
+ * (Menghindari kata terpotong seperti 'Nomenklatu' -> 'Nomenklatur')
+ */
+function formatAttributeLabel(key) {
+    if (!key) return '';
+    var map = {
+        'Nomenklatu': 'Nomenklatur',
+        'nomenklatu': 'Nomenklatur',
+        'NOMENKLATU': 'Nomenklatur',
+        'Ket': 'Keterangan',
+        'ket': 'Keterangan',
+        'KET': 'Keterangan',
+        'OID_': 'ID Objek',
+        'oid_': 'ID Objek',
+        'FID': 'FID',
+        'fid': 'FID',
+        'Luas_Ha': 'Luas (Ha)',
+        'LUAS_HA': 'Luas (Ha)',
+        'D_I_R': 'Daerah Irigasi',
+        'D_I': 'Daerah Irigasi',
+        'Kewenangan': 'Kewenangan',
+        'KEWENANGAN': 'Kewenangan',
+        'Kabupaten': 'Kabupaten',
+        'KABUPATEN': 'Kabupaten',
+        'Name': 'Nama Objek',
+        'NAME': 'Nama Objek',
+        'Sumber': 'Sumber Data'
+    };
+    if (map[key]) return map[key];
+    return key.replace(/_/g, ' ');
+}
+
+/**
+ * Salin titik koordinat ke clipboard pengguna dengan umpan balik visual
+ */
+window.copyPopupCoord = function(lat, lng, btnEl) {
+    var coordStr = Number(lat).toFixed(6) + ', ' + Number(lng).toFixed(6);
+    function showCopied() {
+        if (!btnEl) return;
+        var prevHtml = btnEl.innerHTML;
+        btnEl.innerHTML = '<i class="fas fa-check text-success mr-1"></i><span>Tersalin!</span>';
+        btnEl.classList.add('is-copied');
+        setTimeout(function() {
+            btnEl.innerHTML = prevHtml;
+            btnEl.classList.remove('is-copied');
+        }, 1800);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(coordStr).then(showCopied).catch(function() {
+            prompt('Salin koordinat berikut:', coordStr);
+        });
+    } else {
+        prompt('Salin koordinat berikut:', coordStr);
+    }
+};
+
+/**
  * Membangun konten HTML Card Popup interaktif (sesuai standar Gambar No. 2)
  * Digunakan saat marker di klik di peta maupun saat tombol "Fokus" di tabel ditekan.
  */
@@ -666,25 +794,44 @@ function buildFeatureCardPopup(cleanName, categoryBadge, properties, fileName, l
             var val = p[k];
             if (val !== null && val !== undefined && val !== '' && typeof val !== 'object') {
                 if (countProp < 5) {
-                    html += '<tr><th class="bg-light text-secondary font-weight-bold">' + k + '</th><td>' + val + '</td></tr>';
+                    var displayLabel = formatAttributeLabel(k);
+                    html += '<tr><th class="bws-attr-th">' + displayLabel + '</th><td class="bws-attr-td">' + val + '</td></tr>';
                     countProp++;
                 }
             }
         }
     }
 
+    var validLat = (lat !== null && lat !== undefined && !isNaN(lat)) ? Number(lat) : null;
+    var validLng = (lng !== null && lng !== undefined && !isNaN(lng)) ? Number(lng) : null;
+
     // Jika GeoJSON tidak memiliki properties bawaan, tampilkan koordinat pusat & nama file
     if (countProp === 0) {
-        var latStr = (lat !== null && !isNaN(lat)) ? Number(lat).toFixed(5) : '-';
-        var lngStr = (lng !== null && !isNaN(lng)) ? Number(lng).toFixed(5) : '-';
-        html += '<tr><th class="bg-light text-secondary font-weight-bold">Latitude (Y)</th><td><code>' + latStr + '</code></td></tr>' +
-                '<tr><th class="bg-light text-secondary font-weight-bold">Longitude (X)</th><td><code>' + lngStr + '</code></td></tr>';
+        var latStr = validLat ? validLat.toFixed(5) : '-';
+        var lngStr = validLng ? validLng.toFixed(5) : '-';
+        html += '<tr><th class="bws-attr-th">Latitude (Y)</th><td class="bws-attr-td"><code>' + latStr + '</code></td></tr>' +
+                '<tr><th class="bws-attr-th">Longitude (X)</th><td class="bws-attr-td"><code>' + lngStr + '</code></td></tr>';
         if (fileName) {
-            html += '<tr><th class="bg-light text-secondary font-weight-bold">Sumber File</th><td class="text-monospace small">' + fileName + '</td></tr>';
+            html += '<tr><th class="bws-attr-th">Sumber File</th><td class="bws-attr-td text-monospace small">' + fileName + '</td></tr>';
         }
     }
 
-    html += '</tbody></table></div>';
+    html += '</tbody></table>';
+
+    // Tombol Aksi Lapangan: "Salin Koordinat" dan "Buka di Google Maps"
+    if (validLat !== null && validLng !== null) {
+        var gmapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + validLat.toFixed(6) + ',' + validLng.toFixed(6);
+        html += '<div class="bws-popup-actions">' +
+            '<button type="button" class="bws-popup-act-btn bws-btn-copy" onclick="copyPopupCoord(' + validLat + ', ' + validLng + ', this)" title="Salin titik koordinat (Latitude, Longitude)">' +
+                '<i class="far fa-copy mr-1"></i><span>Salin Koordinat</span>' +
+            '</button>' +
+            '<a href="' + gmapsUrl + '" target="_blank" rel="noopener noreferrer" class="bws-popup-act-btn bws-btn-gmaps" title="Buka rute navigasi dan lokasi fisik di Google Maps">' +
+                '<i class="fas fa-location-arrow mr-1"></i><span>Google Maps</span>' +
+            '</a>' +
+        '</div>';
+    }
+
+    html += '</div>';
     return html;
 }
 
@@ -834,6 +981,14 @@ if (window.geojsonFiles && window.geojsonFiles.length > 0) {
                         if (feat.geometry && feat.geometry.type === 'Point' && feat.geometry.coordinates) {
                             pLng = feat.geometry.coordinates[0];
                             pLat = feat.geometry.coordinates[1];
+                        } else if (layer.getBounds && layer.getBounds().isValid && layer.getBounds().isValid()) {
+                            var centerPt = layer.getBounds().getCenter();
+                            pLat = centerPt.lat;
+                            pLng = centerPt.lng;
+                        } else if (layer.getLatLng) {
+                            var ll = layer.getLatLng();
+                            pLat = ll.lat;
+                            pLng = ll.lng;
                         }
                         var popup = buildFeatureCardPopup(cleanName, categoryBadge, p, fileName, pLat, pLng);
                         layer.bindPopup(popup, { autoPan: true, autoPanPadding: [50, 50] });
