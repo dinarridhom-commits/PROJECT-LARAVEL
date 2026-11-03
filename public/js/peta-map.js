@@ -221,12 +221,75 @@ function getAdaptiveMarkerSize(zoom) {
     return { radius: 5.5, weight: 1.5 };
 }
 
+/**
+ * Penyesuaian Skala Popup Adaptif saat Pengecilan/Pembesaran Peta (Zoom In / Zoom Out)
+ * Menjaga card popup tetap proporsional dan ikut mengecil saat peta diperkecil (zoom out).
+ */
+function getAdaptivePopupScale(zoom) {
+    if (zoom >= 15) return 1.0;
+    if (zoom <= 7)  return 0.45;
+    // Skala linear dari zoom 7 (0.45) hingga zoom 15 (1.00)
+    var scale = 0.45 + ((zoom - 7) / (15 - 7)) * (1.0 - 0.45);
+    return Math.round(scale * 100) / 100;
+}
+
+function updateAdaptivePopupScale(targetZoom, specificPopup) {
+    if (!window.map) return;
+    var z = (targetZoom !== undefined && targetZoom !== null) ? targetZoom : (map.getZoom ? map.getZoom() : 8);
+    var scale = getAdaptivePopupScale(z);
+
+    var mapEl = document.getElementById('map');
+    if (mapEl) {
+        mapEl.style.setProperty('--popup-scale', scale);
+    }
+
+    function applyScaleToEl(el) {
+        if (!el) return;
+        el.style.transformOrigin = '50% 100%';
+        if (el.style.scale !== undefined) {
+            el.style.scale = scale;
+        } else {
+            el.style.zoom = scale;
+        }
+    }
+
+    if (specificPopup && specificPopup.getElement && specificPopup.getElement()) {
+        applyScaleToEl(specificPopup.getElement());
+    }
+
+    var popups = document.querySelectorAll('.leaflet-popup');
+    for (var i = 0; i < popups.length; i++) {
+        applyScaleToEl(popups[i]);
+    }
+}
+
+// Sinkronisasi saat zoom peta (animasi halus & event akhir)
+map.on('zoomanim', function(e) {
+    if (e && e.zoom !== undefined) {
+        updateAdaptivePopupScale(e.zoom);
+    }
+});
+
+map.on('zoom', function() {
+    updateAdaptivePopupScale(map.getZoom());
+});
+
 map.on('zoomend', function() {
-    var size = getAdaptiveMarkerSize(map.getZoom());
+    var currentZoom = map.getZoom();
+    var size = getAdaptiveMarkerSize(currentZoom);
     for (var i = 0; i < allCircleMarkers.length; i++) {
         allCircleMarkers[i].setRadius(size.radius);
         allCircleMarkers[i].setStyle({ weight: size.weight });
     }
+    updateAdaptivePopupScale(currentZoom);
+});
+
+map.on('popupopen', function(e) {
+    var currentZoom = map.getZoom ? map.getZoom() : 8;
+    updateAdaptivePopupScale(currentZoom, e ? e.popup : null);
+    setTimeout(function() {
+        updateAdaptivePopupScale(map.getZoom ? map.getZoom() : 8, e ? e.popup : null);
+    }, 15);
 });
 
 // Inisialisasi Layer Group khusus per file upload (otomatis muncul & hilang sesuai file di server)
