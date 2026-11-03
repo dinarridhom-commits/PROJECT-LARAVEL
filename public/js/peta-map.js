@@ -202,26 +202,8 @@ var layerFungsional = L.layerGroup(); if (window.availableTypes && window.availa
 var layerPotensial  = L.layerGroup(); if (window.availableTypes && window.availableTypes.potensial)  layerPotensial.addTo(map);
 var layerSaluran    = L.layerGroup(); if (window.availableTypes && window.availableTypes.saluran)    layerSaluran.addTo(map);
 
-// Bangunan Air menggunakan MarkerClusterGroup agar titik tidak bertumpuk saat zoom out
-var layerBangunan = (typeof L.markerClusterGroup === 'function')
-    ? L.markerClusterGroup({
-        chunkedLoading: true,
-        maxClusterRadius: 40,
-        spiderfyOnMaxZoom: true,
-        showCoverageOnHover: false,
-        zoomToBoundsOnClick: true,
-        iconCreateFunction: function(cluster) {
-            var count = cluster.getChildCount();
-            var size = count < 10 ? 30 : (count < 50 ? 36 : 42);
-            return L.divIcon({
-                html: '<div class="bws-cluster-marker bws-cluster-bangunan"><span>' + count + '</span></div>',
-                className: 'bws-cluster-wrap',
-                iconSize: L.point(size, size)
-            });
-        }
-    })
-    : L.layerGroup();
-if (window.availableTypes && window.availableTypes.bangunan) layerBangunan.addTo(map);
+// Layer Bangunan Air (standar tanpa nomor / tanpa badge cluster angka)
+var layerBangunan   = L.layerGroup(); if (window.availableTypes && window.availableTypes.bangunan)   layerBangunan.addTo(map);
 
 // Ekspos ke global window untuk kontrol filter sidebar & reset
 window.layerBaku       = layerBaku;
@@ -229,6 +211,23 @@ window.layerFungsional = layerFungsional;
 window.layerPotensial  = layerPotensial;
 window.layerSaluran    = layerSaluran;
 window.layerBangunan   = layerBangunan;
+
+// Koleksi titik untuk penyesuaian ukuran adaptif saat zoom in / zoom out
+var allCircleMarkers = [];
+function getAdaptiveMarkerSize(zoom) {
+    if (zoom <= 9)  return { radius: 2.2, weight: 0.6 };
+    if (zoom <= 11) return { radius: 3.2, weight: 0.9 };
+    if (zoom <= 13) return { radius: 4.2, weight: 1.2 };
+    return { radius: 5.5, weight: 1.5 };
+}
+
+map.on('zoomend', function() {
+    var size = getAdaptiveMarkerSize(map.getZoom());
+    for (var i = 0; i < allCircleMarkers.length; i++) {
+        allCircleMarkers[i].setRadius(size.radius);
+        allCircleMarkers[i].setStyle({ weight: size.weight });
+    }
+});
 
 // Inisialisasi Layer Group khusus per file upload (otomatis muncul & hilang sesuai file di server)
 var customFileMap = {};
@@ -648,15 +647,22 @@ if (window.geojsonFiles && window.geojsonFiles.length > 0) {
                         };
                     },
                     pointToLayer: function(feat, latlng) {
-                        // Titik: lingkaran bersih dengan border putih halus (seperti peta GIS profesional)
-                        return L.circleMarker(latlng, {
-                            radius: 5,
+                        // Titik bersih tanpa nomor: ukuran adaptif sesuai zoom agar tidak bertumpuk saat layar diperkecil
+                        var currentZoom = map.getZoom ? map.getZoom() : 8;
+                        var sz = (typeof getAdaptiveMarkerSize === 'function')
+                            ? getAdaptiveMarkerSize(currentZoom)
+                            : { radius: 3, weight: 1 };
+
+                        var cm = L.circleMarker(latlng, {
+                            radius: sz.radius,
                             fillColor: fillColor,
                             color: '#ffffff',
-                            weight: 1.5,
+                            weight: sz.weight,
                             fillOpacity: 0.9,
                             opacity: 1
                         });
+                        allCircleMarkers.push(cm);
+                        return cm;
                     },
                     onEachFeature: function(feat, layer) {
                         var p = feat.properties || {};
@@ -892,11 +898,7 @@ function renderTable() {
             }
 
             // 5. Zoom peta ke area objek
-            if (targetSubLayer && row.targetLayer && typeof row.targetLayer.zoomToShowLayer === 'function') {
-                row.targetLayer.zoomToShowLayer(targetSubLayer, function() {
-                    if (targetSubLayer.openPopup) targetSubLayer.openPopup();
-                });
-            } else if (row.bounds && row.bounds.isValid && row.bounds.isValid()) {
+            if (row.bounds && row.bounds.isValid && row.bounds.isValid()) {
                 map.fitBounds(row.bounds, { padding: [60, 60], maxZoom: 16 });
             } else if (targetLatLng) {
                 map.flyTo(targetLatLng, 15, { animate: true, duration: 0.8 });
