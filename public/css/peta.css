@@ -266,10 +266,10 @@ body {
 
 .bws-sidebar {
     width: 200px; min-width: 200px; max-width: 200px;
-    background: var(--bws-card);
-    border-right: 1px solid var(--bws-border);
-    padding: 18px 16px;
-    display: flex; flex-direction: column; gap: 16px;
+    background: #f8fafc;
+    border-right: 1px solid #e2e8f0;
+    padding: 16px 14px;
+    display: flex; flex-direction: column; gap: 14px;
 }
 .bws-filter-group { display: flex; flex-direction: column; gap: 6px; }
 .bws-filter-label { font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 0; display: flex; align-items: center; gap: 6px; }

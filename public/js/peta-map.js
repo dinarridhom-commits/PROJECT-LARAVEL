@@ -752,7 +752,7 @@ function renderTable() {
                     mapSec.style.display = 'block';
                     if (tblSec) tblSec.style.display = 'block';
                     var mapEl = document.getElementById('map');
-                    if (mapEl) mapEl.style.height = '480px';
+                    if (mapEl) mapEl.style.height = '420px';
                 }
             }
             if (map && map.invalidateSize) {
