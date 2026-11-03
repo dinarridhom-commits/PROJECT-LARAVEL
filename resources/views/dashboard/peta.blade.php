@@ -330,125 +330,153 @@
             </div>
 
 
-            {{-- SECTION TABEL (tersembunyi, tampil saat klik tab Tabel) --}}
+            {{-- SECTION TABEL (Tampilan Modern Sesuai Gambar No. 2) --}}
             <div id="section-table" class="peta-v2-table-wrap" style="display:none;">
-                <div class="bws-table-toolbar">
-                    <div class="bws-table-title">
-                        <span>Daftar Pos Daerah Irigasi &amp; Data Spasial</span>
-                        <span class="badge badge-light border text-muted px-2 py-1"
-                              style="font-size:12px;" id="badge-total-file-tabel">
-                            {{ count($fileList) }} File
-                        </span>
-                    </div>
+                <div class="bws-table-card-v2">
 
-                    <div class="bws-table-controls">
-                        {{-- Pencarian --}}
-                        <div class="bws-search-input-wrap">
-                            <i class="fas fa-search"></i>
-                            <input type="text"
-                                   id="cari-tabel-koordinat"
-                                   placeholder="Cari nama pos/objek/file..."
-                                   onkeyup="filterTabelKoordinat(this.value); syncSearchInputs(this.value);">
+                    {{-- Toolbar Atas: Judul, Badge Jumlah File & Input Pencarian --}}
+                    <div class="bws-table-v2-header">
+                        <div class="bws-table-v2-title">
+                            <i class="fas fa-layer-group text-primary mr-2"></i>
+                            <span>Daftar Pos &amp; Data Spasial Irigasi</span>
+                            <span class="bws-v2-count-badge" id="badge-total-file-tabel">
+                                {{ count($fileList) }} File
+                            </span>
                         </div>
 
-                        {{-- Tombol Admin --}}
-                        @if(Auth::check() && in_array(Auth::user()->role, ['admin', 'superadmin']))
-                        <button type="button" class="btn-export-green" onclick="exportDataToCsv()"
-                                title="Unduh data dalam format CSV/Excel">
-                            <i class="fas fa-file-excel"></i>
-                            <span>Export CSV</span>
-                        </button>
-                        <div class="dropdown d-inline-block">
-                            <button type="button"
-                                    class="btn btn-sm btn-primary dropdown-toggle font-weight-bold shadow-sm px-3"
-                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
-                                    style="height:38px; border-radius:6px; font-size:13px;">
-                                <i class="fas fa-file-download mr-1"></i>
-                                <span>Unduh GeoJSON</span>
-                            </button>
-                            <div class="dropdown-menu dropdown-menu-right shadow border-0 py-2"
-                                 style="border-radius:8px; min-width:250px; z-index:1060;">
-                                <div class="dropdown-header text-uppercase font-weight-bold text-xs text-muted">
-                                    Unduh Arsip GeoJSON (.ZIP)
-                                </div>
-                                <a class="dropdown-item py-2 d-flex align-items-center justify-content-between"
-                                   href="{{ route('peta.download-category', 'all') }}">
-                                    <span><i class="fas fa-archive text-primary mr-2"></i> Semua Data GIS</span>
-                                    <span class="badge badge-primary px-2">{{ count($fileList) }}</span>
-                                </a>
-                                <div class="dropdown-divider my-1"></div>
-                                <a class="dropdown-item py-2 d-flex align-items-center justify-content-between"
-                                   href="{{ route('peta.download-category', 'baku') }}">
-                                    <span class="d-flex align-items-center">
-                                        <span class="bws-flyout-badge mr-2" style="background:#27ae60;"></span> DIR Baku
-                                    </span>
-                                    <span class="badge badge-light border text-muted">9 File</span>
-                                </a>
-                                <a class="dropdown-item py-2 d-flex align-items-center justify-content-between"
-                                   href="{{ route('peta.download-category', 'fungsional') }}">
-                                    <span class="d-flex align-items-center">
-                                        <span class="bws-flyout-badge mr-2" style="background:#2980b9;"></span> DIR Fungsional
-                                    </span>
-                                    <span class="badge badge-light border text-muted">6 File</span>
-                                </a>
-                                <a class="dropdown-item py-2 d-flex align-items-center justify-content-between"
-                                   href="{{ route('peta.download-category', 'potensial') }}">
-                                    <span class="d-flex align-items-center">
-                                        <span class="bws-flyout-badge mr-2" style="background:#e67e22;"></span> DIR Potensial
-                                    </span>
-                                    <span class="badge badge-light border text-muted">10 File</span>
-                                </a>
-                                <div class="dropdown-divider my-1"></div>
-                                <a class="dropdown-item py-2 d-flex align-items-center justify-content-between"
-                                   href="{{ route('peta.download-category', 'saluran') }}">
-                                    <span class="d-flex align-items-center">
-                                        <span class="bws-flyout-badge mr-2" style="background:#0984e3;"></span> Saluran Irigasi
-                                    </span>
-                                    <span class="badge badge-light border text-muted">15 File</span>
-                                </a>
-                                <a class="dropdown-item py-2 d-flex align-items-center justify-content-between"
-                                   href="{{ route('peta.download-category', 'bangunan') }}">
-                                    <span class="d-flex align-items-center">
-                                        <span class="bws-flyout-badge mr-2" style="background:#d63031;"></span> Bangunan Air
-                                    </span>
-                                    <span class="badge badge-light border text-muted">14 File</span>
-                                </a>
+                        <div class="bws-table-v2-controls">
+                            {{-- Input Pencarian --}}
+                            <div class="bws-search-input-wrap">
+                                <i class="fas fa-search"></i>
+                                <input type="text"
+                                       id="cari-tabel-koordinat"
+                                       placeholder="Cari nama pos/objek/file..."
+                                       onkeyup="filterTabelKoordinat(this.value); syncSearchInputs(this.value);">
                             </div>
+
+                            {{-- Tombol Export Admin --}}
+                            @if(Auth::check() && in_array(Auth::user()->role, ['admin', 'superadmin']))
+                            <button type="button" class="btn-export-green" onclick="exportDataToCsv()"
+                                    title="Unduh data dalam format CSV/Excel">
+                                <i class="fas fa-file-excel"></i>
+                                <span>Export CSV</span>
+                            </button>
+                            <div class="dropdown d-inline-block">
+                                <button type="button"
+                                        class="btn btn-sm btn-primary dropdown-toggle font-weight-bold shadow-sm px-3"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                        style="height:38px; border-radius:6px; font-size:13px;">
+                                    <i class="fas fa-file-download mr-1"></i>
+                                    <span>Unduh GeoJSON</span>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-right shadow border-0 py-2"
+                                     style="border-radius:8px; min-width:250px; z-index:1060;">
+                                    <div class="dropdown-header text-uppercase font-weight-bold text-xs text-muted">
+                                        Unduh Arsip GeoJSON (.ZIP)
+                                    </div>
+                                    <a class="dropdown-item py-2 d-flex align-items-center justify-content-between"
+                                       href="{{ route('peta.download-category', 'all') }}">
+                                        <span><i class="fas fa-archive text-primary mr-2"></i> Semua Data GIS</span>
+                                        <span class="badge badge-primary px-2">{{ count($fileList) }}</span>
+                                    </a>
+                                    <div class="dropdown-divider my-1"></div>
+                                    <a class="dropdown-item py-2 d-flex align-items-center justify-content-between"
+                                       href="{{ route('peta.download-category', 'baku') }}">
+                                        <span class="d-flex align-items-center">
+                                            <span class="bws-flyout-badge mr-2" style="background:#27ae60;"></span> DIR Baku
+                                        </span>
+                                        <span class="badge badge-light border text-muted">9 File</span>
+                                    </a>
+                                    <a class="dropdown-item py-2 d-flex align-items-center justify-content-between"
+                                       href="{{ route('peta.download-category', 'fungsional') }}">
+                                        <span class="d-flex align-items-center">
+                                            <span class="bws-flyout-badge mr-2" style="background:#2980b9;"></span> DIR Fungsional
+                                        </span>
+                                        <span class="badge badge-light border text-muted">6 File</span>
+                                    </a>
+                                    <a class="dropdown-item py-2 d-flex align-items-center justify-content-between"
+                                       href="{{ route('peta.download-category', 'potensial') }}">
+                                        <span class="d-flex align-items-center">
+                                            <span class="bws-flyout-badge mr-2" style="background:#e67e22;"></span> DIR Potensial
+                                        </span>
+                                        <span class="badge badge-light border text-muted">10 File</span>
+                                    </a>
+                                    <div class="dropdown-divider my-1"></div>
+                                    <a class="dropdown-item py-2 d-flex align-items-center justify-content-between"
+                                       href="{{ route('peta.download-category', 'saluran') }}">
+                                        <span class="d-flex align-items-center">
+                                            <span class="bws-flyout-badge mr-2" style="background:#0984e3;"></span> Saluran Irigasi
+                                        </span>
+                                        <span class="badge badge-light border text-muted">15 File</span>
+                                    </a>
+                                    <a class="dropdown-item py-2 d-flex align-items-center justify-content-between"
+                                       href="{{ route('peta.download-category', 'bangunan') }}">
+                                        <span class="d-flex align-items-center">
+                                            <span class="bws-flyout-badge mr-2" style="background:#d63031;"></span> Bangunan Air
+                                        </span>
+                                        <span class="badge badge-light border text-muted">14 File</span>
+                                    </a>
+                                </div>
+                            </div>
+                            @endif
                         </div>
-                        @endif
                     </div>
-                </div>
 
-                <div class="bws-table-responsive">
-                    <table class="bws-custom-table" id="tabel-lokasi">
-                        <thead>
-                            <tr>
-                                <th width="5%"  class="text-center">No.</th>
-                                <th width="26%">Nama Pos / Objek</th>
-                                <th width="17%">Wilayah / Kategori</th>
-                                <th width="12%" class="text-center">Latitude (Y)</th>
-                                <th width="12%" class="text-center">Longitude (X)</th>
-                                <th width="16%">Sumber File GIS</th>
-                                <th width="12%" class="text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tbody-lokasi">
-                            <tr>
-                                <td colspan="7" class="text-center py-5 text-muted">
-                                    <i class="fas fa-spinner fa-spin text-primary mr-2"></i>
-                                    Membaca data koordinat GIS ArcMap...
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                    {{-- Baris Filter Pills (Kategori Spasial) --}}
+                    <div class="bws-table-pills-bar">
+                        <button type="button" class="bws-pill-btn active" data-category="all" onclick="filterTableByPill('all', this)">
+                            Semua Data ( <span id="pill-count-all">{{ count($fileList) }}</span> )
+                        </button>
+                        <button type="button" class="bws-pill-btn" data-category="baku" onclick="filterTableByPill('baku', this)">
+                            <span class="bws-pill-dot" style="background:#10b981;"></span> DIR Baku
+                        </button>
+                        <button type="button" class="bws-pill-btn" data-category="fungsional" onclick="filterTableByPill('fungsional', this)">
+                            <span class="bws-pill-dot" style="background:#3b82f6;"></span> DIR Fungsional
+                        </button>
+                        <button type="button" class="bws-pill-btn" data-category="potensial" onclick="filterTableByPill('potensial', this)">
+                            <span class="bws-pill-dot" style="background:#f59e0b;"></span> DIR Potensial
+                        </button>
+                        <button type="button" class="bws-pill-btn" data-category="saluran" onclick="filterTableByPill('saluran', this)">
+                            <span class="bws-pill-dot" style="background:#0ea5e9;"></span> Saluran
+                        </button>
+                        <button type="button" class="bws-pill-btn" data-category="bangunan" onclick="filterTableByPill('bangunan', this)">
+                            <span class="bws-pill-dot" style="background:#ef4444;"></span> Bangunan Air
+                        </button>
+                    </div>
 
-                <div class="bws-table-footer">
-                    <span id="tabel-footer-info">Memuat data koordinat...</span>
-                    <span>
-                        <i class="fas fa-sync-alt text-success mr-1"></i>
-                        Otomatis sinkron dengan file yang diunggah
-                    </span>
+                    {{-- Tabel Data Spasial --}}
+                    <div class="bws-table-responsive">
+                        <table class="bws-custom-table-v2" id="tabel-lokasi">
+                            <thead>
+                                <tr>
+                                    <th width="5%" class="text-center">NO.</th>
+                                    <th width="37%">NAMA POS / OBJEK IRIGASI</th>
+                                    <th width="18%">KATEGORI SPASIAL</th>
+                                    <th width="26%">KOORDINAT (LAT, LNG)</th>
+                                    <th width="14%" class="text-center">AKSI</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-lokasi">
+                                <tr>
+                                    <td colspan="5" class="text-center py-5 text-muted">
+                                        <i class="fas fa-spinner fa-spin text-primary mr-2"></i>
+                                        Membaca data koordinat GIS ArcMap...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {{-- Footer: Info Jumlah Data & Pagination --}}
+                    <div class="bws-table-v2-footer">
+                        <div class="bws-table-v2-info" id="tabel-footer-info">
+                            Menampilkan 1 - 10 dari {{ count($fileList) }} data pos &amp; file GIS
+                        </div>
+                        <div class="bws-table-v2-pagination" id="tabel-pagination">
+                            {{-- Diisi secara dinamis via JavaScript --}}
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
