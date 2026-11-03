@@ -201,7 +201,34 @@ var layerBaku       = L.layerGroup(); if (window.availableTypes && window.availa
 var layerFungsional = L.layerGroup(); if (window.availableTypes && window.availableTypes.fungsional) layerFungsional.addTo(map);
 var layerPotensial  = L.layerGroup(); if (window.availableTypes && window.availableTypes.potensial)  layerPotensial.addTo(map);
 var layerSaluran    = L.layerGroup(); if (window.availableTypes && window.availableTypes.saluran)    layerSaluran.addTo(map);
-var layerBangunan   = L.layerGroup(); if (window.availableTypes && window.availableTypes.bangunan)   layerBangunan.addTo(map);
+
+// Bangunan Air menggunakan MarkerClusterGroup agar titik tidak bertumpuk saat zoom out
+var layerBangunan = (typeof L.markerClusterGroup === 'function')
+    ? L.markerClusterGroup({
+        chunkedLoading: true,
+        maxClusterRadius: 40,
+        spiderfyOnMaxZoom: true,
+        showCoverageOnHover: false,
+        zoomToBoundsOnClick: true,
+        iconCreateFunction: function(cluster) {
+            var count = cluster.getChildCount();
+            var size = count < 10 ? 30 : (count < 50 ? 36 : 42);
+            return L.divIcon({
+                html: '<div class="bws-cluster-marker bws-cluster-bangunan"><span>' + count + '</span></div>',
+                className: 'bws-cluster-wrap',
+                iconSize: L.point(size, size)
+            });
+        }
+    })
+    : L.layerGroup();
+if (window.availableTypes && window.availableTypes.bangunan) layerBangunan.addTo(map);
+
+// Ekspos ke global window untuk kontrol filter sidebar & reset
+window.layerBaku       = layerBaku;
+window.layerFungsional = layerFungsional;
+window.layerPotensial  = layerPotensial;
+window.layerSaluran    = layerSaluran;
+window.layerBangunan   = layerBangunan;
 
 // Inisialisasi Layer Group khusus per file upload (otomatis muncul & hilang sesuai file di server)
 var customFileMap = {};
@@ -621,13 +648,13 @@ if (window.geojsonFiles && window.geojsonFiles.length > 0) {
                         };
                     },
                     pointToLayer: function(feat, latlng) {
-                        // Titik: lingkaran dengan border tebal & fill semi-transparan
+                        // Titik: lingkaran bersih dengan border putih halus (seperti peta GIS profesional)
                         return L.circleMarker(latlng, {
-                            radius: 8,
+                            radius: 5,
                             fillColor: fillColor,
-                            color: strokeColor,
-                            weight: 2.5,
-                            fillOpacity: 0.75,
+                            color: '#ffffff',
+                            weight: 1.5,
+                            fillOpacity: 0.9,
                             opacity: 1
                         });
                     },
@@ -865,7 +892,11 @@ function renderTable() {
             }
 
             // 5. Zoom peta ke area objek
-            if (row.bounds && row.bounds.isValid && row.bounds.isValid()) {
+            if (targetSubLayer && row.targetLayer && typeof row.targetLayer.zoomToShowLayer === 'function') {
+                row.targetLayer.zoomToShowLayer(targetSubLayer, function() {
+                    if (targetSubLayer.openPopup) targetSubLayer.openPopup();
+                });
+            } else if (row.bounds && row.bounds.isValid && row.bounds.isValid()) {
                 map.fitBounds(row.bounds, { padding: [60, 60], maxZoom: 16 });
             } else if (targetLatLng) {
                 map.flyTo(targetLatLng, 15, { animate: true, duration: 0.8 });
