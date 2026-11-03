@@ -574,24 +574,24 @@ if (window.geojsonFiles && window.geojsonFiles.length > 0) {
                     if (nameUpper.indexOf('BAKU') === 0) {
                         targetLayer = layerBaku; categoryType = 'baku';
                         categoryBadge = '<span class="badge badge-baku px-2 py-1">DIR Baku</span>';
-                        strokeColor = '#1e824c'; fillColor = '#27ae60';
+                        strokeColor = '#15803d'; fillColor = '#22c55e';   // hijau terang, border hijau tua
                     } else if (nameUpper.indexOf('FUNGSIONAL') === 0) {
                         targetLayer = layerFungsional; categoryType = 'fungsional';
                         categoryBadge = '<span class="badge badge-fungsional px-2 py-1">DIR Fungsional</span>';
-                        strokeColor = '#1f618d'; fillColor = '#2980b9';
+                        strokeColor = '#1e40af'; fillColor = '#3b82f6';   // biru terang, border biru tua
                     } else if (nameUpper.indexOf('POTENSIAL') === 0) {
                         targetLayer = layerPotensial; categoryType = 'potensial';
                         categoryBadge = '<span class="badge badge-potensial px-2 py-1">DIR Potensial</span>';
-                        strokeColor = '#b95c00'; fillColor = '#e67e22';
+                        strokeColor = '#b45309'; fillColor = '#f59e0b';   // oranye terang, border oranye tua
                     } else if (nameUpper.indexOf('SALURAN') === 0) {
                         targetLayer = layerSaluran; categoryType = 'saluran';
                         categoryBadge = '<span class="badge badge-saluran px-2 py-1">Saluran Irigasi</span>';
-                        strokeColor = '#0984e3'; fillColor = '#0984e3';
+                        strokeColor = '#0369a1'; fillColor = '#38bdf8';   // biru muda terang, border biru tua
                         isSaluran = true;
                     } else if (nameUpper.indexOf('BANGUNAN') === 0) {
                         targetLayer = layerBangunan; categoryType = 'bangunan';
                         categoryBadge = '<span class="badge badge-bangunan px-2 py-1">Bangunan Air</span>';
-                        strokeColor = '#d63031'; fillColor = '#d63031';
+                        strokeColor = '#991b1b'; fillColor = '#ef4444';   // merah terang, border merah tua
                     } else {
                         targetLayer = layerBaku; categoryType = 'baku';
                         categoryBadge = '<span class="badge badge-baku px-2 py-1">DIR Baku</span>';
@@ -599,11 +599,37 @@ if (window.geojsonFiles && window.geojsonFiles.length > 0) {
                 }
 
                 var gjLayer = L.geoJSON(gj, {
-                    style: function() {
-                        return { color: strokeColor, weight: isSaluran ? 2.5 : 1.8, fillOpacity: 0.45, fillColor: fillColor };
+                    style: function(feature) {
+                        var geomType = feature && feature.geometry ? feature.geometry.type : '';
+                        var isLine = geomType.indexOf('Line') !== -1;
+                        if (isLine || isSaluran) {
+                            // Garis saluran irigasi: tebal & jelas
+                            return {
+                                color: strokeColor,
+                                weight: 3,
+                                opacity: 0.85,
+                                fillOpacity: 0
+                            };
+                        }
+                        // Polygon area: fill sangat transparan, border tegas
+                        return {
+                            color: strokeColor,
+                            weight: 2,
+                            opacity: 0.9,
+                            fillColor: fillColor,
+                            fillOpacity: 0.18
+                        };
                     },
                     pointToLayer: function(feat, latlng) {
-                        return L.circleMarker(latlng, { radius: 6, fillColor: fillColor, color: '#ffffff', weight: 1.5, fillOpacity: 0.9 });
+                        // Titik: lingkaran dengan border tebal & fill semi-transparan
+                        return L.circleMarker(latlng, {
+                            radius: 8,
+                            fillColor: fillColor,
+                            color: strokeColor,
+                            weight: 2.5,
+                            fillOpacity: 0.75,
+                            opacity: 1
+                        });
                     },
                     onEachFeature: function(feat, layer) {
                         var p = feat.properties || {};
