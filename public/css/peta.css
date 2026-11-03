@@ -380,30 +380,66 @@ body {
 }
 
 /* ============================================================
-   6.1 STYLING CARD POPUP PETA — GLASSMORPHISM & ADAPTIVE SCALE
-   Fungsi: Memastikan tampilan popup di Leaflet bergaya glassmorphism
-   dengan backdrop-filter blur, border kaca lembut, shadow dalam,
-   dan ikut mengecil secara proporsional saat peta di-zoom out.
+   6.1 STYLING CARD POPUP PETA — GLASSMORPHISM & ADAPTIVE ACCURATE SIZING
+   Fungsi: Memastikan card popup bergaya glassmorphism, mengecil saat zoom out,
+   membesar saat zoom in, dan posisinya 100% akurat tepat menancap di titik marker.
    ============================================================ */
 .leaflet-popup {
-    transform-origin: 50% 100% !important;
-    scale: var(--popup-scale, 1);
-    transition: scale 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
-    will-change: scale;
+    margin-bottom: 12px;
 }
 .leaflet-popup-content-wrapper {
     background: rgba(255, 255, 255, 0.88) !important;
     backdrop-filter: blur(20px) saturate(190%) !important;
     -webkit-backdrop-filter: blur(20px) saturate(190%) !important;
-    border-radius: 14px !important;
-    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.18), inset 0 0 0 1px rgba(255, 255, 255, 0.85) !important;
+    box-shadow: 0 14px 36px rgba(15, 23, 42, 0.16), inset 0 0 0 1px rgba(255, 255, 255, 0.85) !important;
     border: 1px solid rgba(255, 255, 255, 0.7) !important;
     padding: 0 !important;
     overflow: hidden !important;
+    transition: width 0.18s ease, max-width 0.18s ease;
 }
 .leaflet-popup-content {
-    margin: 14px 16px 16px 16px !important;
     line-height: 1.35 !important;
+    width: auto !important;
+    transition: width 0.18s ease, max-width 0.18s ease;
+}
+.bws-popup-card {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+.bws-popup-title {
+    font-weight: 700;
+    color: #1d4ed8;
+    line-height: 1.25;
+    word-break: break-word;
+}
+.bws-popup-badge-wrap .badge {
+    border-radius: 4px;
+    font-weight: 600;
+}
+.bws-popup-card .table {
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    width: 100% !important;
+    border-radius: 6px !important;
+    overflow: hidden !important;
+    background: rgba(255, 255, 255, 0.6) !important;
+    border: 1px solid rgba(226, 232, 240, 0.8) !important;
+    margin-top: 6px !important;
+    margin-bottom: 0 !important;
+}
+.bws-popup-card .table th {
+    background-color: rgba(241, 245, 249, 0.75) !important;
+    color: #475569 !important;
+    font-weight: 700 !important;
+    border: 1px solid rgba(226, 232, 240, 0.7) !important;
+    vertical-align: middle !important;
+    white-space: nowrap !important;
+    width: 35% !important;
+}
+.bws-popup-card .table td {
+    color: #1e293b !important;
+    border: 1px solid rgba(226, 232, 240, 0.7) !important;
+    vertical-align: middle !important;
+    word-break: break-word !important;
 }
 .leaflet-popup-tip-container {
     overflow: visible;
@@ -413,29 +449,54 @@ body {
     box-shadow: 0 8px 16px rgba(15, 23, 42, 0.12) !important;
     border: 1px solid rgba(255, 255, 255, 0.6) !important;
 }
-.bws-popup-card .table {
-    border-collapse: separate !important;
-    border-spacing: 0 !important;
-    width: 100% !important;
-    border-radius: 8px !important;
-    overflow: hidden !important;
-    background: rgba(255, 255, 255, 0.6) !important;
-    border: 1px solid rgba(226, 232, 240, 0.8) !important;
+.leaflet-popup-close-button {
+    color: #64748b !important;
+    padding: 6px !important;
 }
-.bws-popup-card .table th {
-    background-color: rgba(241, 245, 249, 0.75) !important;
-    color: #475569 !important;
-    font-size: 11px !important;
-    font-weight: 700 !important;
-    border: 1px solid rgba(226, 232, 240, 0.7) !important;
-    vertical-align: middle !important;
-}
-.bws-popup-card .table td {
-    color: #1e293b !important;
-    font-size: 11px !important;
-    border: 1px solid rgba(226, 232, 240, 0.7) !important;
-    vertical-align: middle !important;
-}
+
+/* --- Level 1: Zoom Sangat Dekat (>= 15) - Ukuran Penuh & Lega --- */
+#map.bws-popup-zoom-xl .leaflet-popup-content-wrapper { border-radius: 14px !important; }
+#map.bws-popup-zoom-xl .leaflet-popup-content { width: 250px !important; min-width: 250px !important; margin: 12px 16px !important; }
+#map.bws-popup-zoom-xl .bws-popup-title { font-size: 14.5px !important; margin-bottom: 4px; }
+#map.bws-popup-zoom-xl .bws-popup-card { font-size: 12px !important; }
+#map.bws-popup-zoom-xl .bws-popup-badge-wrap { margin-bottom: 6px; }
+#map.bws-popup-zoom-xl .bws-popup-badge-wrap .badge { font-size: 11px !important; padding: 3px 8px; }
+#map.bws-popup-zoom-xl .bws-popup-card .table { font-size: 11px !important; }
+#map.bws-popup-zoom-xl .bws-popup-card .table th,
+#map.bws-popup-zoom-xl .bws-popup-card .table td { padding: 4px 8px !important; }
+
+/* --- Level 2: Zoom Sedang (12 - 14) - Standar Proporsional --- */
+#map.bws-popup-zoom-lg .leaflet-popup-content-wrapper { border-radius: 12px !important; }
+#map.bws-popup-zoom-lg .leaflet-popup-content { width: 215px !important; min-width: 215px !important; margin: 10px 14px !important; }
+#map.bws-popup-zoom-lg .bws-popup-title { font-size: 13px !important; margin-bottom: 3px; }
+#map.bws-popup-zoom-lg .bws-popup-card { font-size: 11px !important; }
+#map.bws-popup-zoom-lg .bws-popup-badge-wrap { margin-bottom: 5px; }
+#map.bws-popup-zoom-lg .bws-popup-badge-wrap .badge { font-size: 10px !important; padding: 2.5px 7px; }
+#map.bws-popup-zoom-lg .bws-popup-card .table { font-size: 10px !important; }
+#map.bws-popup-zoom-lg .bws-popup-card .table th,
+#map.bws-popup-zoom-lg .bws-popup-card .table td { padding: 3px 6px !important; }
+
+/* --- Level 3: Zoom Kecamatan (9 - 11) - Kompak & Ramping --- */
+#map.bws-popup-zoom-md .leaflet-popup-content-wrapper { border-radius: 10px !important; }
+#map.bws-popup-zoom-md .leaflet-popup-content { width: 175px !important; min-width: 175px !important; margin: 8px 11px !important; }
+#map.bws-popup-zoom-md .bws-popup-title { font-size: 11.5px !important; margin-bottom: 2px; }
+#map.bws-popup-zoom-md .bws-popup-card { font-size: 10px !important; }
+#map.bws-popup-zoom-md .bws-popup-badge-wrap { margin-bottom: 4px; }
+#map.bws-popup-zoom-md .bws-popup-badge-wrap .badge { font-size: 9px !important; padding: 2px 6px; }
+#map.bws-popup-zoom-md .bws-popup-card .table { font-size: 9px !important; }
+#map.bws-popup-zoom-md .bws-popup-card .table th,
+#map.bws-popup-zoom-md .bws-popup-card .table td { padding: 2px 5px !important; }
+
+/* --- Level 4: Zoom Jauh / Provinsi (<= 8) - Miniatur Rapi --- */
+#map.bws-popup-zoom-sm .leaflet-popup-content-wrapper { border-radius: 8px !important; }
+#map.bws-popup-zoom-sm .leaflet-popup-content { width: 140px !important; min-width: 140px !important; margin: 6px 9px !important; }
+#map.bws-popup-zoom-sm .bws-popup-title { font-size: 10px !important; margin-bottom: 2px; }
+#map.bws-popup-zoom-sm .bws-popup-card { font-size: 8.5px !important; }
+#map.bws-popup-zoom-sm .bws-popup-badge-wrap { margin-bottom: 3px; }
+#map.bws-popup-zoom-sm .bws-popup-badge-wrap .badge { font-size: 8px !important; padding: 1.5px 5px; }
+#map.bws-popup-zoom-sm .bws-popup-card .table { font-size: 8px !important; }
+#map.bws-popup-zoom-sm .bws-popup-card .table th,
+#map.bws-popup-zoom-sm .bws-popup-card .table td { padding: 1.5px 4px !important; }
 
 /* ============================================================
    7. LEAFLET MAP LEGEND & LAYER CONTROL — GLASSMORPHISM

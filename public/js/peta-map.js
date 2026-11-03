@@ -222,57 +222,43 @@ function getAdaptiveMarkerSize(zoom) {
 }
 
 /**
- * Penyesuaian Skala Popup Adaptif saat Pengecilan/Pembesaran Peta (Zoom In / Zoom Out)
- * Menjaga card popup tetap proporsional dan ikut mengecil saat peta diperkecil (zoom out).
+ * Penyesuaian Ukuran Popup Adaptif saat Pengecilan/Pembesaran Peta (Zoom In / Zoom Out)
+ * Menjaga card popup proporsional dan posisinya TETAP 100% AKURAT di atas marker
+ * (Murni tata letak CSS tanpa CSS transform/scale/zoom yang merusak koordinat Leaflet).
  */
-function getAdaptivePopupScale(zoom) {
-    if (zoom >= 15) return 1.0;
-    if (zoom <= 7)  return 0.45;
-    // Skala linear dari zoom 7 (0.45) hingga zoom 15 (1.00)
-    var scale = 0.45 + ((zoom - 7) / (15 - 7)) * (1.0 - 0.45);
-    return Math.round(scale * 100) / 100;
-}
-
-function updateAdaptivePopupScale(targetZoom, specificPopup) {
+function updateAdaptivePopupSize() {
     if (!window.map) return;
-    var z = (targetZoom !== undefined && targetZoom !== null) ? targetZoom : (map.getZoom ? map.getZoom() : 8);
-    var scale = getAdaptivePopupScale(z);
-
+    var currentZoom = map.getZoom ? map.getZoom() : 8;
     var mapEl = document.getElementById('map');
-    if (mapEl) {
-        mapEl.style.setProperty('--popup-scale', scale);
+    if (!mapEl) return;
+
+    var sizeClass = 'bws-popup-zoom-lg';
+    if (currentZoom >= 15) {
+        sizeClass = 'bws-popup-zoom-xl';
+    } else if (currentZoom >= 12) {
+        sizeClass = 'bws-popup-zoom-lg';
+    } else if (currentZoom >= 9) {
+        sizeClass = 'bws-popup-zoom-md';
+    } else {
+        sizeClass = 'bws-popup-zoom-sm';
     }
 
-    function applyScaleToEl(el) {
-        if (!el) return;
-        el.style.transformOrigin = '50% 100%';
-        if (el.style.scale !== undefined) {
-            el.style.scale = scale;
-        } else {
-            el.style.zoom = scale;
+    mapEl.classList.remove('bws-popup-zoom-xl', 'bws-popup-zoom-lg', 'bws-popup-zoom-md', 'bws-popup-zoom-sm');
+    mapEl.classList.add(sizeClass);
+
+    // Minta Leaflet untuk mereposisi popup agar tip SELALU 100% tepat menancap di marker
+    map.eachLayer(function(layer) {
+        if (layer.getPopup && layer.getPopup() && layer.isPopupOpen && layer.isPopupOpen()) {
+            layer.getPopup().update();
         }
-    }
-
-    if (specificPopup && specificPopup.getElement && specificPopup.getElement()) {
-        applyScaleToEl(specificPopup.getElement());
-    }
-
-    var popups = document.querySelectorAll('.leaflet-popup');
-    for (var i = 0; i < popups.length; i++) {
-        applyScaleToEl(popups[i]);
+    });
+    if (map._popup && map._popup.isOpen && map._popup.isOpen()) {
+        map._popup.update();
     }
 }
 
-// Sinkronisasi saat zoom peta (animasi halus & event akhir)
-map.on('zoomanim', function(e) {
-    if (e && e.zoom !== undefined) {
-        updateAdaptivePopupScale(e.zoom);
-    }
-});
-
-map.on('zoom', function() {
-    updateAdaptivePopupScale(map.getZoom());
-});
+// Inisialisasi awal ukuran adaptif
+updateAdaptivePopupSize();
 
 map.on('zoomend', function() {
     var currentZoom = map.getZoom();
@@ -281,15 +267,15 @@ map.on('zoomend', function() {
         allCircleMarkers[i].setRadius(size.radius);
         allCircleMarkers[i].setStyle({ weight: size.weight });
     }
-    updateAdaptivePopupScale(currentZoom);
+    updateAdaptivePopupSize();
 });
 
 map.on('popupopen', function(e) {
-    var currentZoom = map.getZoom ? map.getZoom() : 8;
-    updateAdaptivePopupScale(currentZoom, e ? e.popup : null);
-    setTimeout(function() {
-        updateAdaptivePopupScale(map.getZoom ? map.getZoom() : 8, e ? e.popup : null);
-    }, 15);
+    if (e && e.popup && e.popup.update) {
+        setTimeout(function() {
+            e.popup.update();
+        }, 15);
+    }
 });
 
 // Inisialisasi Layer Group khusus per file upload (otomatis muncul & hilang sesuai file di server)
@@ -669,10 +655,10 @@ function getFeatureAccurateLatLng(feat, layer) {
  */
 function buildFeatureCardPopup(cleanName, categoryBadge, properties, fileName, lat, lng) {
     var p = properties || {};
-    var html = '<div class="bws-popup-card" style="min-width:210px; font-size:12px; font-family:\'Inter\', -apple-system, BlinkMacSystemFont, sans-serif;">' +
-        '<div class="font-weight-bold text-primary mb-1" style="font-size:14.5px; line-height:1.25;">' + cleanName + '</div>' +
-        '<div class="mb-2">' + categoryBadge + '</div>' +
-        '<table class="table table-sm table-bordered mt-2 mb-0" style="font-size:11px;"><tbody>';
+    var html = '<div class="bws-popup-card">' +
+        '<div class="bws-popup-title">' + cleanName + '</div>' +
+        '<div class="bws-popup-badge-wrap">' + categoryBadge + '</div>' +
+        '<table class="table table-sm table-bordered mb-0"><tbody>';
 
     var countProp = 0;
     for (var k in p) {
@@ -680,7 +666,7 @@ function buildFeatureCardPopup(cleanName, categoryBadge, properties, fileName, l
             var val = p[k];
             if (val !== null && val !== undefined && val !== '' && typeof val !== 'object') {
                 if (countProp < 5) {
-                    html += '<tr><th class="bg-light text-secondary font-weight-bold" style="white-space:nowrap; padding:4px 8px; width:35%;">' + k + '</th><td style="padding:4px 8px; word-break:break-word;">' + val + '</td></tr>';
+                    html += '<tr><th class="bg-light text-secondary font-weight-bold">' + k + '</th><td>' + val + '</td></tr>';
                     countProp++;
                 }
             }
@@ -691,10 +677,10 @@ function buildFeatureCardPopup(cleanName, categoryBadge, properties, fileName, l
     if (countProp === 0) {
         var latStr = (lat !== null && !isNaN(lat)) ? Number(lat).toFixed(5) : '-';
         var lngStr = (lng !== null && !isNaN(lng)) ? Number(lng).toFixed(5) : '-';
-        html += '<tr><th class="bg-light text-secondary font-weight-bold" style="padding:4px 8px; width:35%;">Latitude (Y)</th><td style="padding:4px 8px;"><code>' + latStr + '</code></td></tr>' +
-                '<tr><th class="bg-light text-secondary font-weight-bold" style="padding:4px 8px; width:35%;">Longitude (X)</th><td style="padding:4px 8px;"><code>' + lngStr + '</code></td></tr>';
+        html += '<tr><th class="bg-light text-secondary font-weight-bold">Latitude (Y)</th><td><code>' + latStr + '</code></td></tr>' +
+                '<tr><th class="bg-light text-secondary font-weight-bold">Longitude (X)</th><td><code>' + lngStr + '</code></td></tr>';
         if (fileName) {
-            html += '<tr><th class="bg-light text-secondary font-weight-bold" style="padding:4px 8px; width:35%;">Sumber File</th><td style="padding:4px 8px;" class="text-monospace small">' + fileName + '</td></tr>';
+            html += '<tr><th class="bg-light text-secondary font-weight-bold">Sumber File</th><td class="text-monospace small">' + fileName + '</td></tr>';
         }
     }
 
