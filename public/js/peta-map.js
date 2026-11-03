@@ -74,17 +74,29 @@ window.switchViewMode = function(mode) {
     var tblSec = document.getElementById('section-table');
     var mapEl  = document.getElementById('map');
 
-    if (mode === 'maps') {
-        mapSec.style.display = 'block';
-        tblSec.style.display = 'none';
-        mapEl.style.height = 'calc(100vh - 150px)';
-    } else if (mode === 'table') {
-        mapSec.style.display = 'none';
-        tblSec.style.display = 'block';
+    // Cek apakah halaman menggunakan layout v2 (tab-based)
+    var isV2 = document.body.classList.contains('page-peta-v2');
+
+    if (isV2) {
+        // Di v2, gunakan switchPetaTab jika tersedia
+        if (window.switchPetaTab) {
+            if (mode === 'table') window.switchPetaTab('tabel');
+            else window.switchPetaTab('peta');
+        }
     } else {
-        mapSec.style.display = 'block';
-        tblSec.style.display = 'block';
-        mapEl.style.height = '420px';
+        // Layout lama (v1)
+        if (mode === 'maps') {
+            if (mapSec) mapSec.style.display = 'block';
+            if (tblSec) tblSec.style.display = 'none';
+            if (mapEl)  mapEl.style.height = 'calc(100vh - 150px)';
+        } else if (mode === 'table') {
+            if (mapSec) mapSec.style.display = 'none';
+            if (tblSec) tblSec.style.display = 'block';
+        } else {
+            if (mapSec) mapSec.style.display = 'block';
+            if (tblSec) tblSec.style.display = 'block';
+            if (mapEl)  mapEl.style.height = '420px';
+        }
     }
 
     // Paksa Leaflet untuk menghitung ulang ukuran peta
@@ -740,19 +752,26 @@ function renderTable() {
         // Tombol Fokus: klik → langsung menuju ke peta dan tampilkan card popup (seperti Gambar No. 2)
         var btn = tr.querySelector('.btn-focus-row');
         btn.addEventListener('click', function() {
-            // 1. Pastikan tampilan peta aktif (jika user sedang di mode 'Table Only')
-            var filterViewMode = document.getElementById('filterViewMode');
-            if (filterViewMode && filterViewMode.value === 'table') {
-                filterViewMode.value = 'both';
-                if (window.switchViewMode) window.switchViewMode('both');
+            // 1. Pastikan tampilan peta aktif
+            var isV2 = document.body.classList.contains('page-peta-v2');
+            if (isV2) {
+                // Layout v2: switch ke tab peta
+                if (window.switchPetaTab) window.switchPetaTab('peta');
             } else {
-                var mapSec = document.getElementById('section-map');
-                var tblSec = document.getElementById('section-table');
-                if (mapSec && mapSec.style.display === 'none') {
-                    mapSec.style.display = 'block';
-                    if (tblSec) tblSec.style.display = 'block';
-                    var mapEl = document.getElementById('map');
-                    if (mapEl) mapEl.style.height = '420px';
+                // Layout v1: cek dropdown
+                var filterViewMode = document.getElementById('filterViewMode');
+                if (filterViewMode && filterViewMode.value === 'table') {
+                    filterViewMode.value = 'both';
+                    if (window.switchViewMode) window.switchViewMode('both');
+                } else {
+                    var mapSec = document.getElementById('section-map');
+                    var tblSec = document.getElementById('section-table');
+                    if (mapSec && mapSec.style.display === 'none') {
+                        mapSec.style.display = 'block';
+                        if (tblSec) tblSec.style.display = 'block';
+                        var mapEl = document.getElementById('map');
+                        if (mapEl) mapEl.style.height = '420px';
+                    }
                 }
             }
             if (map && map.invalidateSize) {
@@ -762,7 +781,7 @@ function renderTable() {
             // 2. Langsung scroll mulus tepat ke posisi kartu peta
             var mapSection = document.getElementById('section-map');
             if (mapSection) {
-                var navHeight = 76;
+                var navHeight = isV2 ? 64 : 76;
                 var rect = mapSection.getBoundingClientRect();
                 var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
                 var targetTop = rect.top + scrollTop - navHeight - 10;
