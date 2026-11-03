@@ -27,9 +27,9 @@
 
     {{-- ============================================================
          1. TOPBAR & SUB-NAVBAR HORIZONTAL BWS KALIMANTAN I
-         Berisi: Logo PU, Teks Instansi, Fullscreen, Notifikasi,
-         Profil User, serta Menu Horizontal (Dashboard, Master Data
-         Infrastruktur, Manajemen User, Log Aktivitas).
+         Berisi: Logo PU, Teks Instansi, Fullscreen,
+         Profil User / Tombol Login, serta Menu Horizontal (Dashboard,
+         Master Data Infrastruktur, Manajemen User, Log Aktivitas).
          Partial: resources/views/layout/_top_nav.blade.php
          ============================================================ --}}
     @include('layout._top_nav')
@@ -40,7 +40,7 @@
          ============================================================ --}}
     <div class="bws-page-container">
 
-        {{-- PANEL FILTER KIRI (Dashboard Type, Tanggal, View, tombol GIS)
+        {{-- PANEL FILTER KIRI (View switcher & tombol GIS)
              Partial: resources/views/layout/_sidebar.blade.php --}}
         @include('layout._sidebar')
 

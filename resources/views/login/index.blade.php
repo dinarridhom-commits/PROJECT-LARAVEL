@@ -271,7 +271,7 @@
         <div class="login-header">
             <img src="{{ asset('sbadmin/img/logo-pu.jpeg') }}" alt="Logo PU" class="login-logo">
             <div class="login-header-text">
-                <span class="login-header-title">Login</span>
+                <span class="login-header-title">Login WebGIS</span>
                 <span class="login-header-subtitle">BWS Kalimantan I Pontianak</span>
             </div>
         </div>
@@ -409,13 +409,13 @@
                 <!-- Tombol Submit -->
                 <button type="submit" class="btn btn-submit-fews">
                     <i class="fas fa-sign-in-alt"></i>
-                    <span>Sign In to FEWS</span>
+                    <span>Sign In</span>
                 </button>
             </form>
 
             <!-- Versi -->
             <div class="text-center mt-3">
-                <span class="version-badge">Version 1.0.0</span>
+                <span class="version-badge"></span>
             </div>
 
             <!-- Info Pembuatan Akun Super Admin -->
@@ -430,7 +430,7 @@
 
     <!-- Footer Copyright -->
     <div class="login-footer-text">
-        &copy; 2026 FEWS BWS Kalimantan I Pontianak
+        &copy; 2026 WebGIS BWS Kalimantan I Pontianak
     </div>
 
     <!-- Bootstrap core JavaScript -->

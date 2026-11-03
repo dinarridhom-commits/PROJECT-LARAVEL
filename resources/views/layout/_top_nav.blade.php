@@ -22,7 +22,7 @@
             <a href="{{ route('peta') }}" class="bws-brand-wrapper text-decoration-none">
                 <img src="{{ asset('sbadmin/img/logo-pu.jpeg') }}" alt="Logo Kementerian PU" class="bws-logo-pu">
                 <div class="bws-brand-text">
-                    <div class="bws-brand-title">FEWS BWS KALIMANTAN I</div>
+                    <div class="bws-brand-title">WEBGIS BWS KALIMANTAN I</div>
                     <div class="bws-brand-subtitle">Direktorat Jenderal Sumber Daya Air</div>
                     <div class="bws-brand-dept">Kementerian Pekerjaan Umum</div>
                 </div>
@@ -34,14 +34,6 @@
             <button type="button" class="bws-header-btn" id="btnFullscreenToggle" title="Tampilan Layar Penuh">
                 <i class="fas fa-expand"></i>
             </button>
-
-            {{-- Badge jumlah file GIS aktif --}}
-            <div class="position-relative">
-                <button type="button" class="bws-header-btn" title="Total File GIS Tersimpan">
-                    <i class="fas fa-bell"></i>
-                    <span class="bws-badge-pill" id="header-file-count">{{ count($fileList ?? []) }}</span>
-                </button>
-            </div>
 
             @auth
             {{-- Dropdown Profil Pengguna (Logged In) --}}
@@ -77,9 +69,6 @@
             @else
             {{-- Mode Publik / Tamu (Belum Login) --}}
             <div class="d-flex align-items-center">
-                <span class="badge badge-light border text-muted px-2 py-1 mr-2 d-none d-sm-inline" style="font-size: 11px;">
-                    <i class="fas fa-globe mr-1 text-success"></i> Mode Publik
-                </span>
                 <a href="{{ route('login') }}" class="btn btn-sm btn-warning text-dark font-weight-bold px-3 shadow-sm" style="font-size: 12px; border-radius: 6px;">
                     <i class="fas fa-sign-in-alt mr-1"></i> Login Staf
                 </a>
