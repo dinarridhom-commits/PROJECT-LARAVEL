@@ -30,13 +30,18 @@
         </div>
 
         <div class="bws-nav-right">
-            {{-- Tombol Fullscreen --}}
+            @php $isMapPage = request()->is('peta') || request()->is('/') || request()->is('home') || request()->is('dashboard'); @endphp
+
+            {{-- Tombol Fullscreen — sembunyikan di halaman peta (sudah ada di gambar referensi) --}}
+            @if(!$isMapPage)
             <button type="button" class="bws-header-btn" id="btnFullscreenToggle" title="Tampilan Layar Penuh">
                 <i class="fas fa-expand"></i>
             </button>
+            @endif
 
             @auth
-            {{-- Dropdown Profil Pengguna (Logged In) --}}
+            {{-- Dropdown Profil Pengguna (Logged In) — hanya di halaman non-peta --}}
+            @if(!$isMapPage)
             <div class="dropdown">
                 <div class="bws-profile-pill" id="userMenuDropdown"
                      data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -48,9 +53,8 @@
                 </div>
                 <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in py-2"
                      aria-labelledby="userMenuDropdown" style="min-width: 180px; border-radius: 8px;">
-                    
+
                     @if(in_array(Auth::user()->role, ['superadmin', 'admin']))
-                    {{-- Menu Admin Panel Sesuai Gambar --}}
                     <a class="dropdown-item py-2 d-flex align-items-center text-dark font-weight-medium"
                        href="{{ route('admin.panel') }}">
                         <i class="fas fa-cog text-muted mr-2.5" style="font-size: 15px; width: 20px;"></i>
@@ -66,13 +70,16 @@
                     </a>
                 </div>
             </div>
+            @endif
             @else
-            {{-- Mode Publik / Tamu (Belum Login) --}}
+            {{-- Mode Publik / Tamu (Belum Login) — tombol Login hanya di halaman non-peta --}}
+            @if(!$isMapPage)
             <div class="d-flex align-items-center">
                 <a href="{{ route('login') }}" class="btn btn-sm btn-warning text-dark font-weight-bold px-3 shadow-sm" style="font-size: 12px; border-radius: 6px;">
                     <i class="fas fa-sign-in-alt mr-1"></i> Login Staf
                 </a>
             </div>
+            @endif
             @endauth
         </div>
     </div>

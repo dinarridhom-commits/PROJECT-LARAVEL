@@ -51,8 +51,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 24px;
-    min-height: 72px;
+    padding: 8px 20px;
+    min-height: 62px;
 }
 .bws-nav-left { display: flex; align-items: center; gap: 16px; }
 
@@ -71,12 +71,12 @@ body {
 .bws-back-btn:hover { background: #f1f5f9; color: var(--bws-primary); transform: scale(1.05); text-decoration: none; }
 
 /* Logo & Identitas */
-.bws-brand-wrapper { display: flex; align-items: center; gap: 12px; text-decoration: none; color: #ffffff; }
-.bws-logo-pu { width: 44px; height: 44px; object-fit: cover; border-radius: 8px; background: #ffffff; padding: 2px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+.bws-brand-wrapper { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #ffffff; }
+.bws-logo-pu { width: 40px; height: 40px; object-fit: cover; border-radius: 8px; background: #ffffff; padding: 2px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 .bws-brand-text { line-height: 1.25; }
-.bws-brand-title { font-weight: 800; font-size: 15px; letter-spacing: 0.5px; color: #ffffff; text-transform: uppercase; }
-.bws-brand-subtitle { font-size: 12px; color: rgba(255,255,255,0.95); font-weight: 500; }
-.bws-brand-dept { font-size: 11px; color: rgba(255,255,255,0.82); font-weight: 400; }
+.bws-brand-title { font-weight: 800; font-size: 14px; letter-spacing: 0.4px; color: #ffffff; text-transform: uppercase; }
+.bws-brand-subtitle { font-size: 11px; color: rgba(255,255,255,0.95); font-weight: 500; }
+.bws-brand-dept { font-size: 10.5px; color: rgba(255,255,255,0.82); font-weight: 400; }
 
 /* Nav Right */
 .bws-nav-right { display: flex; align-items: center; gap: 14px; }
@@ -262,14 +262,14 @@ body {
    2. MAIN CONTAINER & SIDEBAR FILTER
    Fungsi: Layout 2 kolom - sidebar filter kiri + konten kanan.
    ============================================================ */
-.bws-page-container { display: flex; min-height: calc(100vh - 76px); position: relative; }
+.bws-page-container { display: flex; min-height: calc(100vh - 62px); position: relative; }
 
 .bws-sidebar {
-    width: 290px; min-width: 290px; max-width: 290px;
+    width: 200px; min-width: 200px; max-width: 200px;
     background: var(--bws-card);
     border-right: 1px solid var(--bws-border);
-    padding: 24px 20px;
-    display: flex; flex-direction: column; gap: 20px;
+    padding: 18px 16px;
+    display: flex; flex-direction: column; gap: 16px;
 }
 .bws-filter-group { display: flex; flex-direction: column; gap: 6px; }
 .bws-filter-label { font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 0; display: flex; align-items: center; gap: 6px; }
@@ -289,13 +289,13 @@ body {
     border-radius: 8px; padding: 10px 14px; font-size: 13px; font-weight: 600; transition: all 0.2s ease;
 }
 
-.bws-content { flex: 1; min-width: 0; padding: 20px 24px 40px 24px; display: flex; flex-direction: column; gap: 20px; }
+.bws-content { flex: 1; min-width: 0; padding: 16px 20px 32px 20px; display: flex; flex-direction: column; gap: 16px; }
 
 /* Breadcrumb */
-.bws-breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 700; color: #1e293b; }
-.bws-breadcrumb-parent { color: #64748b; font-weight: 600; }
-.bws-breadcrumb-arrow { font-size: 14px; color: #94a3b8; }
-.bws-breadcrumb-current { color: #1e293b; }
+.bws-breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 700; color: #1e293b; }
+.bws-breadcrumb-parent { color: #64748b; font-weight: 600; font-size: 15px; }
+.bws-breadcrumb-arrow { font-size: 13px; color: #94a3b8; }
+.bws-breadcrumb-current { color: #1e293b; font-size: 18px; }
 
 /* ============================================================
    3. MAP CONTAINER & KONTROL
@@ -307,7 +307,7 @@ body {
     box-shadow: 0 4px 16px rgba(15,23,42,0.05);
     overflow: hidden; position: relative; transition: all 0.3s ease;
 }
-#map { width: 100%; height: 480px; z-index: 1; background: #e2e8f0; }
+#map { width: 100%; height: 420px; z-index: 1; background: #e2e8f0; }
 .bws-map-loading {
     position: absolute; top: 14px; right: 14px;
     background: rgba(255,255,255,0.95); backdrop-filter: blur(4px);
@@ -613,8 +613,17 @@ body {
    ============================================================ */
 @media (max-width: 991.98px) {
     .bws-page-container { flex-direction: column; }
-    .bws-sidebar { width: 100%; min-width: 100%; max-width: 100%; border-right: none; border-bottom: 1px solid var(--bws-border); }
+    .bws-sidebar { width: 100%; min-width: 100%; max-width: 100%; border-right: none; border-bottom: 1px solid var(--bws-border); padding: 14px 16px; }
     .bws-content { padding: 16px; }
     .bws-brand-title { font-size: 13px; }
     .bws-brand-subtitle, .bws-brand-dept { display: none; }
+}
+
+/* ============================================================
+   9. NAVBAR HALAMAN PETA — Kanan kosong (sesuai desain gambar referensi)
+   Fungsi: Pada halaman peta publik, sisi kanan navbar hanya menampilkan
+   back button + logo, tanpa tombol aksi.
+   ============================================================ */
+.bws-navbar .bws-nav-right:empty {
+    display: none;
 }

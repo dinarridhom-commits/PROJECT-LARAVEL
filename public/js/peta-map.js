@@ -77,14 +77,14 @@ window.switchViewMode = function(mode) {
     if (mode === 'maps') {
         mapSec.style.display = 'block';
         tblSec.style.display = 'none';
-        mapEl.style.height = 'calc(100vh - 190px)';
+        mapEl.style.height = 'calc(100vh - 150px)';
     } else if (mode === 'table') {
         mapSec.style.display = 'none';
         tblSec.style.display = 'block';
     } else {
         mapSec.style.display = 'block';
         tblSec.style.display = 'block';
-        mapEl.style.height = '480px';
+        mapEl.style.height = '420px';
     }
 
     // Paksa Leaflet untuk menghitung ulang ukuran peta
