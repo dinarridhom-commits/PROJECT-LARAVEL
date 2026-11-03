@@ -380,6 +380,43 @@ body {
 }
 
 /* ============================================================
+   6.1 STYLING CARD POPUP PETA (SESUAI GAMBAR NO. 2)
+   Fungsi: Memastikan tampilan popup di Leaflet rapi, proporsional,
+   dengan border halus, shadow lembut, dan tabel atribut yang jelas.
+   ============================================================ */
+.leaflet-popup-content-wrapper {
+    border-radius: 8px !important;
+    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.18) !important;
+    border: 1px solid rgba(226, 232, 240, 0.8) !important;
+    padding: 0 !important;
+}
+.leaflet-popup-content {
+    margin: 12px 14px 14px 14px !important;
+    line-height: 1.35 !important;
+}
+.leaflet-popup-tip {
+    box-shadow: 0 3px 10px rgba(15, 23, 42, 0.12) !important;
+}
+.bws-popup-card .table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+}
+.bws-popup-card .table th {
+    background-color: #f8fafc !important;
+    color: #475569 !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    border: 1px solid #e2e8f0 !important;
+    vertical-align: middle !important;
+}
+.bws-popup-card .table td {
+    color: #1e293b !important;
+    font-size: 11px !important;
+    border: 1px solid #e2e8f0 !important;
+    vertical-align: middle !important;
+}
+
+/* ============================================================
    7. LEAFLET MAP LEGEND & LAYER CONTROL (COMPACT)
    Fungsi: Kotak legenda dan kontrol layer dibuat lebih
    ringkas/kompak agar tidak memakan banyak ruang pada peta.

@@ -450,6 +450,45 @@ function convertEsriToGeoJson(data) {
     return gj;
 }
 
+/**
+ * Membangun konten HTML Card Popup interaktif (sesuai standar Gambar No. 2)
+ * Digunakan saat marker di klik di peta maupun saat tombol "Fokus" di tabel ditekan.
+ */
+function buildFeatureCardPopup(cleanName, categoryBadge, properties, fileName, lat, lng) {
+    var p = properties || {};
+    var html = '<div class="bws-popup-card" style="min-width:210px; font-size:12px; font-family:\'Inter\', -apple-system, BlinkMacSystemFont, sans-serif;">' +
+        '<div class="font-weight-bold text-primary mb-1" style="font-size:14.5px; line-height:1.25;">' + cleanName + '</div>' +
+        '<div class="mb-2">' + categoryBadge + '</div>' +
+        '<table class="table table-sm table-bordered mt-2 mb-0" style="font-size:11px;"><tbody>';
+
+    var countProp = 0;
+    for (var k in p) {
+        if (Object.prototype.hasOwnProperty.call(p, k)) {
+            var val = p[k];
+            if (val !== null && val !== undefined && val !== '' && typeof val !== 'object') {
+                if (countProp < 5) {
+                    html += '<tr><th class="bg-light text-secondary font-weight-bold" style="white-space:nowrap; padding:4px 8px; width:35%;">' + k + '</th><td style="padding:4px 8px; word-break:break-word;">' + val + '</td></tr>';
+                    countProp++;
+                }
+            }
+        }
+    }
+
+    // Jika GeoJSON tidak memiliki properties bawaan, tampilkan koordinat pusat & nama file
+    if (countProp === 0) {
+        var latStr = (lat !== null && !isNaN(lat)) ? Number(lat).toFixed(5) : '-';
+        var lngStr = (lng !== null && !isNaN(lng)) ? Number(lng).toFixed(5) : '-';
+        html += '<tr><th class="bg-light text-secondary font-weight-bold" style="padding:4px 8px; width:35%;">Latitude (Y)</th><td style="padding:4px 8px;"><code>' + latStr + '</code></td></tr>' +
+                '<tr><th class="bg-light text-secondary font-weight-bold" style="padding:4px 8px; width:35%;">Longitude (X)</th><td style="padding:4px 8px;"><code>' + lngStr + '</code></td></tr>';
+        if (fileName) {
+            html += '<tr><th class="bg-light text-secondary font-weight-bold" style="padding:4px 8px; width:35%;">Sumber File</th><td style="padding:4px 8px;" class="text-monospace small">' + fileName + '</td></tr>';
+        }
+    }
+
+    html += '</tbody></table></div>';
+    return html;
+}
+
 /* ============================================================
    5. FETCH & LOAD GEOJSON FILES KE PETA
    Fungsi: Mengambil setiap file GeoJSON dari folder public/geojson/,
@@ -556,19 +595,13 @@ if (window.geojsonFiles && window.geojsonFiles.length > 0) {
                     },
                     onEachFeature: function(feat, layer) {
                         var p = feat.properties || {};
-                        var popup = '<div style="min-width:200px;font-size:12px;">' +
-                            '<div class="font-weight-bold text-primary mb-1">' + cleanName + '</div>' +
-                            '<div class="mb-1">' + categoryBadge + '</div>' +
-                            '<table class="table table-sm table-bordered mt-2 mb-0" style="font-size:11px;">';
-                        var countProp = 0;
-                        for (var k in p) {
-                            if (countProp < 5 && p[k] !== null && p[k] !== '') {
-                                popup += '<tr><th class="bg-light">' + k + '</th><td>' + p[k] + '</td></tr>';
-                                countProp++;
-                            }
+                        var pLat = null, pLng = null;
+                        if (feat.geometry && feat.geometry.type === 'Point' && feat.geometry.coordinates) {
+                            pLng = feat.geometry.coordinates[0];
+                            pLat = feat.geometry.coordinates[1];
                         }
-                        popup += '</table></div>';
-                        layer.bindPopup(popup);
+                        var popup = buildFeatureCardPopup(cleanName, categoryBadge, p, fileName, pLat, pLng);
+                        layer.bindPopup(popup, { autoPan: true, autoPanPadding: [50, 50] });
                     }
                 });
 
@@ -578,7 +611,18 @@ if (window.geojsonFiles && window.geojsonFiles.length > 0) {
                 if (b.isValid()) {
                     mapBounds.extend(b);
                     var center = b.getCenter();
-                    allTableRows.push({ name: cleanName, categoryType: categoryType, categoryBadge: categoryBadge, lat: center.lat, lng: center.lng, fileName: fileName, bounds: b, layerObj: gjLayer });
+                    allTableRows.push({
+                        name: cleanName,
+                        categoryType: categoryType,
+                        categoryBadge: categoryBadge,
+                        lat: center.lat,
+                        lng: center.lng,
+                        fileName: fileName,
+                        bounds: b,
+                        layerObj: gjLayer,
+                        targetLayer: targetLayer,
+                        properties: (gj.features && gj.features[0] && gj.features[0].properties) ? gj.features[0].properties : {}
+                    });
                 }
             })
             .catch(function(err) {})
@@ -693,25 +737,133 @@ function renderTable() {
                 downloadBtnHtml +
             '</td>';
 
-        // Tombol Fokus: klik → peta zoom ke bounds objek tersebut
+        // Tombol Fokus: klik → langsung menuju ke peta dan tampilkan card popup (seperti Gambar No. 2)
         var btn = tr.querySelector('.btn-focus-row');
         btn.addEventListener('click', function() {
-            if (row.fileName && customFileMap[row.fileName]) {
+            // 1. Pastikan tampilan peta aktif (jika user sedang di mode 'Table Only')
+            var filterViewMode = document.getElementById('filterViewMode');
+            if (filterViewMode && filterViewMode.value === 'table') {
+                filterViewMode.value = 'both';
+                if (window.switchViewMode) window.switchViewMode('both');
+            } else {
+                var mapSec = document.getElementById('section-map');
+                var tblSec = document.getElementById('section-table');
+                if (mapSec && mapSec.style.display === 'none') {
+                    mapSec.style.display = 'block';
+                    if (tblSec) tblSec.style.display = 'block';
+                    var mapEl = document.getElementById('map');
+                    if (mapEl) mapEl.style.height = '480px';
+                }
+            }
+            if (map && map.invalidateSize) {
+                map.invalidateSize();
+            }
+
+            // 2. Langsung scroll mulus tepat ke posisi kartu peta
+            var mapSection = document.getElementById('section-map');
+            if (mapSection) {
+                var navHeight = 76;
+                var rect = mapSection.getBoundingClientRect();
+                var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                var targetTop = rect.top + scrollTop - navHeight - 10;
+                window.scrollTo({
+                    top: Math.max(0, targetTop),
+                    behavior: 'smooth'
+                });
+            }
+
+            // 3. Pastikan Layer Group untuk file ini aktif di peta
+            if (row.targetLayer && !map.hasLayer(row.targetLayer)) {
+                map.addLayer(row.targetLayer);
+            }
+            if (row.fileName && customFileMap && customFileMap[row.fileName]) {
                 if (!map.hasLayer(customFileMap[row.fileName].layerGroup)) {
                     map.addLayer(customFileMap[row.fileName].layerGroup);
                 }
             }
+
+            // 4. Cari sublayer & titik koordinat terbaik untuk meletakkan card popup
+            var targetLatLng = (row.lat !== null && row.lng !== null && !isNaN(row.lat) && !isNaN(row.lng))
+                ? L.latLng(row.lat, row.lng)
+                : null;
+            var targetSubLayer = null;
+
+            if (row.layerObj && row.layerObj.getLayers) {
+                var subLayers = row.layerObj.getLayers();
+                if (subLayers.length > 0) {
+                    var centerPoint = targetLatLng || (row.bounds && row.bounds.isValid() ? row.bounds.getCenter() : null);
+                    if (centerPoint) {
+                        var minDistance = Infinity;
+                        subLayers.forEach(function(l) {
+                            var lPos = null;
+                            if (l.getLatLng) {
+                                lPos = l.getLatLng();
+                            } else if (l.getBounds && l.getBounds().isValid && l.getBounds().isValid()) {
+                                lPos = l.getBounds().getCenter();
+                            }
+                            if (lPos) {
+                                var dist = centerPoint.distanceTo(lPos);
+                                if (dist < minDistance) {
+                                    minDistance = dist;
+                                    targetSubLayer = l;
+                                    targetLatLng = lPos;
+                                }
+                            }
+                        });
+                    }
+                    if (!targetSubLayer) targetSubLayer = subLayers[0];
+                }
+            }
+
+            if (!targetLatLng && row.bounds && row.bounds.isValid && row.bounds.isValid()) {
+                targetLatLng = row.bounds.getCenter();
+            }
+
+            // 5. Zoom peta ke area objek
             if (row.bounds && row.bounds.isValid && row.bounds.isValid()) {
-                map.fitBounds(row.bounds, { padding: [50, 50], maxZoom: 16 });
-            } else if (row.lat && row.lng && !isNaN(row.lat) && !isNaN(row.lng)) {
-                map.flyTo([row.lat, row.lng], 15, { animate: true, duration: 1.0 });
+                map.fitBounds(row.bounds, { padding: [60, 60], maxZoom: 16 });
+            } else if (targetLatLng) {
+                map.flyTo(targetLatLng, 15, { animate: true, duration: 0.8 });
             }
-            if (row.layerObj) {
-                if (row.layerObj.openPopup) row.layerObj.openPopup();
-                else if (row.layerObj.eachLayer) row.layerObj.eachLayer(function(l) { if (l.openPopup) { l.openPopup(); return; } });
-            }
-            var mapSec = document.getElementById('section-map');
-            if (mapSec) window.scrollTo({ top: mapSec.offsetTop - 85, behavior: 'smooth' });
+
+            // 6. Tampilkan Card Popup persis seperti Gambar No. 2 untuk semua file
+            setTimeout(function() {
+                if (!targetLatLng) return;
+
+                var cardContent = '';
+                if (targetSubLayer && targetSubLayer.getPopup && targetSubLayer.getPopup()) {
+                    cardContent = targetSubLayer.getPopup().getContent();
+                }
+                if (!cardContent) {
+                    var props = (targetSubLayer && targetSubLayer.feature && targetSubLayer.feature.properties)
+                        ? targetSubLayer.feature.properties
+                        : (row.properties || {});
+                    cardContent = buildFeatureCardPopup(
+                        row.name,
+                        row.categoryBadge,
+                        props,
+                        row.fileName,
+                        targetLatLng.lat,
+                        targetLatLng.lng
+                    );
+                }
+
+                // Hitung offset vertikal agar popup tepat berada di atas marker/titik
+                var popupOffset = [0, -10];
+                if (targetSubLayer && targetSubLayer.options && targetSubLayer.options.radius) {
+                    popupOffset = [0, -targetSubLayer.options.radius - 4];
+                }
+
+                L.popup({
+                    offset: popupOffset,
+                    closeButton: true,
+                    autoClose: true,
+                    className: 'bws-focus-popup'
+                })
+                .setLatLng(targetLatLng)
+                .setContent(cardContent)
+                .openOn(map);
+            }, 300);
         });
 
         frag.appendChild(tr);
