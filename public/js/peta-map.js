@@ -488,6 +488,118 @@ function convertEsriToGeoJson(data) {
     return gj;
 }
 
+// Point-in-polygon test (ray casting) untuk menjamin popup berada di dalam area poligon
+function isPointInPolygon(point, vs) {
+    var x = point[0], y = point[1];
+    var inside = false;
+    for (var i = 0, j = vs.length - 1; i < vs.length; j = i++) {
+        var xi = vs[i][0], yi = vs[i][1];
+        var xj = vs[j][0], yj = vs[j][1];
+        var intersect = ((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+        if (intersect) inside = !inside;
+    }
+    return inside;
+}
+
+// Menghitung centroid area poligon
+function getPolygonCentroid(pts) {
+    if (!pts || pts.length === 0) return null;
+    var area = 0, cx = 0, cy = 0;
+    for (var i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+        var p1 = pts[j], p2 = pts[i];
+        var f = (p1[0] * p2[1]) - (p2[0] * p1[1]);
+        area += f;
+        cx += (p1[0] + p2[0]) * f;
+        cy += (p1[1] + p2[1]) * f;
+    }
+    area = area * 0.5;
+    if (Math.abs(area) < 1e-9) {
+        var sx = 0, sy = 0;
+        for (var k = 0; k < pts.length; k++) { sx += pts[k][0]; sy += pts[k][1]; }
+        return [sx / pts.length, sy / pts.length];
+    }
+    var factor = 1 / (6 * area);
+    return [cx * factor, cy * factor];
+}
+
+// Menghitung koordinat penempatan akurat di dalam geometri objek (anti-meleset ke ruang kosong / laut)
+function getFeatureAccurateLatLng(feat, layer) {
+    if (!feat || !feat.geometry) {
+        if (layer && layer.getLatLng) return layer.getLatLng();
+        if (layer && layer.getBounds && layer.getBounds().isValid && layer.getBounds().isValid()) {
+            return layer.getBounds().getCenter();
+        }
+        return null;
+    }
+
+    var geom = feat.geometry;
+    var type = geom.type;
+    var coords = geom.coordinates;
+
+    if (type === 'Point' && coords && coords.length >= 2) {
+        return L.latLng(coords[1], coords[0]);
+    }
+
+    if (type === 'LineString' && coords && coords.length > 0) {
+        var midIdx = Math.floor(coords.length / 2);
+        return L.latLng(coords[midIdx][1], coords[midIdx][0]);
+    }
+
+    if (type === 'MultiLineString' && coords && coords.length > 0) {
+        var line = coords[Math.floor(coords.length / 2)] || coords[0];
+        if (line && line.length > 0) {
+            var m = Math.floor(line.length / 2);
+            return L.latLng(line[m][1], line[m][0]);
+        }
+    }
+
+    if (type === 'Polygon' || type === 'MultiPolygon') {
+        var ring = null;
+        if (type === 'Polygon' && coords && coords.length > 0) {
+            ring = coords[0];
+        } else if (type === 'MultiPolygon' && coords && coords.length > 0) {
+            var maxLen = 0;
+            coords.forEach(function(poly) {
+                if (poly && poly[0] && poly[0].length > maxLen) {
+                    maxLen = poly[0].length;
+                    ring = poly[0];
+                }
+            });
+            if (!ring && coords[0] && coords[0][0]) ring = coords[0][0];
+        }
+
+        if (ring && ring.length >= 3) {
+            var centroid = getPolygonCentroid(ring);
+            if (centroid && isPointInPolygon(centroid, ring)) {
+                return L.latLng(centroid[1], centroid[0]);
+            }
+
+            // Jika centroid berada di luar poligon (bentuk cekung/C/tapal kuda),
+            // cari titik interior yang dijamin berada di dalam poligon
+            for (var step = 1; step < Math.floor(ring.length / 2); step++) {
+                for (var i = 0; i < ring.length - step; i += 2) {
+                    var pA = ring[i];
+                    var pB = ring[i + step];
+                    var mid = [(pA[0] + pB[0]) / 2, (pA[1] + pB[1]) / 2];
+                    if (isPointInPolygon(mid, ring)) {
+                        return L.latLng(mid[1], mid[0]);
+                    }
+                }
+            }
+
+            var v = ring[Math.floor(ring.length / 2)];
+            if (v && v.length >= 2) {
+                return L.latLng(v[1], v[0]);
+            }
+        }
+    }
+
+    if (layer && layer.getBounds && layer.getBounds().isValid && layer.getBounds().isValid()) {
+        return layer.getBounds().getCenter();
+    }
+    return null;
+}
+
 /**
  * Membangun konten HTML Card Popup interaktif (sesuai standar Gambar No. 2)
  * Digunakan saat marker di klik di peta maupun saat tombol "Fokus" di tabel ditekan.
@@ -685,16 +797,27 @@ if (window.geojsonFiles && window.geojsonFiles.length > 0) {
                 if (b.isValid()) {
                     mapBounds.extend(b);
                     var center = b.getCenter();
+
+                    // Hitung koordinat penempatan akurat di dalam geometri objek (anti-meleset ke ruang kosong)
+                    var accuratePt = null;
+                    if (gj.features && gj.features.length > 0) {
+                        accuratePt = getFeatureAccurateLatLng(gj.features[0], gjLayer);
+                    }
+                    var finalLat = accuratePt ? accuratePt.lat : center.lat;
+                    var finalLng = accuratePt ? accuratePt.lng : center.lng;
+
                     allTableRows.push({
                         name: cleanName,
                         categoryType: categoryType,
                         categoryBadge: categoryBadge,
-                        lat: center.lat,
-                        lng: center.lng,
+                        lat: finalLat,
+                        lng: finalLng,
+                        accurateLatLng: accuratePt || center,
                         fileName: fileName,
                         bounds: b,
                         layerObj: gjLayer,
                         targetLayer: targetLayer,
+                        features: gj.features,
                         properties: (gj.features && gj.features[0] && gj.features[0].properties) ? gj.features[0].properties : {}
                     });
                 }
@@ -1012,36 +1135,20 @@ function renderTable() {
                 }
             }
 
-            // 4. Cari sublayer & titik koordinat terbaik untuk meletakkan card popup
-            var targetLatLng = (row.lat !== null && row.lng !== null && !isNaN(row.lat) && !isNaN(row.lng))
+            // 4. Cari titik koordinat penempatan akurat di dalam geometri objek (bukan bounding box luar)
+            var targetLatLng = row.accurateLatLng || ((row.lat !== null && row.lng !== null && !isNaN(row.lat) && !isNaN(row.lng))
                 ? L.latLng(row.lat, row.lng)
-                : null;
+                : null);
             var targetSubLayer = null;
 
             if (row.layerObj && row.layerObj.getLayers) {
                 var subLayers = row.layerObj.getLayers();
                 if (subLayers.length > 0) {
-                    var centerPoint = targetLatLng || (row.bounds && row.bounds.isValid() ? row.bounds.getCenter() : null);
-                    if (centerPoint) {
-                        var minDistance = Infinity;
-                        subLayers.forEach(function(l) {
-                            var lPos = null;
-                            if (l.getLatLng) {
-                                lPos = l.getLatLng();
-                            } else if (l.getBounds && l.getBounds().isValid && l.getBounds().isValid()) {
-                                lPos = l.getBounds().getCenter();
-                            }
-                            if (lPos) {
-                                var dist = centerPoint.distanceTo(lPos);
-                                if (dist < minDistance) {
-                                    minDistance = dist;
-                                    targetSubLayer = l;
-                                    targetLatLng = lPos;
-                                }
-                            }
-                        });
+                    targetSubLayer = subLayers[0];
+                    if (targetSubLayer.feature) {
+                        var accurate = getFeatureAccurateLatLng(targetSubLayer.feature, targetSubLayer);
+                        if (accurate) targetLatLng = accurate;
                     }
-                    if (!targetSubLayer) targetSubLayer = subLayers[0];
                 }
             }
 
@@ -1049,15 +1156,11 @@ function renderTable() {
                 targetLatLng = row.bounds.getCenter();
             }
 
-            // 5. Zoom peta ke area objek
-            if (row.bounds && row.bounds.isValid && row.bounds.isValid()) {
-                map.fitBounds(row.bounds, { padding: [60, 60], maxZoom: 16 });
-            } else if (targetLatLng) {
-                map.flyTo(targetLatLng, 15, { animate: true, duration: 0.8 });
-            }
-
-            // 6. Tampilkan Card Popup
-            setTimeout(function() {
+            // 5. Tampilkan Card Popup tepat saat pergerakan peta selesai (akurat anti-meleset)
+            var popupTriggered = false;
+            function displayFocusPopup() {
+                if (popupTriggered) return;
+                popupTriggered = true;
                 if (!targetLatLng) return;
 
                 var cardContent = '';
@@ -1092,7 +1195,19 @@ function renderTable() {
                 .setLatLng(targetLatLng)
                 .setContent(cardContent)
                 .openOn(map);
-            }, 300);
+            }
+
+            // Jalankan animasi zoom peta
+            if (row.bounds && row.bounds.isValid && row.bounds.isValid()) {
+                map.fitBounds(row.bounds, { padding: [60, 60], maxZoom: 16 });
+            } else if (targetLatLng) {
+                map.flyTo(targetLatLng, 15, { animate: true, duration: 0.8 });
+            }
+
+            map.once('moveend', function() {
+                setTimeout(displayFocusPopup, 60);
+            });
+            setTimeout(displayFocusPopup, 650);
         });
 
         frag.appendChild(tr);
