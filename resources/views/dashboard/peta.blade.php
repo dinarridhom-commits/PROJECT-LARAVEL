@@ -109,23 +109,6 @@
 
 
     {{-- ============================================================
-         FLASH ALERTS
-         ============================================================ --}}
-    @if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show mx-3 mt-3 shadow-sm" role="alert" style="border-radius:8px;">
-        <i class="fas fa-check-circle mr-2"></i>{{ session('success') }}
-        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
-    </div>
-    @endif
-    @if(session('error'))
-    <div class="alert alert-danger alert-dismissible fade show mx-3 mt-3 shadow-sm" role="alert" style="border-radius:8px;">
-        <i class="fas fa-exclamation-triangle mr-2"></i>{{ session('error') }}
-        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
-    </div>
-    @endif
-
-
-    {{-- ============================================================
          LAYOUT UTAMA: SIDEBAR FILTER KIRI + AREA PETA/TABEL
          ============================================================ --}}
     <div class="peta-v2-container">
@@ -292,6 +275,19 @@
              AREA PETA & TABEL
              ======================== --}}
         <main class="peta-v2-main">
+
+            @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show m-2 shadow-sm" role="alert" style="border-radius:6px; font-size:12px;">
+                <i class="fas fa-check-circle mr-2"></i>{{ session('success') }}
+                <button type="button" class="close py-2" data-dismiss="alert"><span>&times;</span></button>
+            </div>
+            @endif
+            @if(session('error'))
+            <div class="alert alert-danger alert-dismissible fade show m-2 shadow-sm" role="alert" style="border-radius:6px; font-size:12px;">
+                <i class="fas fa-exclamation-triangle mr-2"></i>{{ session('error') }}
+                <button type="button" class="close py-2" data-dismiss="alert"><span>&times;</span></button>
+            </div>
+            @endif
 
             {{-- TAB BAR --}}
             <div class="peta-tab-bar">
