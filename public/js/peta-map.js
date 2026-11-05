@@ -271,10 +271,10 @@ var CUSTOM_LAYER_COLORS = [
 var layerBaku       = L.layerGroup(); if (window.availableTypes && window.availableTypes.baku)       layerBaku.addTo(map);
 var layerFungsional = L.layerGroup(); if (window.availableTypes && window.availableTypes.fungsional) layerFungsional.addTo(map);
 var layerPotensial  = L.layerGroup(); if (window.availableTypes && window.availableTypes.potensial)  layerPotensial.addTo(map);
-var layerSaluran    = L.layerGroup(); if (window.availableTypes && window.availableTypes.saluran)    layerSaluran.addTo(map);
 
-// Layer Bangunan Air (standar tanpa nomor / tanpa badge cluster angka)
-var layerBangunan   = L.layerGroup(); if (window.availableTypes && window.availableTypes.bangunan)   layerBangunan.addTo(map);
+// Jaringan Saluran dan Bangunan Air default nonaktif saat awal buka website (tidak langsung addTo(map))
+var layerSaluran    = L.layerGroup();
+var layerBangunan   = L.layerGroup();
 
 // Ekspos ke global window untuk kontrol filter sidebar & reset
 window.layerBaku       = layerBaku;

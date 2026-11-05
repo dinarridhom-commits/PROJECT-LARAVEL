@@ -431,15 +431,13 @@
     window.resetPetaView = function() {
         if (window.map) {
             window.map.setView([-0.02, 109.33], 8);
+            if (window.layerBaku && !window.map.hasLayer(window.layerBaku)) window.map.addLayer(window.layerBaku);
+            if (window.layerFungsional && !window.map.hasLayer(window.layerFungsional)) window.map.addLayer(window.layerFungsional);
+            if (window.layerPotensial && !window.map.hasLayer(window.layerPotensial)) window.map.addLayer(window.layerPotensial);
+            if (window.layerSaluran && window.map.hasLayer(window.layerSaluran)) window.map.removeLayer(window.layerSaluran);
+            if (window.layerBangunan && window.map.hasLayer(window.layerBangunan)) window.map.removeLayer(window.layerBangunan);
         }
         switchPetaTab('peta');
-        // Reset semua toggle kategori ke aktif
-        ['baku','fungsional','potensial','saluran','bangunan'].forEach(function(cat) {
-            var btn = document.getElementById('toggle-' + cat);
-            if (btn && !btn.classList.contains('active')) {
-                toggleCategoryLayer(cat, btn);
-            }
-        });
     };
 
     /* ===============================================
