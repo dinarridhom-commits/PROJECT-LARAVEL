@@ -144,26 +144,6 @@
                 </div>
             </div>
 
-            {{-- Wilayah Kabupaten --}}
-            <div class="psb-section">
-                <label class="psb-label">Wilayah kabupaten</label>
-                <div class="psb-select-wrap">
-                    <i class="fas fa-map-marker-alt psb-select-icon"></i>
-                    <select class="psb-select" id="filterWilayah" onchange="filterByWilayah(this.value)">
-                        <option value="">Semua kabupaten (Kalbar)</option>
-                        <option value="pontianak">Pontianak</option>
-                        <option value="kubu raya">Kubu Raya</option>
-                        <option value="mempawah">Mempawah</option>
-                        <option value="landak">Landak</option>
-                        <option value="sambas">Sambas</option>
-                        <option value="bengkayang">Bengkayang</option>
-                        <option value="singkawang">Singkawang</option>
-                        <option value="ketapang">Ketapang</option>
-                        <option value="kayong utara">Kayong Utara</option>
-                    </select>
-                </div>
-            </div>
-
             {{-- Kategori Layer --}}
             <div class="psb-section">
                 <div class="psb-cat-header">
@@ -303,11 +283,6 @@
                 <div class="ptb-tabs">
                     <button class="ptb-tab active" id="tab-peta" onclick="switchPetaTab('peta')">
                         <i class="fas fa-map mr-1"></i> Peta Interaktif
-                    </button>
-                    <button class="ptb-tab" id="tab-tabel" onclick="switchPetaTab('tabel')">
-                        <i class="fas fa-table mr-1"></i>
-                        Buka Tabel Data
-                        <span class="ptb-badge" id="ptb-file-count">{{ count($fileList) }}</span>
                     </button>
                     <button class="ptb-btn-reset" id="btnResetPeta" onclick="resetPetaView()" title="Reset tampilan peta">
                         <i class="fas fa-redo-alt mr-1"></i> Reset
