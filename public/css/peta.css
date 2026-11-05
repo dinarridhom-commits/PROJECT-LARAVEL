@@ -1031,60 +1031,90 @@ body.page-peta-v2 {
     display: flex;
     flex: 1;
     min-height: 0;
-    height: auto;
+    height: calc(100vh - 64px - 62px);
+    min-height: 540px;
+    padding: 12px 14px 14px 14px;
+    gap: 12px;
+    background: #eef2f6;
     overflow: hidden;
+    position: relative;
+    box-sizing: border-box;
+    transition: gap 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.peta-v2-container.sidebar-collapsed {
+    gap: 0;
 }
 
 /* ============================================================
-   P4. SIDEBAR FILTER V2 (GLASSMORPHISM & COMPACT DENSITY)
-   Fungsi: Didesain kompak dan proporsional agar pas di layar laptop
-   (1366x768 / scaling 125%) tanpa harus scroll.
+   P4. SIDEBAR FILTER V2 (FLOATING CARD DESIGN SESUAI GAMBAR 2)
+   Fungsi: Tampilan kartu terpisah (floating) dengan rounded corners,
+   tidak menyatu/menempel mati ke navbar dan peta.
    ============================================================ */
 .peta-v2-sidebar {
-    width: 290px;
-    min-width: 290px;
-    max-width: 290px;
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border-right: 1px solid rgba(255, 255, 255, 0.65);
-    box-shadow: 4px 0 24px 0 rgba(31, 38, 135, 0.04);
+    width: 295px;
+    min-width: 295px;
+    max-width: 295px;
+    background: #ffffff;
+    border-radius: 18px;
+    border: 1.5px solid #cbd5e1;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
     display: flex;
     flex-direction: column;
     gap: 0;
     overflow-y: auto;
     overflow-x: hidden;
     height: 100%;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 20;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                min-width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.25s ease,
+                border-color 0.3s ease;
 }
+
+.peta-v2-container.sidebar-collapsed .peta-v2-sidebar {
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    overflow: hidden !important;
+}
+
 /* Scrollbar sidebar */
 .peta-v2-sidebar::-webkit-scrollbar { width: 4px; }
 .peta-v2-sidebar::-webkit-scrollbar-track { background: rgba(241, 245, 249, 0.4); }
 .peta-v2-sidebar::-webkit-scrollbar-thumb { background: rgba(203, 213, 225, 0.8); border-radius: 4px; }
 
-/* Header sidebar (Kompak) */
+/* Header sidebar */
 .psb-header {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 10px 14px;
-    border-bottom: 1px solid rgba(226, 232, 240, 0.6);
-    background: rgba(255, 255, 255, 0.45);
+    padding: 14px 14px 12px 14px;
+    border-bottom: 1px solid #f1f5f9;
+    background: #ffffff;
 }
 .psb-header-icon {
-    width: 32px; height: 32px;
-    border-radius: 8px;
-    background: rgba(239, 246, 255, 0.85);
-    border: 1px solid rgba(191, 219, 254, 0.6);
+    width: 34px; height: 34px;
+    border-radius: 10px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
     color: #1d4ed8;
     display: flex; align-items: center; justify-content: center;
     font-size: 14px;
     flex-shrink: 0;
-    box-shadow: 0 2px 6px rgba(29, 78, 216, 0.1);
 }
 .psb-header-title {
-    font-size: 13px;
+    font-size: 13.5px;
     font-weight: 700;
-    color: #1e293b;
+    color: #0f172a;
     line-height: 1.25;
 }
 .psb-header-sub {
@@ -1092,11 +1122,32 @@ body.page-peta-v2 {
     color: #64748b;
     margin-top: 1px;
 }
+.psb-btn-collapse {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    color: #64748b;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    cursor: pointer;
+    margin-left: auto;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+}
+.psb-btn-collapse:hover {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border-color: #bfdbfe;
+}
 
-/* Section (Kompak) */
+/* Section */
 .psb-section {
-    padding: 9px 14px;
-    border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+    padding: 12px 14px;
+    border-bottom: 1px solid #f1f5f9;
 }
 .psb-label {
     font-size: 11px;
@@ -1334,71 +1385,85 @@ body.page-peta-v2 {
 .psb-toggle:not(.active) { background: #fee2e2; color: #dc2626; }
 .psb-toggle:hover { transform: scale(1.12); box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
 
-/* Footer Info */
+/* Footer Info (Desain Card Soft Sesuai Gambar 2) */
 .psb-footer-info {
-    padding: 8px 14px;
-    font-size: 10.5px;
+    padding: 12px 14px;
+    font-size: 11px;
     color: #64748b;
-    background: rgba(248, 250, 252, 0.5);
-    border-top: 1px solid rgba(226, 232, 240, 0.5);
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
     line-height: 1.45;
-    border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+    margin: 12px 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+.psb-footer-info i {
+    color: #2563eb;
+    font-size: 13px;
+    margin-top: 2px;
+    flex-shrink: 0;
 }
 
 /* Admin Actions */
 .psb-admin-actions {
-    padding: 10px 14px;
+    padding: 0 14px 14px 14px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
+    margin-top: auto;
 }
 .psb-btn-admin {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 7px 12px;
-    border-radius: 8px;
-    border: 1.5px solid rgba(203, 213, 225, 0.7);
-    background: rgba(255, 255, 255, 0.65);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    padding: 9px 14px;
+    border-radius: 10px;
+    border: 1.5px solid #cbd5e1;
+    background: #ffffff;
     color: #334155;
-    font-size: 12px;
+    font-size: 12.5px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
     font-family: inherit;
-    box-shadow: 0 2px 6px rgba(31, 38, 135, 0.04);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 .psb-btn-admin:hover {
-    background: rgba(255, 255, 255, 0.95);
-    border-color: #cbd5e1;
+    background: #f8fafc;
+    border-color: #94a3b8;
     transform: translateY(-1px);
 }
 .psb-btn-admin.psb-btn-primary {
-    background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
-    border-color: rgba(255, 255, 255, 0.3);
+    background: #2563eb;
+    border-color: #2563eb;
     color: #ffffff;
-    box-shadow: 0 3px 10px rgba(29, 78, 216, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    box-shadow: 0 3px 10px rgba(37, 99, 235, 0.25);
 }
 .psb-btn-admin.psb-btn-primary:hover {
-    background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%);
-    border-color: rgba(255, 255, 255, 0.4);
-    box-shadow: 0 4px 14px rgba(29, 78, 216, 0.35);
+    background: #1d4ed8;
+    border-color: #1d4ed8;
 }
 
 
 /* ============================================================
-   P5. AREA PETA & TABEL V2 (GLASSMORPHISM)
+   P5. AREA PETA & TABEL V2 (FLOATING CARD DESIGN)
    ============================================================ */
 .peta-v2-main {
     flex: 1;
     min-width: 0;
     display: flex;
     flex-direction: column;
-    background: transparent;
+    background: #ffffff;
+    border-radius: 18px;
+    border: 1.5px solid #cbd5e1;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
     overflow: hidden;
     height: 100%;
+    position: relative;
+    z-index: 10;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Tab Bar */
@@ -1406,11 +1471,9 @@ body.page-peta-v2 {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 9px 18px;
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(18px) saturate(180%);
-    -webkit-backdrop-filter: blur(18px) saturate(180%);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.65);
+    padding: 9px 16px;
+    background: #ffffff;
+    border-bottom: 1px solid #f1f5f9;
     box-shadow: 0 2px 10px rgba(31, 38, 135, 0.03);
     gap: 12px;
     flex-shrink: 0;
@@ -1422,6 +1485,30 @@ body.page-peta-v2 {
     color: #475569;
     display: flex;
     align-items: center;
+}
+.ptb-btn-sidebar {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    padding: 5px 11px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    margin-right: 10px;
+    box-shadow: 0 1px 3px rgba(37, 99, 235, 0.12);
+}
+.ptb-btn-sidebar:hover {
+    background: #dbeafe;
+    color: #1e40af;
+    transform: translateY(-1px);
+}
+.peta-v2-container.sidebar-collapsed .ptb-btn-sidebar {
+    display: inline-flex !important;
 }
 .ptb-tabs {
     display: flex;
@@ -1815,19 +1902,23 @@ body.page-peta-v2 {
         flex-direction: column;
         height: auto;
         min-height: calc(100vh - 64px - 80px);
+        padding: 10px;
+        gap: 10px;
     }
     .peta-v2-sidebar {
         width: 100%;
         min-width: 100%;
         max-width: 100%;
-        border-right: none;
-        border-bottom: 1px solid rgba(226, 232, 240, 0.8);
-        max-height: 360px;
+        border-radius: 14px;
+        max-height: 320px;
+    }
+    .peta-v2-main {
+        border-radius: 14px;
     }
     .peta-hero-inner { flex-direction: column; gap: 16px; }
     .peta-hero-location { width: 100%; }
     .peta-hero-title { font-size: 18px; }
-    .peta-v2-map-wrap #map { min-height: 300px; }
+    .peta-v2-map-wrap #map { min-height: 380px; }
 }
 
 

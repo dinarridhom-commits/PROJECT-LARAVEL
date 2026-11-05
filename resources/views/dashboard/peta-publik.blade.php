@@ -92,10 +92,13 @@
                 <div class="psb-header-icon">
                     <i class="fas fa-search"></i>
                 </div>
-                <div>
+                <div class="flex-grow-1">
                     <div class="psb-header-title">Jelajahi objek irigasi</div>
                     <div class="psb-header-sub">Mulai dari nama atau No Foto spasial</div>
                 </div>
+                <button type="button" class="psb-btn-collapse" id="btnCollapseSidebar" onclick="toggleSidebarView()" title="Sembunyikan Sidebar">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
             </div>
 
             {{-- Pencarian --}}
@@ -142,6 +145,9 @@
             <div class="peta-tab-bar">
                 {{-- Breadcrumb Kiri --}}
                 <div class="ptb-breadcrumb">
+                    <button type="button" class="ptb-btn-sidebar" id="btnExpandSidebar" onclick="toggleSidebarView()" title="Buka Sidebar">
+                        <i class="fas fa-indent mr-1"></i> Buka Sidebar
+                    </button>
                     <i class="fas fa-map-marked-alt mr-1 text-primary" style="font-size:13px;"></i>
                     <span>Peta Daerah Irigasi</span>
                     <i class="fas fa-chevron-right mx-1" style="font-size:10px; color:#94a3b8;"></i>
@@ -198,6 +204,22 @@
     <script src="{{ asset('js/peta-map.js') }}?v={{ filemtime(public_path('js/peta-map.js')) }}"></script>
 
     <script>
+    /* Toggle Sembunyikan / Tampilkan Sidebar (Peta Menyesuaikan Penuh) */
+    window.toggleSidebarView = function() {
+        var container = document.querySelector('.peta-v2-container');
+        if (!container) return;
+        container.classList.toggle('sidebar-collapsed');
+        if (window.map) {
+            window.map.invalidateSize();
+            var t = 0;
+            var timer = setInterval(function() {
+                if (window.map) window.map.invalidateSize();
+                t += 40;
+                if (t >= 320) clearInterval(timer);
+            }, 40);
+        }
+    };
+
     /* Tab Switcher (hanya peta, tidak ada tabel di halaman publik) */
     window.switchPetaTab = function(tab) {
         var mapSec = document.getElementById('section-map');
