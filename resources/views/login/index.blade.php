@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Login | FFWS BWS Kalimantan I</title>
+    <title>Login | WEBGIS BWS Kalimantan I</title>
 
     <!-- Google Fonts: Plus Jakarta Sans / Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -322,16 +322,16 @@
             <form action="{{ route('login') }}" method="POST" autocomplete="off">
                 @csrf
 
-                <!-- Username -->
+                <!-- Email -->
                 <div class="form-group mb-3">
                     <label for="email" class="form-label-custom">
-                        Username <span class="text-danger">*</span>
+                        Email <span class="text-danger">*</span>
                     </label>
                     <input type="text"
                            name="email"
                            id="email"
                            class="form-control input-custom @error('email') is-invalid @enderror"
-                           placeholder="Masukkan username"
+                           placeholder="Masukkan email"
                            value="{{ old('email') }}"
                            required
                            autofocus
