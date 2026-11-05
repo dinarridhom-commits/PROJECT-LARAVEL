@@ -201,6 +201,10 @@
                     <button class="ptb-tab active" id="tab-peta" onclick="switchPetaTab('peta')">
                         <i class="fas fa-map mr-1"></i> Peta Interaktif
                     </button>
+                    <button class="ptb-tab" id="tab-tabel" onclick="switchPetaTab('tabel')">
+                        <i class="fas fa-table mr-1"></i> Buka Tabel Data
+                        <span class="badge badge-primary ml-1" style="font-size:10px; border-radius:10px; padding:2px 7px;">{{ count($fileList ?? []) }}</span>
+                    </button>
                     <button class="ptb-btn-reset" id="btnResetPeta" onclick="resetPetaView()" title="Reset tampilan peta">
                         <i class="fas fa-redo-alt mr-1"></i> Reset
                     </button>
