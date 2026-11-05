@@ -77,9 +77,6 @@
                             <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>
                                 Admin (Staf Pengelola Data & GIS)
                             </option>
-                            <option value="user" {{ old('role') == 'user' ? 'selected' : '' }}>
-                                User / Staf (Viewer Peta & Unduh Data)
-                            </option>
                             <option value="superadmin" {{ old('role') == 'superadmin' ? 'selected' : '' }}>
                                 Super Admin (Akses Penuh Manajemen Sistem)
                             </option>
@@ -218,11 +215,6 @@
                                     class="form-control"
                                     required
                                     {{ Auth::id() == $u->id ? 'disabled' : '' }}>
-
-                                <option value="user"
-                                    {{ $u->role == 'user' ? 'selected' : '' }}>
-                                    User / Staf (Viewer)
-                                </option>
 
                                 <option value="admin"
                                     {{ $u->role == 'admin' ? 'selected' : '' }}>

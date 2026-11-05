@@ -32,12 +32,11 @@ class UserController extends Controller
         $totalUsers      = User::count();
         $totalSuperadmin = User::where('role', 'superadmin')->count();
         $totalAdmin      = User::where('role', 'admin')->count();
-        $totalRegularUser = User::where('role', 'user')->count();
 
         $data = compact(
             'users', 'search',
             'totalUsers', 'totalSuperadmin',
-            'totalAdmin', 'totalRegularUser'
+            'totalAdmin'
         );
 
         // Arahkan ke view sesuai role yang sedang login
@@ -57,7 +56,7 @@ class UserController extends Controller
             'name'                  => 'required|string|max:255',
             'email'                 => 'required|string|email|max:255|unique:users,email',
             'password'              => 'required|string|min:6|confirmed',
-            'role'                  => 'required|in:superadmin,admin,user',
+            'role'                  => 'required|in:superadmin,admin',
         ], [
             'name.required'         => 'Nama pengguna wajib diisi.',
             'name.max'              => 'Nama pengguna maksimal 255 karakter.',
@@ -81,7 +80,6 @@ class UserController extends Controller
         $roleLabels = [
             'superadmin' => 'Super Admin',
             'admin'      => 'Admin / Staf GIS',
-            'user'       => 'User / Staf Biasa',
         ];
         $roleLabel = $roleLabels[$user->role] ?? $user->role;
 
@@ -102,7 +100,7 @@ class UserController extends Controller
     {
         $request->validate([
             'name'                  => 'required|string|max:255',
-            'role'                  => 'required|in:superadmin,admin,user',
+            'role'                  => 'required|in:superadmin,admin',
             'password'              => 'nullable|string|min:6|confirmed',
         ], [
             'name.required'         => 'Nama pengguna wajib diisi.',

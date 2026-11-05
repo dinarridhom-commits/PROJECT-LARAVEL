@@ -80,7 +80,6 @@
         ['Total Pengguna', $totalUsers, 'primary', 'fa-users'],
         ['Super Admin', $totalSuperadmin, 'danger', 'fa-crown'],
         ['Admin', $totalAdmin, 'warning', 'fa-user-shield'],
-        ['User Biasa', $totalRegularUser, 'info', 'fa-user'],
     ];
 @endphp
 
@@ -88,7 +87,7 @@
 
     @foreach($stats as $stat)
 
-        <div class="col-xl-3 col-md-6 mb-4">
+        <div class="col-xl-4 col-md-4 mb-4">
 
             <div class="card border-left-{{ $stat[2] }} shadow h-100 py-2">
 
@@ -245,18 +244,11 @@
                                     Super Admin
                                 </span>
 
-                            @elseif($u->role == 'admin')
+                            @else
 
                                 <span class="badge badge-warning">
                                     <i class="fas fa-user-shield"></i>
                                     Admin
-                                </span>
-
-                            @else
-
-                                <span class="badge badge-secondary">
-                                    <i class="fas fa-user"></i>
-                                    User
                                 </span>
 
                             @endif

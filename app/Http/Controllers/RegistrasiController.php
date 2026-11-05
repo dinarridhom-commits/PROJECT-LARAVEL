@@ -38,15 +38,13 @@ class RegistrasiController extends Controller
             $request->first_name . ' ' . $request->last_name
         );
 
-        // Simpan data ke database
+        // Simpan data ke database (role default: admin)
         User::create([
-            'name' => $fullname,
-            'email' => $validatedData['email'],
-            'password' =>Hash::make ( $validatedData['password']),
-        ],
-    [   'email.unique' => 'Email sudah terdaftar',
-        'password.confirmed' => 'Password tidak cocok',
-    ]);
+            'name'     => $fullname,
+            'email'    => $validatedData['email'],
+            'password' => Hash::make($validatedData['password']),
+            'role'     => 'admin',
+        ]);
 
         // Kembali ke halaman login
         return redirect('/login')
