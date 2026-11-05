@@ -1034,6 +1034,7 @@ if (window.geojsonFiles && window.geojsonFiles.length > 0) {
                     if (mapBounds.isValid()) map.fitBounds(mapBounds, { padding: [40, 40] });
                     renderTable();
                     applyUrlLayerFilter();
+                    initInteractiveMapSearch();
                 }
             });
     });
@@ -1041,6 +1042,7 @@ if (window.geojsonFiles && window.geojsonFiles.length > 0) {
     if (mapLoadingEl) mapLoadingEl.style.display = 'none';
     renderTable();
     applyUrlLayerFilter();
+    initInteractiveMapSearch();
 }
 
 /**
@@ -1289,129 +1291,10 @@ function renderTable() {
                 downloadBtnHtml +
             '</td>';
 
-        // Tombol Fokus: klik → langsung menuju ke peta dan tampilkan card popup (seperti Gambar No. 2)
+        // Tombol Fokus: klik → langsung menuju ke objek pada peta dan tampilkan card popup
         var btn = tr.querySelector('.btn-focus-row');
         btn.addEventListener('click', function() {
-            // 1. Pastikan tampilan peta aktif
-            var isV2 = document.body.classList.contains('page-peta-v2');
-            if (isV2) {
-                if (window.switchPetaTab) window.switchPetaTab('peta');
-            } else {
-                var filterViewMode = document.getElementById('filterViewMode');
-                if (filterViewMode && filterViewMode.value === 'table') {
-                    filterViewMode.value = 'both';
-                    if (window.switchViewMode) window.switchViewMode('both');
-                } else {
-                    var mapSec = document.getElementById('section-map');
-                    var tblSec = document.getElementById('section-table');
-                    if (mapSec && mapSec.style.display === 'none') {
-                        mapSec.style.display = 'block';
-                        if (tblSec) tblSec.style.display = 'block';
-                        var mapEl = document.getElementById('map');
-                        if (mapEl) mapEl.style.height = '420px';
-                    }
-                }
-            }
-            if (map && map.invalidateSize) {
-                map.invalidateSize();
-            }
-
-            // 2. Scroll mulus tepat ke posisi kartu peta
-            var mapSection = document.getElementById('section-map');
-            if (mapSection) {
-                var navHeight = isV2 ? 64 : 76;
-                var rect = mapSection.getBoundingClientRect();
-                var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-                var targetTop = rect.top + scrollTop - navHeight - 10;
-                window.scrollTo({
-                    top: Math.max(0, targetTop),
-                    behavior: 'smooth'
-                });
-            }
-
-            // 3. Pastikan Layer Group untuk file ini aktif di peta
-            if (row.targetLayer && !map.hasLayer(row.targetLayer)) {
-                map.addLayer(row.targetLayer);
-            }
-            if (row.fileName && customFileMap && customFileMap[row.fileName]) {
-                if (!map.hasLayer(customFileMap[row.fileName].layerGroup)) {
-                    map.addLayer(customFileMap[row.fileName].layerGroup);
-                }
-            }
-
-            // 4. Cari titik koordinat penempatan akurat di dalam geometri objek (bukan bounding box luar)
-            var targetLatLng = row.accurateLatLng || ((row.lat !== null && row.lng !== null && !isNaN(row.lat) && !isNaN(row.lng))
-                ? L.latLng(row.lat, row.lng)
-                : null);
-            var targetSubLayer = null;
-
-            if (row.layerObj && row.layerObj.getLayers) {
-                var subLayers = row.layerObj.getLayers();
-                if (subLayers.length > 0) {
-                    targetSubLayer = subLayers[0];
-                    if (targetSubLayer.feature) {
-                        var accurate = getFeatureAccurateLatLng(targetSubLayer.feature, targetSubLayer);
-                        if (accurate) targetLatLng = accurate;
-                    }
-                }
-            }
-
-            if (!targetLatLng && row.bounds && row.bounds.isValid && row.bounds.isValid()) {
-                targetLatLng = row.bounds.getCenter();
-            }
-
-            // 5. Tampilkan Card Popup tepat saat pergerakan peta selesai (akurat anti-meleset)
-            var popupTriggered = false;
-            function displayFocusPopup() {
-                if (popupTriggered) return;
-                popupTriggered = true;
-                if (!targetLatLng) return;
-
-                var cardContent = '';
-                if (targetSubLayer && targetSubLayer.getPopup && targetSubLayer.getPopup()) {
-                    cardContent = targetSubLayer.getPopup().getContent();
-                }
-                if (!cardContent) {
-                    var props = (targetSubLayer && targetSubLayer.feature && targetSubLayer.feature.properties)
-                        ? targetSubLayer.feature.properties
-                        : (row.properties || {});
-                    cardContent = buildFeatureCardPopup(
-                        row.name,
-                        row.categoryBadge,
-                        props,
-                        row.fileName,
-                        targetLatLng.lat,
-                        targetLatLng.lng
-                    );
-                }
-
-                var popupOffset = [0, -10];
-                if (targetSubLayer && targetSubLayer.options && targetSubLayer.options.radius) {
-                    popupOffset = [0, -targetSubLayer.options.radius - 4];
-                }
-
-                L.popup({
-                    offset: popupOffset,
-                    closeButton: true,
-                    autoClose: true,
-                    className: 'bws-focus-popup'
-                })
-                .setLatLng(targetLatLng)
-                .setContent(cardContent)
-                .openOn(map);
-            }
-
-            // Jalankan animasi zoom peta
-            if (row.bounds && row.bounds.isValid && row.bounds.isValid()) {
-                map.fitBounds(row.bounds, { padding: [60, 60], maxZoom: 16 });
-            } else if (targetLatLng) {
-                map.flyTo(targetLatLng, 15, { animate: true, duration: 0.8 });
-            }
-
-            map.once('moveend', function() {
-                setTimeout(displayFocusPopup, 60);
-            });
-            setTimeout(displayFocusPopup, 650);
+            focusOnMapObject(row);
         });
 
         frag.appendChild(tr);
@@ -1421,7 +1304,242 @@ function renderTable() {
 }
 
 /* ============================================================
-   7. PENCARIAN DATA REALTIME
+   7. INTERACTIVE FLOATING SEARCH BAR & FOCUS OBJECT
+   Fungsi: Live autocomplete search objek irigasi langsung di atas peta.
+   Saat item dipilih, peta otomatis zoom dan membuka popup akurat.
+   ============================================================ */
+function focusOnMapObject(row) {
+    if (!row || !map) return;
+
+    // 1. Pastikan tampilan peta aktif jika sebelumnya ada tab switcher
+    var isV2 = document.body.classList.contains('page-peta-v2');
+    if (isV2) {
+        if (window.switchPetaTab) window.switchPetaTab('peta');
+    }
+    if (map && map.invalidateSize) {
+        map.invalidateSize();
+    }
+
+    // 2. Scroll mulus ke peta jika di perangkat mobile
+    var mapSection = document.getElementById('section-map');
+    if (mapSection) {
+        var rect = mapSection.getBoundingClientRect();
+        if (rect.top < 0 || rect.top > window.innerHeight) {
+            var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            var targetTop = rect.top + scrollTop - 70;
+            window.scrollTo({ top: Math.max(0, targetTop), behavior: 'smooth' });
+        }
+    }
+
+    // 3. Pastikan Layer Group untuk file ini aktif di peta
+    if (row.targetLayer && !map.hasLayer(row.targetLayer)) {
+        map.addLayer(row.targetLayer);
+    }
+    if (row.fileName && customFileMap && customFileMap[row.fileName]) {
+        if (!map.hasLayer(customFileMap[row.fileName].layerGroup)) {
+            map.addLayer(customFileMap[row.fileName].layerGroup);
+        }
+    }
+
+    // 4. Cari titik koordinat penempatan akurat di dalam geometri objek
+    var targetLatLng = row.accurateLatLng || ((row.lat !== null && row.lng !== null && !isNaN(row.lat) && !isNaN(row.lng))
+        ? L.latLng(row.lat, row.lng)
+        : null);
+    var targetSubLayer = null;
+
+    if (row.layerObj && row.layerObj.getLayers) {
+        var subLayers = row.layerObj.getLayers();
+        if (subLayers.length > 0) {
+            targetSubLayer = subLayers[0];
+            if (targetSubLayer.feature) {
+                var accurate = getFeatureAccurateLatLng(targetSubLayer.feature, targetSubLayer);
+                if (accurate) targetLatLng = accurate;
+            }
+        }
+    }
+
+    if (!targetLatLng && row.bounds && row.bounds.isValid && row.bounds.isValid()) {
+        targetLatLng = row.bounds.getCenter();
+    }
+
+    // 5. Tampilkan Card Popup tepat saat pergerakan peta selesai (akurat anti-meleset)
+    var popupTriggered = false;
+    function displayFocusPopup() {
+        if (popupTriggered) return;
+        popupTriggered = true;
+        if (!targetLatLng) return;
+
+        var cardContent = '';
+        if (targetSubLayer && targetSubLayer.getPopup && targetSubLayer.getPopup()) {
+            cardContent = targetSubLayer.getPopup().getContent();
+        }
+        if (!cardContent) {
+            var props = (targetSubLayer && targetSubLayer.feature && targetSubLayer.feature.properties)
+                ? targetSubLayer.feature.properties
+                : (row.properties || {});
+            cardContent = buildFeatureCardPopup(
+                row.name,
+                row.categoryBadge,
+                props,
+                row.fileName,
+                targetLatLng.lat,
+                targetLatLng.lng
+            );
+        }
+
+        var popupOffset = [0, -10];
+        if (targetSubLayer && targetSubLayer.options && targetSubLayer.options.radius) {
+            popupOffset = [0, -targetSubLayer.options.radius - 4];
+        }
+
+        L.popup({
+            offset: popupOffset,
+            closeButton: true,
+            autoClose: true,
+            className: 'bws-focus-popup'
+        })
+        .setLatLng(targetLatLng)
+        .setContent(cardContent)
+        .openOn(map);
+    }
+
+    // Jalankan animasi zoom peta
+    if (row.bounds && row.bounds.isValid && row.bounds.isValid()) {
+        map.fitBounds(row.bounds, { padding: [60, 60], maxZoom: 16 });
+    } else if (targetLatLng) {
+        map.flyTo(targetLatLng, 15, { animate: true, duration: 0.8 });
+    }
+
+    map.once('moveend', function() {
+        setTimeout(displayFocusPopup, 60);
+    });
+    setTimeout(displayFocusPopup, 650);
+}
+window.focusOnMapObject = focusOnMapObject;
+
+/**
+ * Inisialisasi Floating Modern Search Bar
+ */
+function initInteractiveMapSearch() {
+    var searchInput = document.getElementById('peta-search-input');
+    var clearBtn    = document.getElementById('peta-search-clear');
+    var dropdown    = document.getElementById('peta-search-dropdown');
+    var listEl      = document.getElementById('peta-search-list');
+    var countEl     = document.getElementById('peta-search-count');
+
+    if (!searchInput || !listEl) return;
+
+    function doSearch(val) {
+        var query = (val || '').trim().toLowerCase();
+        if (!query) {
+            if (clearBtn) clearBtn.style.display = 'none';
+            if (dropdown) dropdown.style.display = 'none';
+            return;
+        }
+        if (clearBtn) clearBtn.style.display = 'inline-flex';
+
+        var results = allTableRows.filter(function(row) {
+            var wil = detectWilayah(row.name, row.fileName, row.properties).toLowerCase();
+            return (row.name && row.name.toLowerCase().indexOf(query) !== -1) ||
+                   (row.fileName && row.fileName.toLowerCase().indexOf(query) !== -1) ||
+                   (row.categoryType && row.categoryType.toLowerCase().indexOf(query) !== -1) ||
+                   (wil.indexOf(query) !== -1);
+        });
+
+        if (countEl) {
+            countEl.textContent = results.length + ' objek ditemukan';
+        }
+
+        if (results.length === 0) {
+            listEl.innerHTML = '<div class="bws-search-no-result"><i class="fas fa-search-minus mr-2"></i>Tidak ada objek irigasi yang cocok</div>';
+            dropdown.style.display = 'block';
+            return;
+        }
+
+        var html = '';
+        var maxShow = Math.min(results.length, 12);
+        for (var i = 0; i < maxShow; i++) {
+            var row = results[i];
+            var wilayah = detectWilayah(row.name, row.fileName, row.properties);
+            var catLabel = getCategoryPlainLabel(row.categoryType);
+            var badgeColor = '#2563eb';
+            if (row.categoryType === 'baku') badgeColor = '#16a34a';
+            else if (row.categoryType === 'fungsional') badgeColor = '#2563eb';
+            else if (row.categoryType === 'potensial') badgeColor = '#d97706';
+            else if (row.categoryType === 'saluran') badgeColor = '#0284c7';
+            else if (row.categoryType === 'bangunan') badgeColor = '#dc2626';
+
+            html += '<div class="bws-search-item" data-index="' + i + '">' +
+                '<div class="bws-search-item-icon" style="background:' + badgeColor + '15; color:' + badgeColor + ';">' +
+                    '<i class="fas fa-map-marker-alt"></i>' +
+                '</div>' +
+                '<div class="bws-search-item-info">' +
+                    '<div class="bws-search-item-name">' + row.name + '</div>' +
+                    '<div class="bws-search-item-sub">' +
+                        '<span class="bws-search-tag" style="background:' + badgeColor + '18; color:' + badgeColor + ';">' + catLabel + '</span>' +
+                        '<span class="bws-search-wilayah"><i class="fas fa-location-arrow mr-1"></i>' + wilayah + '</span>' +
+                    '</div>' +
+                '</div>' +
+                '<i class="fas fa-chevron-right bws-search-item-arrow"></i>' +
+            '</div>';
+        }
+
+        if (results.length > maxShow) {
+            html += '<div class="bws-search-more-hint">Menampilkan ' + maxShow + ' dari ' + results.length + ' objek. Ketik kata kunci lebih spesifik...</div>';
+        }
+
+        listEl.innerHTML = html;
+        dropdown.style.display = 'block';
+
+        // Event listener klik pada setiap item hasil pencarian
+        var itemEls = listEl.querySelectorAll('.bws-search-item');
+        itemEls.forEach(function(el, idx) {
+            el.addEventListener('click', function() {
+                var selectedRow = results[idx];
+                focusOnMapObject(selectedRow);
+                searchInput.value = selectedRow.name;
+                dropdown.style.display = 'none';
+            });
+        });
+    }
+
+    // Input handler
+    searchInput.addEventListener('input', function() {
+        doSearch(this.value);
+    });
+
+    searchInput.addEventListener('focus', function() {
+        if (this.value.trim().length > 0) {
+            doSearch(this.value);
+        }
+    });
+
+    if (clearBtn) {
+        clearBtn.addEventListener('click', function() {
+            searchInput.value = '';
+            clearBtn.style.display = 'none';
+            if (dropdown) dropdown.style.display = 'none';
+            searchInput.focus();
+        });
+    }
+
+    // Menutup dropdown jika user klik di luar widget search
+    document.addEventListener('click', function(e) {
+        var wrap = document.getElementById('bwsFloatingSearch');
+        if (wrap && !wrap.contains(e.target)) {
+            if (dropdown) dropdown.style.display = 'none';
+        }
+    });
+}
+window.initInteractiveMapSearch = initInteractiveMapSearch;
+
+// Panggil saat document ready
+document.addEventListener('DOMContentLoaded', function() {
+    initInteractiveMapSearch();
+});
+
+/* ============================================================
+   8. PENCARIAN DATA REALTIME (TABEL)
    ============================================================ */
 window.filterTabelKoordinat = function(val) {
     currentSearchText = (val || '').trim();

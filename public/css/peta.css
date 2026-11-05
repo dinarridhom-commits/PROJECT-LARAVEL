@@ -1441,6 +1441,242 @@ body.page-peta-v2 {
     background: #f8fafc !important;
 }
 
+/* ============================================================
+   FLOATING MODERN SEARCH BAR (GLASSMORPHISM & AUTOCOMPLETE)
+   ============================================================ */
+.bws-floating-search-bar {
+    position: absolute;
+    top: 14px;
+    left: 16px;
+    z-index: 1000;
+    width: 380px;
+    max-width: calc(100vw - 32px);
+    font-family: inherit;
+    pointer-events: auto;
+}
+.bws-search-input-box {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12), 0 2px 8px rgba(15, 23, 42, 0.06);
+    padding: 5px 8px 5px 14px;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.bws-search-input-box:focus-within {
+    background: rgba(255, 255, 255, 0.98);
+    border-color: #3b82f6;
+    box-shadow: 0 12px 35px rgba(29, 78, 216, 0.2), 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+.bws-search-icon {
+    color: #64748b;
+    font-size: 14px;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+.bws-search-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: #1e293b;
+    padding: 7px 0;
+    min-width: 0;
+    font-family: inherit;
+}
+.bws-search-input::placeholder {
+    color: #94a3b8;
+    font-weight: 400;
+}
+.bws-search-clear-btn {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.15s ease;
+    margin-right: 4px;
+}
+.bws-search-clear-btn:hover {
+    background: #f1f5f9;
+    color: #ef4444;
+}
+.bws-search-divider {
+    width: 1px;
+    height: 22px;
+    background: #e2e8f0;
+    margin: 0 6px;
+}
+.bws-search-reset-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+.bws-search-reset-btn:hover {
+    background: #dbeafe;
+    color: #1e40af;
+    transform: translateY(-1px);
+}
+
+/* Floating Results Dropdown */
+.bws-search-results-dropdown {
+    margin-top: 8px;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(24px) saturate(190%);
+    -webkit-backdrop-filter: blur(24px) saturate(190%);
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    border-radius: 12px;
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.16);
+    overflow: hidden;
+    max-height: 420px;
+    display: flex;
+    flex-direction: column;
+    animation: bwsDropdownFade 0.2s ease-out;
+}
+@keyframes bwsDropdownFade {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.bws-search-dropdown-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: rgba(248, 250, 252, 0.85);
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+    font-size: 11px;
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+.bws-search-results-list {
+    overflow-y: auto;
+    max-height: 360px;
+}
+.bws-search-results-list::-webkit-scrollbar { width: 5px; }
+.bws-search-results-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+.bws-search-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(241, 245, 249, 0.9);
+    transition: all 0.15s ease;
+}
+.bws-search-item:last-child {
+    border-bottom: none;
+}
+.bws-search-item:hover {
+    background: rgba(239, 246, 255, 0.85);
+}
+.bws-search-item-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+}
+.bws-search-item-info {
+    flex: 1;
+    min-width: 0;
+}
+.bws-search-item-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1e293b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+}
+.bws-search-item-sub {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 3px;
+    font-size: 11px;
+    color: #64748b;
+}
+.bws-search-tag {
+    padding: 1px 7px;
+    border-radius: 6px;
+    font-size: 10.5px;
+    font-weight: 600;
+}
+.bws-search-wilayah {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.bws-search-item-arrow {
+    color: #cbd5e1;
+    font-size: 11px;
+    transition: transform 0.15s ease;
+}
+.bws-search-item:hover .bws-search-item-arrow {
+    color: #2563eb;
+    transform: translateX(2px);
+}
+.bws-search-no-result {
+    padding: 24px 16px;
+    text-align: center;
+    color: #64748b;
+    font-size: 13px;
+}
+.bws-search-more-hint {
+    padding: 8px 14px;
+    font-size: 11px;
+    text-align: center;
+    background: rgba(248, 250, 252, 0.9);
+    color: #64748b;
+    border-top: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+/* Geser posisi kontrol Leaflet (zoom & fullscreen) di pojok kiri atas agar pas di bawah search bar */
+.leaflet-top.leaflet-left {
+    top: 72px !important;
+    left: 16px !important;
+}
+
+@media (max-width: 768px) {
+    .bws-floating-search-bar {
+        width: calc(100vw - 24px);
+        left: 12px;
+        top: 12px;
+    }
+    .leaflet-top.leaflet-left {
+        top: 68px !important;
+        left: 12px !important;
+    }
+}
+
 /* Tabel Wrapper */
 .peta-v2-table-wrap {
     flex: 1;
@@ -1710,22 +1946,40 @@ body.page-peta-v2 {
    ============================================================ */
 @media (max-width: 991.98px) {
     .peta-v2-container {
-        flex-direction: column;
-        height: auto;
-        min-height: calc(100vh - 64px - 80px);
-    }
-    .peta-v2-sidebar {
+        flex: 1;
         width: 100%;
-        min-width: 100%;
-        max-width: 100%;
-        border-right: none;
-        border-bottom: 1px solid rgba(226, 232, 240, 0.8);
-        max-height: 360px;
+        height: 100%;
+        min-height: 0;
     }
-    .peta-hero-inner { flex-direction: column; gap: 16px; }
-    .peta-hero-location { width: 100%; }
-    .peta-hero-title { font-size: 18px; }
-    .peta-v2-map-wrap #map { min-height: 300px; }
+    .peta-hero {
+        padding: 6px 0;
+    }
+    .peta-hero-inner {
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+    }
+    .peta-hero-desc {
+        display: none;
+    }
+    .peta-hero-location {
+        padding: 4px 10px;
+        min-width: auto;
+    }
+    .peta-hero-loc-sub {
+        display: none;
+    }
+    .peta-hero-title {
+        font-size: 14px;
+        margin-bottom: 0;
+    }
+    .peta-hero-badge {
+        font-size: 8.5px;
+        padding: 1px 7px;
+    }
+    .peta-v2-map-wrap #map {
+        min-height: 100%;
+    }
 }
 
 
