@@ -8,14 +8,16 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ActivityLogController;
 
 /* ============================================================
-   1. ROUTE PUBLIK / TAMU
-   Halaman yang bisa diakses oleh siapa saja tanpa harus login:
-   - Melihat peta WebGIS, menyaring data, dan unduh data tabel
-   - Halaman About & Contact
+   1. ROUTE UTAMA (Publik & Auth)
+   Satu route tunggal untuk /, /home, /peta.
+   Controller petaRouter() yang menentukan view berdasarkan status login:
+   - Guest (belum login) → peta-publik.blade.php
+   - Auth (sudah login)  → peta.blade.php
    ============================================================ */
-Route::get('/', [DashboardController::class, 'peta'])->name('dashboard');
-Route::get('/home', [DashboardController::class, 'peta'])->name('home');
-Route::get('/peta', [DashboardController::class, 'peta'])->name('peta');
+
+Route::get('/', [DashboardController::class, 'petaRouter'])->name('dashboard');
+Route::get('/home', [DashboardController::class, 'petaRouter'])->name('home');
+Route::get('/peta', [DashboardController::class, 'petaRouter'])->name('peta');
 
 Route::get('/contact', function () { return view('contact'); })->name('contact');
 Route::get('/about', function () { return view('About'); })->name('about');

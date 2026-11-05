@@ -9,6 +9,132 @@ use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
+    /**
+     * Router Peta: menentukan view berdasarkan status login.
+     * - Guest (belum login) → petaPublik() → peta-publik.blade.php
+     * - Auth (sudah login)  → peta()       → peta.blade.php
+     */
+    public function petaRouter()
+    {
+        if (Auth::check()) {
+            return $this->peta();
+        }
+        return $this->petaPublik();
+    }
+
+    /**
+     * Halaman Peta Publik (Belum Login)
+     * View: dashboard/peta-publik.blade.php
+     */
+    public function petaPublik()
+    {
+        $defaultBaselineFiles = [
+            'Baku_DIR_PEMANGKAT_KOMPLEK____OVERLAP.json',
+            'Baku_DIR_SEBANGKAU.json',
+            'Baku_Kubu_Komplek___Overlap_Hutan_Lindung.json',
+            'Baku_Pematang_Gadung_1.json',
+            'Baku_Pematang_Gadung_II.json',
+            'Baku_SEBUBUS.json',
+            'Baku_Sarang_Burung.json',
+            'Baku_Semelagi.json',
+            'Baku_Sungai_Kinjil____OVERLAP.json',
+            'Bangunan_KK.json',
+            'Bangunan_KRW.json',
+            'Bangunan_PGI.json',
+            'Bangunan_PGII.json',
+            'Bangunan_PMK.json',
+            'Bangunan_PPK.json',
+            'Bangunan_SBB.json',
+            'Bangunan_SBK.json',
+            'Bangunan_SBU.json',
+            'Bangunan_SBW.json',
+            'Bangunan_SKJ.json',
+            'Bangunan_SLK.json',
+            'Bangunan_SML.json',
+            'Bangunan_TB.json',
+            'Fungsional_DIR_PEMANGKAT_KOMPLEK.json',
+            'Fungsional_DIR_PIMPINAN_KOMPLEK.json',
+            'Fungsional_DIR_SEBANGKAU.json',
+            'Fungsional_Kubu_Komplek.json',
+            'Fungsional_SEBUBUS.json',
+            'Fungsional_Sarang_Burung.json',
+            'Potensial_DIR_PEMANGKAT_KOMPLEK____OVERLAP.json',
+            'Potensial_DIR_PIMPINAN_KOMPLEK.json',
+            'Potensial_DIR_SEBANGKAU.json',
+            'Potensial_Kerawang_Komplek.json',
+            'Potensial_Kubu_Komplek____Overlap_Hutan_Lindung.json',
+            'Potensial_Pematang_Gadung_II.json',
+            'Potensial_SEBUBUS.json',
+            'Potensial_Sarang_Burung.json',
+            'Potensial_Sungai_Kinjil____OVERLAP.json',
+            'Potensial_Teluk_Bayur.json',
+            'Saluran_KK.json',
+            'Saluran_KRW.json',
+            'Saluran_PGI.json',
+            'Saluran_PGII.json',
+            'Saluran_PMK.json',
+            'Saluran_PPK.json',
+            'Saluran_SBB.json',
+            'Saluran_SBK.json',
+            'Saluran_SBU.json',
+            'Saluran_SBW.json',
+            'Saluran_SKJ.json',
+            'Saluran_SLK.json',
+            'Saluran_SML.json',
+            'Saluran_Samalagi_full.json',
+            'Saluran_TB.json',
+        ];
+
+        $geojsonFiles = [];
+        $fileList = [];
+        $path = public_path('geojson');
+        if (file_exists($path)) {
+            $files = File::files($path);
+            foreach ($files as $file) {
+                $ext = strtolower($file->getExtension());
+                if (in_array($ext, ['json', 'geojson'])) {
+                    $filename = $file->getFilename();
+                    $geojsonFiles[] = $filename;
+                    $isDefault = in_array($filename, $defaultBaselineFiles);
+                    $fileList[] = [
+                        'name'       => $filename,
+                        'size'       => round($file->getSize() / 1024, 1) . ' KB',
+                        'date'       => date('d M Y, H:i', $file->getMTime()),
+                        'is_default' => $isDefault,
+                    ];
+                }
+            }
+            usort($fileList, function($a, $b) {
+                if ($a['is_default'] === $b['is_default']) return strcmp($a['name'], $b['name']);
+                return $a['is_default'] ? 1 : -1;
+            });
+        }
+
+        $availableTypes = [
+            'baku' => false, 'fungsional' => false, 'potensial' => false,
+            'saluran' => false, 'bangunan' => false, 'custom' => false,
+        ];
+        foreach ($fileList as $f) {
+            $nameUpper = strtoupper($f['name']);
+            if ($f['is_default']) {
+                if      (str_starts_with($nameUpper, 'BAKU'))       $availableTypes['baku']       = true;
+                elseif  (str_starts_with($nameUpper, 'FUNGSIONAL')) $availableTypes['fungsional'] = true;
+                elseif  (str_starts_with($nameUpper, 'POTENSIAL'))  $availableTypes['potensial']  = true;
+                elseif  (str_starts_with($nameUpper, 'SALURAN'))    $availableTypes['saluran']    = true;
+                elseif  (str_starts_with($nameUpper, 'BANGUNAN'))   $availableTypes['bangunan']   = true;
+            } else {
+                $availableTypes['custom'] = true;
+            }
+        }
+
+        $lokasi = [];
+        return view('dashboard.peta-publik', compact('lokasi', 'geojsonFiles', 'fileList', 'availableTypes'));
+    }
+
+    /**
+     * Halaman Peta untuk User yang Sudah Login
+     * View: dashboard/peta.blade.php
+     */
     public function peta()
     {
         $defaultBaselineFiles = [
