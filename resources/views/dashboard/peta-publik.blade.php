@@ -137,14 +137,10 @@
                     <span>Kalimantan Barat</span>
                 </div>
 
-                {{-- Tab Kanan (Publik: Peta Interaktif, Buka Tabel Data & Reset) --}}
+                {{-- Tab Kanan (Publik: hanya Peta Interaktif & Reset) --}}
                 <div class="ptb-tabs">
                     <button class="ptb-tab active" id="tab-peta" onclick="switchPetaTab('peta')">
                         <i class="fas fa-map mr-1"></i> Peta Interaktif
-                    </button>
-                    <button class="ptb-tab" id="tab-tabel" onclick="switchPetaTab('tabel')">
-                        <i class="fas fa-table mr-1"></i> Buka Tabel Data
-                        <span class="badge badge-primary ml-1" style="font-size:10px; border-radius:10px; padding:2px 7px;">{{ count($fileList ?? []) }}</span>
                     </button>
                     <button class="ptb-btn-reset" id="btnResetPeta" onclick="resetPetaView()" title="Reset tampilan peta">
                         <i class="fas fa-redo-alt mr-1"></i> Reset
@@ -160,91 +156,6 @@
                     <span>Memuat koordinat GIS ArcMap...</span>
                 </div>
                 <div id="map"></div>
-            </div>
-
-
-            {{-- SECTION TABEL DATA (Publik — tanpa Export/Download) --}}
-            <div id="section-table" class="peta-v2-table-wrap" style="display:none;">
-                <div class="bws-table-card-v2">
-
-                    {{-- Toolbar Atas: Judul, Badge Jumlah File & Input Pencarian --}}
-                    <div class="bws-table-v2-header">
-                        <div class="bws-table-v2-title">
-                            <i class="fas fa-layer-group text-primary mr-2"></i>
-                            <span>Daftar Pos &amp; Data Spasial Irigasi</span>
-                            <span class="bws-v2-count-badge" id="badge-total-file-tabel">
-                                {{ count($fileList ?? []) }} File
-                            </span>
-                        </div>
-
-                        <div class="bws-table-v2-controls">
-                            {{-- Input Pencarian --}}
-                            <div class="bws-search-input-wrap">
-                                <i class="fas fa-search"></i>
-                                <input type="text"
-                                       id="cari-tabel-koordinat"
-                                       placeholder="Cari nama pos/objek/file..."
-                                       onkeyup="filterTabelKoordinat(this.value); syncSearchInputs(this.value);">
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Baris Filter Pills (Kategori Spasial) --}}
-                    <div class="bws-table-pills-bar">
-                        <button type="button" class="bws-pill-btn active" data-category="all" onclick="filterTableByPill('all', this)">
-                            Semua Data ( <span id="pill-count-all">{{ count($fileList ?? []) }}</span> )
-                        </button>
-                        <button type="button" class="bws-pill-btn" data-category="baku" onclick="filterTableByPill('baku', this)">
-                            <span class="bws-pill-dot" style="background:#10b981;"></span> DIR Baku
-                        </button>
-                        <button type="button" class="bws-pill-btn" data-category="fungsional" onclick="filterTableByPill('fungsional', this)">
-                            <span class="bws-pill-dot" style="background:#3b82f6;"></span> DIR Fungsional
-                        </button>
-                        <button type="button" class="bws-pill-btn" data-category="potensial" onclick="filterTableByPill('potensial', this)">
-                            <span class="bws-pill-dot" style="background:#f59e0b;"></span> DIR Potensial
-                        </button>
-                        <button type="button" class="bws-pill-btn" data-category="saluran" onclick="filterTableByPill('saluran', this)">
-                            <span class="bws-pill-dot" style="background:#0ea5e9;"></span> Saluran
-                        </button>
-                        <button type="button" class="bws-pill-btn" data-category="bangunan" onclick="filterTableByPill('bangunan', this)">
-                            <span class="bws-pill-dot" style="background:#ef4444;"></span> Bangunan Air
-                        </button>
-                    </div>
-
-                    {{-- Tabel Data Spasial --}}
-                    <div class="bws-table-responsive">
-                        <table class="bws-custom-table-v2" id="tabel-lokasi">
-                            <thead>
-                                <tr>
-                                    <th width="5%" class="text-center">NO.</th>
-                                    <th width="37%">NAMA POS / OBJEK IRIGASI</th>
-                                    <th width="18%">KATEGORI SPASIAL</th>
-                                    <th width="26%">KOORDINAT (LAT, LNG)</th>
-                                    <th width="14%" class="text-center">AKSI</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tbody-lokasi">
-                                <tr>
-                                    <td colspan="5" class="text-center py-5 text-muted">
-                                        <i class="fas fa-spinner fa-spin text-primary mr-2"></i>
-                                        Membaca data koordinat GIS ArcMap...
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    {{-- Footer: Info Jumlah Data & Pagination --}}
-                    <div class="bws-table-v2-footer">
-                        <div class="bws-table-v2-info" id="tabel-footer-info">
-                            Menampilkan 1 - 10 dari {{ count($fileList ?? []) }} data pos &amp; file GIS
-                        </div>
-                        <div class="bws-table-v2-pagination" id="tabel-pagination">
-                            {{-- Diisi secara dinamis via JavaScript --}}
-                        </div>
-                    </div>
-
-                </div>
             </div>
 
         </main>
@@ -276,25 +187,11 @@
     <script src="{{ asset('js/peta-map.js') }}?v={{ filemtime(public_path('js/peta-map.js')) }}"></script>
 
     <script>
-    /* Tab Switcher: Peta Interaktif / Buka Tabel Data */
+    /* Tab Switcher (hanya peta, tidak ada tabel di halaman publik) */
     window.switchPetaTab = function(tab) {
-        var mapSec  = document.getElementById('section-map');
-        var tblSec  = document.getElementById('section-table');
-        var tabPeta  = document.getElementById('tab-peta');
-        var tabTabel = document.getElementById('tab-tabel');
-
-        if (tab === 'peta') {
-            mapSec.style.display = 'block';
-            tblSec.style.display = 'none';
-            if (tabPeta)  tabPeta.classList.add('active');
-            if (tabTabel) tabTabel.classList.remove('active');
-            setTimeout(function() { if (window.map) window.map.invalidateSize(); }, 150);
-        } else {
-            mapSec.style.display = 'none';
-            tblSec.style.display = 'block';
-            if (tabPeta)  tabPeta.classList.remove('active');
-            if (tabTabel) tabTabel.classList.add('active');
-        }
+        var mapSec = document.getElementById('section-map');
+        if (mapSec) mapSec.style.display = 'block';
+        setTimeout(function() { if (window.map) window.map.invalidateSize(); }, 150);
     };
 
     /* Reset Peta */
@@ -302,35 +199,20 @@
         if (window.map) {
             window.map.setView([-0.02, 109.33], 8);
         }
-        switchPetaTab('peta');
     };
 
-    /* Sinkron Input Pencarian (Sidebar <-> Tabel) */
+    /* Sinkron Input Pencarian */
     window.syncSearchInputs = function(value) {
         var s1 = document.getElementById('cari-sidebar');
-        var s2 = document.getElementById('cari-tabel-koordinat');
         if (s1 && s1 !== document.activeElement) s1.value = value;
-        if (s2 && s2 !== document.activeElement) s2.value = value;
     };
 
     /* Scroll ke Legenda */
     window.scrollToLegend = function(e) {
         if (e) e.preventDefault();
-        switchPetaTab('peta');
-        setTimeout(function() {
-            var legend = document.querySelector('.map-legend');
-            if (legend) legend.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 200);
+        var legend = document.querySelector('.map-legend');
+        if (legend) legend.scrollIntoView({ behavior: 'smooth', block: 'center' });
     };
-
-    /* Fokus dari tabel: switch ke tab peta */
-    document.addEventListener('DOMContentLoaded', function() {
-        document.addEventListener('click', function(e) {
-            if (e.target && e.target.closest('.btn-focus-row')) {
-                switchPetaTab('peta');
-            }
-        }, true);
-    });
     </script>
 
 </body>
