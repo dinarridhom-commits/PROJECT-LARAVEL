@@ -42,7 +42,7 @@
             {{-- Kanan: Tombol Masuk / Profil --}}
             <div class="peta-navbar-right">
                 @auth
-                    {{-- Logged In: Dropdown Profil & Aksi Admin --}}
+                    {{-- Logged In: Dropdown Profil --}}
                     <div class="dropdown">
                         <div class="peta-profile-btn" id="petaUserDrop" data-toggle="dropdown"
                              aria-haspopup="true" aria-expanded="false">
@@ -53,30 +53,12 @@
                             <i class="fas fa-chevron-down ml-1" style="font-size:11px; opacity:0.6;"></i>
                         </div>
                         <div class="dropdown-menu dropdown-menu-right shadow py-2"
-                             aria-labelledby="petaUserDrop" style="min-width:210px; border-radius:10px; border:1px solid #e2e8f0;">
-                            <div class="dropdown-header text-uppercase font-weight-bold text-xs text-muted">
-                                Akun Terdaftar
-                            </div>
+                             aria-labelledby="petaUserDrop" style="min-width:180px; border-radius:8px; border:1px solid #e2e8f0;">
                             @if(in_array(Auth::user()->role, ['superadmin', 'admin']))
                             <a class="dropdown-item py-2 d-flex align-items-center"
                                href="{{ route('admin.panel') }}">
                                 <i class="fas fa-cog text-muted mr-2" style="width:16px;"></i>
                                 <span>Admin Panel</span>
-                            </a>
-                            <div class="dropdown-divider my-1"></div>
-                            <div class="dropdown-header text-uppercase font-weight-bold text-xs text-muted">
-                                Pengelolaan Spasial
-                            </div>
-                            <a class="dropdown-item py-2 d-flex align-items-center"
-                               href="#" data-toggle="modal" data-target="#modalKelolaGeojson">
-                                <i class="fas fa-folder-open text-primary mr-2" style="width:16px;"></i>
-                                <span>Kelola File GIS</span>
-                                <span class="badge badge-primary ml-auto">{{ count($fileList ?? []) }}</span>
-                            </a>
-                            <a class="dropdown-item py-2 d-flex align-items-center"
-                               href="#" data-toggle="modal" data-target="#modalUploadGeojson">
-                                <i class="fas fa-cloud-upload-alt text-success mr-2" style="width:16px;"></i>
-                                <span>Upload File GIS</span>
                             </a>
                             <div class="dropdown-divider my-1"></div>
                             @endif
@@ -110,7 +92,7 @@
                 <h1 class="peta-hero-title">Peta Daerah Irigasi &amp; Jaringan SDA.</h1>
                 <p class="peta-hero-desc">
                     Temukan sebaran Daerah Irigasi, Jaringan Saluran, dan Bangunan Air
-                    di Kalimantan Barat dalam satu peta interaktif.
+                    di Kalimantan Barat dalam satu peta.
                 </p>
             </div>
             <div class="peta-hero-location">
@@ -127,76 +109,371 @@
 
 
     {{-- ============================================================
-         LAYOUT UTAMA: PETA INTERAKTIF LAYAR PENUH DENGAN FLOATING SEARCH
+         LAYOUT UTAMA: SIDEBAR FILTER KIRI + AREA PETA/TABEL
          ============================================================ --}}
     <div class="peta-v2-container">
 
+        {{-- ========================
+             SIDEBAR FILTER KIRI
+             ======================== --}}
+        <aside class="peta-v2-sidebar">
+
+            {{-- Header Sidebar --}}
+            <div class="psb-header">
+                <div class="psb-header-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div>
+                    <div class="psb-header-title">Jelajahi objek irigasi</div>
+                    <div class="psb-header-sub">Mulai dari nama atau No Foto spasial</div>
+                </div>
+            </div>
+
+            {{-- Pencarian --}}
+            <div class="psb-section">
+                <label class="psb-label">Cari pos atau daerah irigasi</label>
+                <div class="psb-search-wrap">
+                    <input type="text"
+                           id="cari-sidebar"
+                           class="psb-search-input"
+                           placeholder="Nama pos, DIR, atau file..."
+                           onkeyup="filterTabelKoordinat(this.value); syncSearchInputs(this.value);">
+                </div>
+                <div class="psb-search-hint">
+                    Pilih hasil pencarian untuk melihat detail. Maksimal 150 karakter
+                </div>
+            </div>
+
+            {{-- Wilayah Kabupaten --}}
+            <div class="psb-section">
+                <label class="psb-label">Wilayah kabupaten</label>
+                <div class="psb-select-wrap">
+                    <i class="fas fa-map-marker-alt psb-select-icon"></i>
+                    <select class="psb-select" id="filterWilayah" onchange="filterByWilayah(this.value)">
+                        <option value="">Semua kabupaten (Kalbar)</option>
+                        <option value="pontianak">Pontianak</option>
+                        <option value="kubu raya">Kubu Raya</option>
+                        <option value="mempawah">Mempawah</option>
+                        <option value="landak">Landak</option>
+                        <option value="sambas">Sambas</option>
+                        <option value="bengkayang">Bengkayang</option>
+                        <option value="singkawang">Singkawang</option>
+                        <option value="ketapang">Ketapang</option>
+                        <option value="kayong utara">Kayong Utara</option>
+                    </select>
+                </div>
+            </div>
+
+            {{-- Kategori Layer --}}
+            <div class="psb-section">
+                <div class="psb-cat-header">
+                    <label class="psb-label mb-0">Tampilkan kategori</label>
+                    <a href="#" class="psb-cat-link" onclick="scrollToLegend(event)">Layer peta</a>
+                </div>
+
+                {{-- Toggle: Lahan Baku --}}
+                <div class="psb-cat-item" id="cat-baku">
+                    <div class="psb-cat-icon" style="background:#dcfce7; color:#166534;">
+                        <i class="fas fa-map"></i>
+                    </div>
+                    <div class="psb-cat-info">
+                        <div class="psb-cat-name">Lahan Baku</div>
+                        <div class="psb-cat-desc">Daerah Irigasi Baku</div>
+                    </div>
+                    <button class="psb-toggle active" id="toggle-baku"
+                            onclick="toggleCategoryLayer('baku', this)" title="Tampilkan/Sembunyikan">
+                        <i class="fas fa-check"></i>
+                    </button>
+                </div>
+
+                {{-- Toggle: Lahan Fungsional --}}
+                <div class="psb-cat-item" id="cat-fungsional">
+                    <div class="psb-cat-icon" style="background:#dbeafe; color:#1e40af;">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <div class="psb-cat-info">
+                        <div class="psb-cat-name">Lahan Fungsional</div>
+                        <div class="psb-cat-desc">Aset Terukur</div>
+                    </div>
+                    <button class="psb-toggle active" id="toggle-fungsional"
+                            onclick="toggleCategoryLayer('fungsional', this)" title="Tampilkan/Sembunyikan">
+                        <i class="fas fa-check"></i>
+                    </button>
+                </div>
+
+                {{-- Toggle: Lahan Potensial --}}
+                <div class="psb-cat-item" id="cat-potensial">
+                    <div class="psb-cat-icon" style="background:#ffedd5; color:#9a3412;">
+                        <i class="fas fa-seedling"></i>
+                    </div>
+                    <div class="psb-cat-info">
+                        <div class="psb-cat-name">Lahan Potensial</div>
+                        <div class="psb-cat-desc">Rencana Pengembangan</div>
+                    </div>
+                    <button class="psb-toggle active" id="toggle-potensial"
+                            onclick="toggleCategoryLayer('potensial', this)" title="Tampilkan/Sembunyikan">
+                        <i class="fas fa-check"></i>
+                    </button>
+                </div>
+
+                {{-- Toggle: Jaringan Saluran --}}
+                <div class="psb-cat-item" id="cat-saluran">
+                    <div class="psb-cat-icon" style="background:#cffafe; color:#155e75;">
+                        <i class="fas fa-water"></i>
+                    </div>
+                    <div class="psb-cat-info">
+                        <div class="psb-cat-name">Jaringan Saluran</div>
+                        <div class="psb-cat-desc">Saluran Irigasi</div>
+                    </div>
+                    <button class="psb-toggle active" id="toggle-saluran"
+                            onclick="toggleCategoryLayer('saluran', this)" title="Tampilkan/Sembunyikan">
+                        <i class="fas fa-check"></i>
+                    </button>
+                </div>
+
+                {{-- Toggle: Bangunan Air --}}
+                <div class="psb-cat-item" id="cat-bangunan">
+                    <div class="psb-cat-icon" style="background:#fee2e2; color:#991b1b;">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <div class="psb-cat-info">
+                        <div class="psb-cat-name">Bangunan Air</div>
+                        <div class="psb-cat-desc">Bangunan Air &amp; Bangunan</div>
+                    </div>
+                    <button class="psb-toggle active" id="toggle-bangunan"
+                            onclick="toggleCategoryLayer('bangunan', this)" title="Tampilkan/Sembunyikan">
+                        <i class="fas fa-check"></i>
+                    </button>
+                </div>
+            </div>
+
+            {{-- Info Footer --}}
+            <div class="psb-footer-info">
+                <i class="fas fa-info-circle mr-1"></i>
+                Klik ikon di peta untuk melihat info, luas, dan koordinat akurat daerah irigasi
+            </div>
+
+            {{-- Tombol GIS (Khusus Admin) --}}
+            @if(Auth::check() && in_array(Auth::user()->role, ['admin', 'superadmin']))
+            <div class="psb-admin-actions">
+                <button type="button" class="psb-btn-admin" data-toggle="modal" data-target="#modalKelolaGeojson">
+                    <i class="fas fa-folder-open"></i>
+                    <span>Kelola File GIS</span>
+                    <span class="badge badge-primary ml-auto" id="sidebar-file-count">{{ count($fileList ?? []) }}</span>
+                </button>
+                <button type="button" class="psb-btn-admin psb-btn-primary" data-toggle="modal" data-target="#modalUploadGeojson">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <span>Upload File GIS</span>
+                </button>
+            </div>
+            @endif
+
+        </aside>
+
+
+        {{-- ========================
+             AREA PETA & TABEL
+             ======================== --}}
         <main class="peta-v2-main">
 
             @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show m-2 shadow-sm" role="alert" style="border-radius:6px; font-size:12px; position:absolute; top:10px; right:20px; z-index:1050; max-width:400px;">
+            <div class="alert alert-success alert-dismissible fade show m-2 shadow-sm" role="alert" style="border-radius:6px; font-size:12px;">
                 <i class="fas fa-check-circle mr-2"></i>{{ session('success') }}
                 <button type="button" class="close py-2" data-dismiss="alert"><span>&times;</span></button>
             </div>
             @endif
             @if(session('error'))
-            <div class="alert alert-danger alert-dismissible fade show m-2 shadow-sm" role="alert" style="border-radius:6px; font-size:12px; position:absolute; top:10px; right:20px; z-index:1050; max-width:400px;">
+            <div class="alert alert-danger alert-dismissible fade show m-2 shadow-sm" role="alert" style="border-radius:6px; font-size:12px;">
                 <i class="fas fa-exclamation-triangle mr-2"></i>{{ session('error') }}
                 <button type="button" class="close py-2" data-dismiss="alert"><span>&times;</span></button>
             </div>
             @endif
 
-            {{-- SECTION PETA DENGAN FLOATING SEARCH BAR --}}
-            <div id="section-map" class="peta-v2-map-wrap">
+            {{-- TAB BAR --}}
+            <div class="peta-tab-bar">
+                {{-- Breadcrumb Kiri --}}
+                <div class="ptb-breadcrumb">
+                    <i class="fas fa-map-marked-alt mr-1 text-primary" style="font-size:13px;"></i>
+                    <span>Peta Daerah Irigasi</span>
+                    <i class="fas fa-chevron-right mx-1" style="font-size:10px; color:#94a3b8;"></i>
+                    <span>Kalimantan Barat</span>
+                </div>
 
-                {{-- Indikator Loading GIS --}}
+                {{-- Tab Kanan --}}
+                <div class="ptb-tabs">
+                    <button class="ptb-tab active" id="tab-peta" onclick="switchPetaTab('peta')">
+                        <i class="fas fa-map mr-1"></i> Peta Interaktif
+                    </button>
+                    <button class="ptb-tab" id="tab-tabel" onclick="switchPetaTab('tabel')">
+                        <i class="fas fa-table mr-1"></i>
+                        Buka Tabel Data
+                        <span class="ptb-badge" id="ptb-file-count">{{ count($fileList) }}</span>
+                    </button>
+                    <button class="ptb-btn-reset" id="btnResetPeta" onclick="resetPetaView()" title="Reset tampilan peta">
+                        <i class="fas fa-redo-alt mr-1"></i> Reset
+                    </button>
+                </div>
+            </div>
+
+
+            {{-- SECTION PETA --}}
+            <div id="section-map" class="peta-v2-map-wrap">
                 <div class="bws-map-loading" id="map-loading">
                     <i class="fas fa-spinner fa-spin"></i>
                     <span>Memuat koordinat GIS ArcMap...</span>
                 </div>
-
-                {{-- WIDGET PENCARIAN MODERN MENGAMBANG (FLOATING GLASS SEARCH BAR) --}}
-                <div class="bws-floating-search-bar" id="bwsFloatingSearch">
-                    <div class="bws-search-input-box">
-                        <i class="fas fa-search bws-search-icon"></i>
-                        <input type="text"
-                               id="peta-search-input"
-                               class="bws-search-input"
-                               placeholder="Cari pos atau daerah irigasi..."
-                               autocomplete="off"
-                               spellcheck="false">
-                        <button type="button"
-                                class="bws-search-clear-btn"
-                                id="peta-search-clear"
-                                title="Hapus pencarian"
-                                style="display:none;">
-                            <i class="fas fa-times"></i>
-                        </button>
-                        <div class="bws-search-divider"></div>
-                        <button type="button"
-                                class="bws-search-reset-btn"
-                                id="peta-search-reset"
-                                onclick="resetPetaView()"
-                                title="Reset posisi peta ke Kalimantan Barat">
-                            <i class="fas fa-redo-alt"></i>
-                            <span>Reset</span>
-                        </button>
-                    </div>
-
-                    {{-- DROPDOWN HASIL PENCARIAN REALTIME --}}
-                    <div class="bws-search-results-dropdown" id="peta-search-dropdown" style="display:none;">
-                        <div class="bws-search-dropdown-header">
-                            <span id="peta-search-count">0 hasil ditemukan</span>
-                            <small class="text-muted">Klik item untuk fokus ke lokasi</small>
-                        </div>
-                        <div class="bws-search-results-list" id="peta-search-list">
-                            {{-- Diisi secara dinamis via JavaScript saat user mengetik --}}
-                        </div>
-                    </div>
-                </div>
-
-                {{-- ELEMEN CANVAS PETA LEAFLET --}}
                 <div id="map"></div>
+            </div>
+
+
+            {{-- SECTION TABEL (Tampilan Modern Sesuai Gambar No. 2) --}}
+            <div id="section-table" class="peta-v2-table-wrap" style="display:none;">
+                <div class="bws-table-card-v2">
+
+                    {{-- Toolbar Atas: Judul, Badge Jumlah File & Input Pencarian --}}
+                    <div class="bws-table-v2-header">
+                        <div class="bws-table-v2-title">
+                            <i class="fas fa-layer-group text-primary mr-2"></i>
+                            <span>Daftar Pos &amp; Data Spasial Irigasi</span>
+                            <span class="bws-v2-count-badge" id="badge-total-file-tabel">
+                                {{ count($fileList) }} File
+                            </span>
+                        </div>
+
+                        <div class="bws-table-v2-controls">
+                            {{-- Input Pencarian --}}
+                            <div class="bws-search-input-wrap">
+                                <i class="fas fa-search"></i>
+                                <input type="text"
+                                       id="cari-tabel-koordinat"
+                                       placeholder="Cari nama pos/objek/file..."
+                                       onkeyup="filterTabelKoordinat(this.value); syncSearchInputs(this.value);">
+                            </div>
+
+                            {{-- Tombol Export Admin --}}
+                            @if(Auth::check() && in_array(Auth::user()->role, ['admin', 'superadmin']))
+                            <button type="button" class="btn-export-green" onclick="exportDataToCsv()"
+                                    title="Unduh data dalam format CSV/Excel">
+                                <i class="fas fa-file-excel"></i>
+                                <span>Export CSV</span>
+                            </button>
+                            <div class="dropdown d-inline-block">
+                                <button type="button"
+                                        class="btn btn-sm btn-primary dropdown-toggle font-weight-bold shadow-sm px-3"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                        style="height:38px; border-radius:6px; font-size:13px;">
+                                    <i class="fas fa-file-download mr-1"></i>
+                                    <span>Unduh GeoJSON</span>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-right shadow border-0 py-2"
+                                     style="border-radius:8px; min-width:250px; z-index:1060;">
+                                    <div class="dropdown-header text-uppercase font-weight-bold text-xs text-muted">
+                                        Unduh Arsip GeoJSON (.ZIP)
+                                    </div>
+                                    <a class="dropdown-item py-2 d-flex align-items-center justify-content-between"
+                                       href="{{ route('peta.download-category', 'all') }}">
+                                        <span><i class="fas fa-archive text-primary mr-2"></i> Semua Data GIS</span>
+                                        <span class="badge badge-primary px-2">{{ count($fileList) }}</span>
+                                    </a>
+                                    <div class="dropdown-divider my-1"></div>
+                                    <a class="dropdown-item py-2 d-flex align-items-center justify-content-between"
+                                       href="{{ route('peta.download-category', 'baku') }}">
+                                        <span class="d-flex align-items-center">
+                                            <span class="bws-flyout-badge mr-2" style="background:#27ae60;"></span> DIR Baku
+                                        </span>
+                                        <span class="badge badge-light border text-muted">9 File</span>
+                                    </a>
+                                    <a class="dropdown-item py-2 d-flex align-items-center justify-content-between"
+                                       href="{{ route('peta.download-category', 'fungsional') }}">
+                                        <span class="d-flex align-items-center">
+                                            <span class="bws-flyout-badge mr-2" style="background:#2980b9;"></span> DIR Fungsional
+                                        </span>
+                                        <span class="badge badge-light border text-muted">6 File</span>
+                                    </a>
+                                    <a class="dropdown-item py-2 d-flex align-items-center justify-content-between"
+                                       href="{{ route('peta.download-category', 'potensial') }}">
+                                        <span class="d-flex align-items-center">
+                                            <span class="bws-flyout-badge mr-2" style="background:#e67e22;"></span> DIR Potensial
+                                        </span>
+                                        <span class="badge badge-light border text-muted">10 File</span>
+                                    </a>
+                                    <div class="dropdown-divider my-1"></div>
+                                    <a class="dropdown-item py-2 d-flex align-items-center justify-content-between"
+                                       href="{{ route('peta.download-category', 'saluran') }}">
+                                        <span class="d-flex align-items-center">
+                                            <span class="bws-flyout-badge mr-2" style="background:#0984e3;"></span> Saluran Irigasi
+                                        </span>
+                                        <span class="badge badge-light border text-muted">15 File</span>
+                                    </a>
+                                    <a class="dropdown-item py-2 d-flex align-items-center justify-content-between"
+                                       href="{{ route('peta.download-category', 'bangunan') }}">
+                                        <span class="d-flex align-items-center">
+                                            <span class="bws-flyout-badge mr-2" style="background:#d63031;"></span> Bangunan Air
+                                        </span>
+                                        <span class="badge badge-light border text-muted">14 File</span>
+                                    </a>
+                                </div>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    {{-- Baris Filter Pills (Kategori Spasial) --}}
+                    <div class="bws-table-pills-bar">
+                        <button type="button" class="bws-pill-btn active" data-category="all" onclick="filterTableByPill('all', this)">
+                            Semua Data ( <span id="pill-count-all">{{ count($fileList) }}</span> )
+                        </button>
+                        <button type="button" class="bws-pill-btn" data-category="baku" onclick="filterTableByPill('baku', this)">
+                            <span class="bws-pill-dot" style="background:#10b981;"></span> DIR Baku
+                        </button>
+                        <button type="button" class="bws-pill-btn" data-category="fungsional" onclick="filterTableByPill('fungsional', this)">
+                            <span class="bws-pill-dot" style="background:#3b82f6;"></span> DIR Fungsional
+                        </button>
+                        <button type="button" class="bws-pill-btn" data-category="potensial" onclick="filterTableByPill('potensial', this)">
+                            <span class="bws-pill-dot" style="background:#f59e0b;"></span> DIR Potensial
+                        </button>
+                        <button type="button" class="bws-pill-btn" data-category="saluran" onclick="filterTableByPill('saluran', this)">
+                            <span class="bws-pill-dot" style="background:#0ea5e9;"></span> Saluran
+                        </button>
+                        <button type="button" class="bws-pill-btn" data-category="bangunan" onclick="filterTableByPill('bangunan', this)">
+                            <span class="bws-pill-dot" style="background:#ef4444;"></span> Bangunan Air
+                        </button>
+                    </div>
+
+                    {{-- Tabel Data Spasial --}}
+                    <div class="bws-table-responsive">
+                        <table class="bws-custom-table-v2" id="tabel-lokasi">
+                            <thead>
+                                <tr>
+                                    <th width="5%" class="text-center">NO.</th>
+                                    <th width="37%">NAMA POS / OBJEK IRIGASI</th>
+                                    <th width="18%">KATEGORI SPASIAL</th>
+                                    <th width="26%">KOORDINAT (LAT, LNG)</th>
+                                    <th width="14%" class="text-center">AKSI</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-lokasi">
+                                <tr>
+                                    <td colspan="5" class="text-center py-5 text-muted">
+                                        <i class="fas fa-spinner fa-spin text-primary mr-2"></i>
+                                        Membaca data koordinat GIS ArcMap...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {{-- Footer: Info Jumlah Data & Pagination --}}
+                    <div class="bws-table-v2-footer">
+                        <div class="bws-table-v2-info" id="tabel-footer-info">
+                            Menampilkan 1 - 10 dari {{ count($fileList) }} data pos &amp; file GIS
+                        </div>
+                        <div class="bws-table-v2-pagination" id="tabel-pagination">
+                            {{-- Diisi secara dinamis via JavaScript --}}
+                        </div>
+                    </div>
+
+                </div>
             </div>
 
         </main>
@@ -227,22 +504,127 @@
     <script src="{{ asset('vendor/shpjs/togeojson.umd.js') }}"></script>
     <script src="{{ asset('js/peta-map.js') }}?v={{ filemtime(public_path('js/peta-map.js')) }}"></script>
 
-    {{-- Script inline: Reset View Helper --}}
+    {{-- Script inline: Tab Switcher & Category Toggle & Wilayah Filter --}}
     <script>
     /* ===============================================
-       RESET PETA: Kembali ke koordinat Kalimantan Barat
+       TAB SWITCHER: Peta Interaktif / Tabel Data
+       =============================================== */
+    window.switchPetaTab = function(tab) {
+        var mapSec = document.getElementById('section-map');
+        var tblSec = document.getElementById('section-table');
+        var tabPeta  = document.getElementById('tab-peta');
+        var tabTabel = document.getElementById('tab-tabel');
+
+        if (tab === 'peta') {
+            mapSec.style.display = 'block';
+            tblSec.style.display = 'none';
+            tabPeta.classList.add('active');
+            tabTabel.classList.remove('active');
+            setTimeout(function() { if (window.map) window.map.invalidateSize(); }, 150);
+        } else {
+            mapSec.style.display = 'none';
+            tblSec.style.display = 'block';
+            tabPeta.classList.remove('active');
+            tabTabel.classList.add('active');
+        }
+    };
+
+    /* ===============================================
+       RESET PETA: Kembali ke tampilan awal
        =============================================== */
     window.resetPetaView = function() {
         if (window.map) {
-            window.map.setView([-0.0263, 109.3425], 8);
+            window.map.setView([-0.02, 109.33], 8);
         }
-        var searchInput = document.getElementById('peta-search-input');
-        if (searchInput) searchInput.value = '';
-        var clearBtn = document.getElementById('peta-search-clear');
-        if (clearBtn) clearBtn.style.display = 'none';
-        var dropdown = document.getElementById('peta-search-dropdown');
-        if (dropdown) dropdown.style.display = 'none';
+        switchPetaTab('peta');
+        // Reset semua toggle kategori ke aktif
+        ['baku','fungsional','potensial','saluran','bangunan'].forEach(function(cat) {
+            var btn = document.getElementById('toggle-' + cat);
+            if (btn && !btn.classList.contains('active')) {
+                toggleCategoryLayer(cat, btn);
+            }
+        });
     };
+
+    /* ===============================================
+       CATEGORY LAYER TOGGLE
+       =============================================== */
+    window.toggleCategoryLayer = function(category, btn) {
+        var isActive = btn.classList.contains('active');
+        var layerMap = {
+            'baku'      : window.layerBaku,
+            'fungsional': window.layerFungsional,
+            'potensial' : window.layerPotensial,
+            'saluran'   : window.layerSaluran,
+            'bangunan'  : window.layerBangunan
+        };
+        var layer = layerMap[category];
+
+        if (isActive) {
+            // Sembunyikan layer
+            btn.classList.remove('active');
+            btn.innerHTML = '<i class="fas fa-times"></i>';
+            btn.title = 'Klik untuk tampilkan';
+            var catItem = document.getElementById('cat-' + category);
+            if (catItem) catItem.classList.add('disabled');
+            if (layer && window.map && window.map.hasLayer(layer)) {
+                window.map.removeLayer(layer);
+            }
+        } else {
+            // Tampilkan layer
+            btn.classList.add('active');
+            btn.innerHTML = '<i class="fas fa-check"></i>';
+            btn.title = 'Klik untuk sembunyikan';
+            var catItem2 = document.getElementById('cat-' + category);
+            if (catItem2) catItem2.classList.remove('disabled');
+            if (layer && window.map && !window.map.hasLayer(layer)) {
+                window.map.addLayer(layer);
+            }
+        }
+    };
+
+    /* ===============================================
+       FILTER WILAYAH (placeholder — extend sesuai data)
+       =============================================== */
+    window.filterByWilayah = function(wilayah) {
+        if (typeof filterTabelKoordinat === 'function') {
+            filterTabelKoordinat(wilayah);
+        }
+    };
+
+    /* ===============================================
+       SINKRON INPUT PENCARIAN (Sidebar <-> Tabel)
+       =============================================== */
+    window.syncSearchInputs = function(value) {
+        var s1 = document.getElementById('cari-sidebar');
+        var s2 = document.getElementById('cari-tabel-koordinat');
+        if (s1 && s1 !== document.activeElement) s1.value = value;
+        if (s2 && s2 !== document.activeElement) s2.value = value;
+    };
+
+    /* ===============================================
+       SCROLL KE LEGENDA PETA
+       =============================================== */
+    window.scrollToLegend = function(e) {
+        e.preventDefault();
+        switchPetaTab('peta');
+        setTimeout(function() {
+            var legend = document.querySelector('.map-legend');
+            if (legend) legend.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 200);
+    };
+
+    /* ===============================================
+       FOKUS dari TABEL: Scroll ke peta tab
+       =============================================== */
+    // Override Fokus tombol agar juga switch tab ke peta
+    document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('click', function(e) {
+            if (e.target && e.target.closest('.btn-focus-row')) {
+                switchPetaTab('peta');
+            }
+        }, true);
+    });
     </script>
 
 </body>
