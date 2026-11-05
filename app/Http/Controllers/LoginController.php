@@ -24,6 +24,23 @@ class LoginController extends Controller
         ]);
     }
 
+    /**
+     * Refresh kode CAPTCHA via AJAX
+     */
+    public function refreshCaptcha()
+    {
+        $captcha = strtoupper(
+            substr(str_shuffle('ABCDEFGHJKLMNPQRSTUVWXYZ23456789'), 0, 5)
+        );
+
+        session(['captcha_code' => $captcha]);
+
+        return response()->json([
+            'status'  => 'success',
+            'captcha' => $captcha,
+        ]);
+    }
+
     public function authenticate(Request $request)
     {
         // Validasi input

@@ -29,6 +29,7 @@ Route::get('/about', function () { return view('About'); })->name('about');
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'index'])->name('login');
     Route::post('/login', [LoginController::class, 'authenticate']);
+    Route::get('/refresh-captcha', [LoginController::class, 'refreshCaptcha'])->name('captcha.refresh');
 });
 
 // Registrasi mandiri dinonaktifkan (dialihkan ke halaman login)
