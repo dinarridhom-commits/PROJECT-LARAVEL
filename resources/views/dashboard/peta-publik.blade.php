@@ -106,7 +106,18 @@
                            id="cari-sidebar"
                            class="psb-search-input"
                            placeholder="Nama pos, DIR, atau file..."
-                           onkeyup="filterTabelKoordinat(this.value); syncSearchInputs(this.value);">
+                           autocomplete="off">
+                    <button type="button" id="cari-sidebar-clear" class="psb-search-clear" title="Hapus pencarian">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    {{-- Dropdown Hasil Pencarian Autocomplete --}}
+                    <div id="cari-sidebar-dropdown" class="psb-search-dropdown" style="display:none;">
+                        <div class="psb-search-dropdown-header">
+                            <span id="cari-sidebar-count">0 hasil</span>
+                            <span class="text-muted" style="font-size:10px;">Klik untuk lihat di peta</span>
+                        </div>
+                        <div id="cari-sidebar-list" class="psb-search-list"></div>
+                    </div>
                 </div>
                 <div class="psb-search-hint">
                     Pilih hasil pencarian untuk melihat detail. Maksimal 150 karakter
@@ -204,6 +215,12 @@
             if (window.layerSaluran && window.map.hasLayer(window.layerSaluran)) window.map.removeLayer(window.layerSaluran);
             if (window.layerBangunan && window.map.hasLayer(window.layerBangunan)) window.map.removeLayer(window.layerBangunan);
         }
+        var inp = document.getElementById('cari-sidebar');
+        if (inp) inp.value = '';
+        var clr = document.getElementById('cari-sidebar-clear');
+        if (clr) clr.style.display = 'none';
+        var drop = document.getElementById('cari-sidebar-dropdown');
+        if (drop) drop.style.display = 'none';
     };
 
     /* Sinkron Input Pencarian */
