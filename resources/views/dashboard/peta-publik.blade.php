@@ -23,7 +23,7 @@
     {{-- CSS Khusus Peta --}}
     <link rel="stylesheet" href="{{ asset('css/peta.css') }}?v={{ filemtime(public_path('css/peta.css')) }}">
 </head>
-<body class="page-peta-v2">
+<body class="page-peta-v2 page-peta-publik">
 
     {{-- ============================================================
          NAVBAR PUTIH — HALAMAN PUBLIK (Belum Login)
@@ -39,18 +39,16 @@
                 </div>
             </a>
 
-            {{-- Kanan: Petunjuk Pengguna, Tentang Layanan, & Tombol Masuk --}}
+            {{-- Kanan: Link Tentang Layanan, Petunjuk Pengguna, & Tombol Masuk --}}
             <div class="peta-navbar-right">
-                <button type="button" class="peta-nav-btn" data-toggle="modal" data-target="#modalPetunjukPengguna" title="Petunjuk Penggunaan WebGIS">
-                    <i class="fas fa-book-reader text-primary"></i>
-                    <span>Petunjuk Pengguna</span>
+                <button type="button" class="peta-top-link" data-toggle="modal" data-target="#modalTentangLayanan">
+                    Tentang Layanan
                 </button>
-                <button type="button" class="peta-nav-btn" data-toggle="modal" data-target="#modalTentangLayanan" title="Tentang Layanan BWS Kalimantan I">
-                    <i class="fas fa-info-circle text-info"></i>
-                    <span>Tentang Layanan</span>
+                <button type="button" class="peta-top-link" data-toggle="modal" data-target="#modalPetunjukPengguna">
+                    Petunjuk Pengguna
                 </button>
-                <a href="{{ route('login') }}" class="peta-btn-masuk">
-                    <i class="fas fa-sign-in-alt mr-1"></i> Masuk
+                <a href="{{ route('login') }}" class="peta-btn-masuk-outline">
+                    <i class="fas fa-sign-in-alt"></i> Masuk
                 </a>
             </div>
         </div>
@@ -58,18 +56,17 @@
 
 
     {{-- ============================================================
-         HERO BANNER
+         HERO BANNER (GAYA HIJAU ELEGAN SESUAI REFERENSI)
          ============================================================ --}}
-    <section class="peta-hero">
-        <div class="peta-hero-inner">
+    <section class="peta-hero-wrap">
+        <div class="peta-hero-card">
             <div class="peta-hero-content">
                 <div class="peta-hero-badge">
-                    <i class="fas fa-chart-bar mr-1"></i> DATA SPASIAL BWS KALIMANTAN I
+                    <span class="badge-dot"></span> DATA SPASIAL BWS KALIMANTAN I
                 </div>
                 <h1 class="peta-hero-title">Peta Daerah Irigasi &amp; Jaringan SDA.</h1>
                 <p class="peta-hero-desc">
-                    Temukan sebaran Daerah Irigasi, Jaringan Saluran, dan Bangunan Air
-                    di Kalimantan Barat dalam satu peta.
+                    Temukan sebaran Daerah Irigasi, Jaringan Saluran Air, dan Bangunan Air di Kalimantan Barat dalam satu peta.
                 </p>
             </div>
             <div class="peta-hero-location">
@@ -150,17 +147,14 @@
                     <button type="button" class="ptb-btn-sidebar" id="btnExpandSidebar" onclick="toggleSidebarView()" title="Buka Sidebar">
                         <i class="fas fa-indent mr-1"></i> Buka Sidebar
                     </button>
-                    <i class="fas fa-map-marked-alt mr-1 text-primary" style="font-size:13px;"></i>
+                    <i class="fas fa-map-marked-alt mr-1" style="font-size:13px; color:#15803d;"></i>
                     <span>Peta Daerah Irigasi</span>
-                    <i class="fas fa-chevron-right mx-1" style="font-size:10px; color:#94a3b8;"></i>
+                    <i class="fas fa-chevron-right mx-1.5" style="font-size:9px; color:#94a3b8;"></i>
                     <span>Kalimantan Barat</span>
                 </div>
 
-                {{-- Tab Kanan (Publik: hanya Peta Interaktif & Reset) --}}
+                {{-- Tab Kanan --}}
                 <div class="ptb-tabs">
-                    <button class="ptb-tab active" id="tab-peta" onclick="switchPetaTab('peta')">
-                        <i class="fas fa-map mr-1"></i> Peta Interaktif
-                    </button>
                     <button class="ptb-btn-reset" id="btnResetPeta" onclick="resetPetaView()" title="Reset tampilan peta">
                         <i class="fas fa-redo-alt mr-1"></i> Reset
                     </button>
@@ -179,6 +173,37 @@
 
         </main>
     </div>
+
+
+    {{-- ============================================================
+         SECTION TENTANG LAYANAN (PERSIS SEPERTI GAMBAR REFERENSI)
+         ============================================================ --}}
+    <section class="peta-about-section">
+        <div class="peta-about-card">
+            <div class="peta-about-brand">
+                <div class="peta-about-logo-box">
+                    <img src="{{ asset('sbadmin/img/logo-pu.jpeg') }}" alt="Logo BWS Kalimantan I">
+                </div>
+                <div>
+                    <div class="peta-about-brand-title">WEBGIS</div>
+                    <div class="peta-about-brand-sub">BWS KALIMANTAN I</div>
+                </div>
+            </div>
+            <div class="peta-about-content">
+                <span class="peta-about-badge">TENTANG LAYANAN</span>
+                <h2 class="peta-about-title">
+                    Informasi daerah irigasi &amp; bangunan air, lebih dekat dan mudah dipahami.
+                </h2>
+                <p class="peta-about-desc">
+                    WebGIS BWS Kalimantan I merupakan sistem informasi data geospasial Balai Wilayah Sungai Kalimantan I Pontianak. Halaman ini menyajikan peta sebaran Daerah Irigasi (DIR), jaringan saluran air, dan titik bangunan air di wilayah Provinsi Kalimantan Barat.
+                </p>
+                <a href="javascript:void(0)" class="peta-about-link" data-toggle="modal" data-target="#modalPetunjukPengguna">
+                    <span>Cara menggunakan peta</span>
+                    <i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </div>
+    </section>
 
 
     {{-- MODAL LOGOUT (tidak dipakai di halaman publik, tapi tetap include agar tidak error jika modal dipanggil) --}}
