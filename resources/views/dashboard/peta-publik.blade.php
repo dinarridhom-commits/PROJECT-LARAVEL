@@ -97,9 +97,9 @@
                 <div class="psb-header-icon">
                     <i class="fas fa-search"></i>
                 </div>
-                <div class="flex-grow-1">
+                <div class="flex-grow-1 min-w-0">
                     <div class="psb-header-title">Jelajahi objek irigasi</div>
-                    <div class="psb-header-sub">Mulai dari nama atau No Foto spasial</div>
+                    <div class="psb-header-sub">Mulai dari nama atau nomor spasial</div>
                 </div>
                 <button type="button" class="psb-btn-collapse" id="btnCollapseSidebar" onclick="toggleSidebarView()" title="Sembunyikan Sidebar">
                     <i class="fas fa-chevron-left"></i>

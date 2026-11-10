@@ -2127,13 +2127,13 @@ body.page-peta-publik {
 }
 /* Sidebar Putih Melayang Berbingkai Hijau Sesuai Gambar 2 */
 .page-peta-publik .peta-v2-sidebar {
-    width: 320px;
+    width: 335px;
     flex-shrink: 0;
     background: #ffffff;
     border-radius: 20px;
     border: 1.5px solid #16a34a !important;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-    padding: 22px 20px;
+    padding: 20px 18px;
     display: flex;
     flex-direction: column;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -2142,33 +2142,36 @@ body.page-peta-publik {
 .page-peta-publik .psb-header {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 20px;
-    padding-bottom: 16px;
+    gap: 10px;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
     border-bottom: 1px solid #f1f5f9;
 }
 .page-peta-publik .psb-header-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
     background: #dcfce7;
     color: #15803d;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
+    font-size: 15px;
     flex-shrink: 0;
 }
 .page-peta-publik .psb-header-title {
-    font-size: 14.5px;
+    font-size: 13.5px;
     font-weight: 700;
     color: #0f172a;
-    line-height: 1.2;
+    line-height: 1.25;
+    white-space: nowrap;
 }
 .page-peta-publik .psb-header-sub {
-    font-size: 11.5px;
+    font-size: 11px;
     color: #64748b;
     margin-top: 2px;
+    line-height: 1.3;
+    white-space: nowrap;
 }
 .page-peta-publik .psb-btn-collapse {
     width: 28px;
@@ -2182,6 +2185,7 @@ body.page-peta-publik {
     justify-content: center;
     font-size: 12px;
     cursor: pointer;
+    flex-shrink: 0;
     transition: all 0.15s ease;
 }
 .page-peta-publik .psb-btn-collapse:hover {
