@@ -156,16 +156,10 @@
                     <span>Kalimantan Barat</span>
                 </div>
 
-                {{-- Tab Kanan (Publik: Peta Interaktif, Panduan, Layanan, & Reset) --}}
+                {{-- Tab Kanan (Publik: hanya Peta Interaktif & Reset) --}}
                 <div class="ptb-tabs">
                     <button class="ptb-tab active" id="tab-peta" onclick="switchPetaTab('peta')">
                         <i class="fas fa-map mr-1"></i> Peta Interaktif
-                    </button>
-                    <button type="button" class="ptb-tab-link" data-toggle="modal" data-target="#modalPetunjukPengguna" title="Petunjuk Penggunaan WebGIS">
-                        <i class="fas fa-book-reader mr-1 text-primary"></i> Panduan
-                    </button>
-                    <button type="button" class="ptb-tab-link" data-toggle="modal" data-target="#modalTentangLayanan" title="Tentang Layanan BWS Kalimantan I">
-                        <i class="fas fa-info-circle mr-1 text-info"></i> Layanan
                     </button>
                     <button class="ptb-btn-reset" id="btnResetPeta" onclick="resetPetaView()" title="Reset tampilan peta">
                         <i class="fas fa-redo-alt mr-1"></i> Reset
