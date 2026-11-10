@@ -731,9 +731,9 @@
                 <small style="color: rgba(255,255,255,0.7); font-size: 11.5px;">
                     <i class="fas fa-check-circle mr-1 text-success"></i> 
                 </small>
-            </div>
+            </div> -->
 
-        </div> -->
+        </div>
 
         <!-- SISI KANAN: FORM LOGIN -->
         <div class="auth-form-panel">
