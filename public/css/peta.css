@@ -2026,7 +2026,7 @@ body.page-peta-publik {
 /* Hero Banner Hijau Mengambang */
 .page-peta-publik .peta-hero-wrap {
     max-width: 1400px;
-    margin: 18px auto 0 auto;
+    margin: 44px auto 0 auto !important;
     padding: 0 24px;
 }
 .page-peta-publik .peta-hero-card {
@@ -2392,6 +2392,9 @@ body.page-peta-publik {
     .page-peta-publik .peta-v2-container,
     .page-peta-publik .peta-about-section {
         padding: 0 16px;
+    }
+    .page-peta-publik .peta-hero-wrap {
+        margin-top: 24px !important;
     }
     .page-peta-publik .peta-hero-card {
         flex-direction: column;
