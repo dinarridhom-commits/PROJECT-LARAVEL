@@ -483,7 +483,10 @@ legend.onAdd = function() {
 
     return div;
 };
-legend.addTo(map);
+// Legenda dinonaktifkan sesuai permintaan pengguna
+if (window.showMapLegend === true) {
+    legend.addTo(map);
+}
 
 function refreshLegendBody() {
     var body = document.getElementById('legend-body');
