@@ -135,29 +135,6 @@
                 </div>
             </div>
 
-            {{-- Info Footer --}}
-            <div class="psb-footer-info">
-                <i class="fas fa-info-circle mr-1"></i>
-                Klik ikon di peta untuk melihat info, luas, dan koordinat akurat daerah irigasi
-            </div>
-
-            {{-- Bantuan & Informasi Layanan --}}
-            <div class="psb-help-card">
-                <div class="psb-help-title">
-                    <i class="fas fa-compass text-primary mr-1"></i> Bantuan &amp; Panduan
-                </div>
-                <div class="psb-help-btns">
-                    <button type="button" class="btn-help-item" data-toggle="modal" data-target="#modalPetunjukPengguna">
-                        <i class="fas fa-book-reader text-primary"></i>
-                        <span>Petunjuk Pengguna</span>
-                    </button>
-                    <button type="button" class="btn-help-item" data-toggle="modal" data-target="#modalTentangLayanan">
-                        <i class="fas fa-info-circle text-info"></i>
-                        <span>Tentang Layanan</span>
-                    </button>
-                </div>
-            </div>
-
         </aside>
 
 

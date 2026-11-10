@@ -158,12 +158,6 @@
                 </div>
             </div>
 
-            {{-- Info Footer --}}
-            <div class="psb-footer-info">
-                <i class="fas fa-info-circle mr-1"></i>
-                Klik ikon di peta untuk melihat info, luas, dan koordinat akurat daerah irigasi
-            </div>
-
             {{-- Tombol GIS (Khusus Admin) --}}
             @if(Auth::check() && in_array(Auth::user()->role, ['admin', 'superadmin']))
             <div class="psb-admin-actions">
