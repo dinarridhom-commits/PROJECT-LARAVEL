@@ -895,6 +895,38 @@ body.page-peta-v2:not(.page-peta-publik) {
     box-shadow: 0 6px 18px rgba(29, 78, 216, 0.35);
     text-decoration: none !important;
 }
+.peta-btn-admin-nav {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: #ffffff;
+    color: #1e3a8a !important;
+    font-size: 12.5px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 1.5px solid #bfdbfe;
+    text-decoration: none !important;
+    box-shadow: 0 2px 6px rgba(30, 58, 138, 0.08);
+    transition: all 0.2s ease;
+}
+.peta-btn-admin-nav:hover {
+    background: #1e3a8a;
+    color: #ffffff !important;
+    border-color: #1e3a8a;
+    box-shadow: 0 4px 14px rgba(30, 58, 138, 0.25);
+    transform: translateY(-1px);
+    text-decoration: none !important;
+}
+.peta-btn-admin-nav i {
+    font-size: 13px;
+    color: #2563eb;
+    transition: color 0.2s ease;
+}
+.peta-btn-admin-nav:hover i {
+    color: #fbbf24;
+}
+
 .peta-profile-btn {
     display: flex;
     align-items: center;

@@ -42,6 +42,14 @@
             {{-- Kanan: Tombol Masuk / Profil --}}
             <div class="peta-navbar-right">
                 @auth
+                    {{-- Tombol Langsung Manajemen User / Admin Panel --}}
+                    @if(in_array(Auth::user()->role, ['superadmin', 'admin']))
+                    <a href="{{ route('users.index') }}" class="peta-btn-admin-nav" title="Buka Manajemen User / Admin Panel">
+                        <i class="fas fa-users-cog"></i>
+                        <span>Manajemen User</span>
+                    </a>
+                    @endif
+
                     {{-- Logged In: Dropdown Profil --}}
                     <div class="dropdown">
                         <div class="peta-profile-btn" id="petaUserDrop" data-toggle="dropdown"
