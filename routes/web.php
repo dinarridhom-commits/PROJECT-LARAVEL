@@ -50,6 +50,9 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
    ============================================================ */
 Route::middleware('auth')->group(function () {
 
+    // Edit Profil Pengguna (Nama, Email, Password) - untuk semua pengguna yang login
+    Route::put('/profile', [UserController::class, 'updateProfile'])->name('profile.update');
+
     /* --- HAK AKSES: ADMIN & SUPER ADMIN ---
        Memiliki akses untuk upload GeoJSON, hapus file GIS, download data, dan edit data */
     Route::middleware('role:superadmin,admin')->group(function () {

@@ -54,14 +54,20 @@
                 <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in py-2"
                      aria-labelledby="userMenuDropdown" style="min-width: 180px; border-radius: 8px;">
 
+                    <a class="dropdown-item py-2 d-flex align-items-center text-dark font-weight-medium"
+                       href="#" data-toggle="modal" data-target="#modalEditProfile">
+                        <i class="fas fa-user-edit text-primary mr-2.5" style="font-size: 14px; width: 20px;"></i>
+                        <span>Edit Profil</span>
+                    </a>
+
                     @if(in_array(Auth::user()->role, ['superadmin', 'admin']))
                     <a class="dropdown-item py-2 d-flex align-items-center text-dark font-weight-medium"
                        href="{{ route('admin.panel') }}">
                         <i class="fas fa-cog text-muted mr-2.5" style="font-size: 15px; width: 20px;"></i>
                         <span>Admin Panel</span>
                     </a>
-                    <div class="dropdown-divider my-1"></div>
                     @endif
+                    <div class="dropdown-divider my-1"></div>
 
                     <a class="dropdown-item py-2 d-flex align-items-center text-danger font-weight-medium"
                        href="#" data-toggle="modal" data-target="#logoutModal">

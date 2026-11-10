@@ -164,4 +164,52 @@ class UserController extends Controller
 
         return redirect()->route('users.index')->with('success', "User '{$userName}' berhasil dihapus.");
     }
+
+    /**
+     * Memperbarui profil pengguna yang sedang login (Nama, Email, dan Password)
+     */
+    public function updateProfile(Request $request)
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        $request->validate([
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'password' => 'nullable|string|min:6|confirmed',
+        ], [
+            'name.required'      => 'Nama pengguna wajib diisi.',
+            'name.max'           => 'Nama pengguna maksimal 255 karakter.',
+            'email.required'     => 'Alamat email wajib diisi.',
+            'email.email'        => 'Format email tidak valid.',
+            'email.unique'       => 'Alamat email tersebut sudah digunakan oleh akun lain.',
+            'password.min'       => 'Password baru minimal 6 karakter.',
+            'password.confirmed' => 'Konfirmasi password baru tidak cocok.',
+        ]);
+
+        $oldName  = $user->name;
+        $oldEmail = $user->email;
+
+        $updateData = [
+            'name'  => $request->name,
+            'email' => $request->email,
+        ];
+
+        $hasPasswordChange = false;
+        if ($request->filled('password')) {
+            $updateData['password'] = Hash::make($request->password);
+            $hasPasswordChange = true;
+        }
+
+        $user->update($updateData);
+
+        $logMsg = "Pengguna memperbarui profilnya: '{$oldName}' ({$oldEmail}) -> '{$user->name}' ({$user->email})";
+        if ($hasPasswordChange) {
+            $logMsg .= " beserta perubahan password.";
+        }
+
+        ActivityLog::record('UPDATE_PROFILE', $logMsg);
+
+        return back()->with('success', 'Profil Anda berhasil diperbarui.');
+    }
 }

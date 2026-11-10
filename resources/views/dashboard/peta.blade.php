@@ -62,14 +62,19 @@
                         </div>
                         <div class="dropdown-menu dropdown-menu-right shadow py-2"
                              aria-labelledby="petaUserDrop" style="min-width:180px; border-radius:8px; border:1px solid #e2e8f0;">
+                            <a class="dropdown-item py-2 d-flex align-items-center"
+                               href="#" data-toggle="modal" data-target="#modalEditProfile">
+                                <i class="fas fa-user-edit text-primary mr-2" style="width:16px;"></i>
+                                <span>Edit Profil</span>
+                            </a>
                             @if(in_array(Auth::user()->role, ['superadmin', 'admin']))
                             <a class="dropdown-item py-2 d-flex align-items-center"
                                href="{{ route('admin.panel') }}">
                                 <i class="fas fa-cog text-muted mr-2" style="width:16px;"></i>
                                 <span>Admin Panel</span>
                             </a>
-                            <div class="dropdown-divider my-1"></div>
                             @endif
+                            <div class="dropdown-divider my-1"></div>
                             <a class="dropdown-item py-2 d-flex align-items-center text-danger"
                                href="#" data-toggle="modal" data-target="#logoutModal">
                                 <i class="fas fa-sign-out-alt mr-2" style="width:16px;"></i>
@@ -395,8 +400,9 @@
     </div>
 
 
-    {{-- MODAL POPUP (Upload, Kelola, Logout) --}}
+    {{-- MODAL POPUP (Upload, Kelola, Logout, Edit Profil) --}}
     @include('dashboard.partials._modals')
+    @include('dashboard.partials._modal_edit_profile')
 
 
     {{-- ============================================================
