@@ -2031,7 +2031,7 @@ body.page-peta-publik {
 }
 .page-peta-publik .peta-hero-card {
     background: #15803d;
-    border-radius: 16px;
+    border-radius: 20px;
     padding: 22px 28px;
     display: flex;
     align-items: center;
@@ -2119,15 +2119,15 @@ body.page-peta-publik {
     gap: 16px;
     height: 640px;
 }
-/* Sidebar Putih Melayang */
+/* Sidebar Putih Melayang Berbingkai Hijau Sesuai Gambar 2 */
 .page-peta-publik .peta-v2-sidebar {
-    width: 330px;
+    width: 320px;
     flex-shrink: 0;
     background: #ffffff;
-    border-radius: 16px;
-    border: 1px solid #dcfce7;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-    padding: 20px 18px;
+    border-radius: 20px;
+    border: 1.5px solid #16a34a !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    padding: 22px 20px;
     display: flex;
     flex-direction: column;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -2142,9 +2142,9 @@ body.page-peta-publik {
     border-bottom: 1px solid #f1f5f9;
 }
 .page-peta-publik .psb-header-icon {
-    width: 38px;
-    height: 38px;
-    border-radius: 10px;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
     background: #dcfce7;
     color: #15803d;
     display: flex;
@@ -2154,7 +2154,7 @@ body.page-peta-publik {
     flex-shrink: 0;
 }
 .page-peta-publik .psb-header-title {
-    font-size: 14px;
+    font-size: 14.5px;
     font-weight: 700;
     color: #0f172a;
     line-height: 1.2;
@@ -2214,14 +2214,38 @@ body.page-peta-publik {
     margin-top: 6px;
     line-height: 1.35;
 }
+.page-peta-publik .psb-footer {
+    border-top: 1px solid #f1f5f9;
+}
+.page-peta-publik .psb-footer-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 4px;
+}
+.page-peta-publik .psb-footer-icon {
+    font-size: 18px;
+    color: #16a34a;
+}
+.page-peta-publik .psb-footer-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #334155;
+    line-height: 1.25;
+}
+.page-peta-publik .psb-footer-sub {
+    font-size: 10.5px;
+    color: #94a3b8;
+    margin-top: 1px;
+}
 
 /* Card Peta Utama */
 .page-peta-publik .peta-v2-main {
     flex: 1;
     background: #ffffff;
-    border-radius: 16px;
-    border: 1px solid #dcfce7;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    border-radius: 20px;
+    border: 1px solid #d1e7dd;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -2229,8 +2253,8 @@ body.page-peta-publik {
 }
 .page-peta-publik .peta-tab-bar {
     background: #ffffff;
-    border-bottom: 1px solid #f1f5f9;
-    padding: 10px 18px;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 12px 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -2239,9 +2263,33 @@ body.page-peta-publik {
 .page-peta-publik .ptb-breadcrumb {
     display: flex;
     align-items: center;
-    font-size: 12px;
-    font-weight: 600;
+    gap: 8px;
+    font-size: 13px;
     color: #64748b;
+}
+.page-peta-publik .ptb-bullet-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #15803d;
+    display: inline-block;
+    flex-shrink: 0;
+}
+.page-peta-publik .ptb-title-main {
+    font-weight: 700;
+    color: #0f172a;
+    font-size: 13px;
+}
+.page-peta-publik .ptb-sep {
+    color: #94a3b8;
+    font-weight: 400;
+    font-size: 13px;
+    margin: 0 2px;
+}
+.page-peta-publik .ptb-title-sub {
+    font-weight: 500;
+    color: #64748b;
+    font-size: 12.5px;
 }
 .page-peta-publik .ptb-btn-sidebar {
     display: none;
@@ -2263,11 +2311,14 @@ body.page-peta-publik {
     background: #ffffff;
     border: 1px solid #cbd5e1;
     border-radius: 8px;
-    padding: 5px 14px;
+    padding: 6px 16px;
     font-size: 12px;
     font-weight: 600;
-    color: #475569;
+    color: #334155;
     cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     transition: all 0.15s ease;
 }
 .page-peta-publik .ptb-btn-reset:hover {
@@ -2283,6 +2334,114 @@ body.page-peta-publik {
 .page-peta-publik .peta-v2-map-wrap #map {
     height: 100%;
     width: 100%;
+}
+.page-peta-publik .peta-map-footer {
+    background: #ffffff;
+    border-top: 1px solid #f1f5f9;
+    padding: 8px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11.5px;
+    color: #94a3b8;
+    flex-shrink: 0;
+}
+.page-peta-publik .pmf-left {
+    font-weight: 500;
+    color: #64748b;
+}
+.page-peta-publik .pmf-right {
+    font-size: 11px;
+    color: #94a3b8;
+}
+.page-peta-publik .pmf-dot {
+    margin: 0 4px;
+}
+
+/* Leaflet Layer Control Kanan Atas Sesuai Gambar 2 */
+.page-peta-publik .leaflet-control-layers {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 14px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+    padding: 12px 14px !important;
+    font-family: inherit !important;
+    max-width: 250px !important;
+    margin-top: 14px !important;
+    margin-right: 14px !important;
+}
+.page-peta-publik .leaflet-control-layers .map-ctrl-header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    padding-bottom: 8px !important;
+    margin-bottom: 8px !important;
+    cursor: pointer !important;
+}
+.page-peta-publik .layer-ctrl-title {
+    font-size: 12.5px !important;
+    font-weight: 700 !important;
+    color: #0f172a !important;
+}
+.page-peta-publik .layer-ctrl-toggle-btn {
+    background: none !important;
+    border: none !important;
+    font-size: 11px !important;
+    color: #94a3b8 !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+}
+.page-peta-publik .layer-ctrl-toggle-btn:hover {
+    color: #15803d !important;
+}
+.page-peta-publik .leaflet-control-layers input[type="radio"],
+.page-peta-publik .leaflet-control-layers input[type="checkbox"] {
+    accent-color: #15803d !important;
+    width: 14px !important;
+    height: 14px !important;
+    cursor: pointer !important;
+}
+.page-peta-publik .leaflet-control-layers label {
+    font-size: 11.5px !important;
+    color: #334155 !important;
+    margin-bottom: 5px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 7px !important;
+}
+.page-peta-publik .leaflet-control-layers.is-minimized {
+    padding: 6px 12px !important;
+}
+.page-peta-publik .leaflet-control-layers.is-minimized .map-ctrl-header {
+    border-bottom: none !important;
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+/* Leaflet Zoom Control Kiri Sesuai Gambar 2 */
+.page-peta-publik .leaflet-bar {
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 10px !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08) !important;
+    overflow: hidden !important;
+    margin-top: 14px !important;
+    margin-left: 14px !important;
+}
+.page-peta-publik .leaflet-bar a {
+    background-color: #ffffff !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    color: #334155 !important;
+    width: 34px !important;
+    height: 34px !important;
+    line-height: 34px !important;
+    font-size: 15px !important;
+    transition: all 0.15s ease !important;
+}
+.page-peta-publik .leaflet-bar a:hover {
+    background-color: #f8fafc !important;
+    color: #15803d !important;
 }
 
 /* Section Tentang Layanan di Bawah Peta */

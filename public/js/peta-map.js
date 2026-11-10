@@ -398,8 +398,8 @@ if (layerContainer) {
     layerHeader.id = 'layer-header';
     layerHeader.title = 'Klik untuk minimize / expand';
     layerHeader.innerHTML = 
-        '<span><i class="fas fa-layer-group text-primary mr-1"></i> Layer Peta</span>' +
-        '<button type="button" class="map-ctrl-min-btn" aria-label="Minimize Layer" title="Minimize / Expand"><i class="fas fa-minus" id="layer-min-icon"></i></button>';
+        '<span class="layer-ctrl-title font-weight-bold">Pilihan layer</span>' +
+        '<button type="button" class="layer-ctrl-toggle-btn" aria-label="Minimize Layer">Sembunyikan</button>';
 
     var formList = layerContainer.querySelector('.leaflet-control-layers-list');
     if (formList) {
@@ -410,9 +410,9 @@ if (layerContainer) {
     layerHeader.addEventListener('click', function(e) {
         e.stopPropagation();
         layerContainer.classList.toggle('is-minimized');
-        var icon = layerContainer.querySelector('#layer-min-icon');
-        if (icon) {
-            icon.className = layerContainer.classList.contains('is-minimized') ? 'fas fa-plus' : 'fas fa-minus';
+        var btn = layerContainer.querySelector('.layer-ctrl-toggle-btn');
+        if (btn) {
+            btn.textContent = layerContainer.classList.contains('is-minimized') ? 'Tampilkan' : 'Sembunyikan';
         }
     });
 }

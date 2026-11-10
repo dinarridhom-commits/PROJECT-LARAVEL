@@ -132,6 +132,17 @@
                 </div>
             </div>
 
+            {{-- Footer Identitas Lembaga Sesuai Gambar Referensi --}}
+            <div class="psb-footer mt-auto pt-3">
+                <div class="psb-footer-box">
+                    <i class="fas fa-landmark psb-footer-icon"></i>
+                    <div>
+                        <div class="psb-footer-title">BWS Kalimantan I Pontianak</div>
+                        <div class="psb-footer-sub">Sistem Informasi Geospasial SDA</div>
+                    </div>
+                </div>
+            </div>
+
         </aside>
 
 
@@ -142,15 +153,15 @@
 
             {{-- TAB BAR --}}
             <div class="peta-tab-bar">
-                {{-- Breadcrumb Kiri --}}
+                {{-- Breadcrumb Kiri (Sesuai Desain Gambar Referensi: • Peta Daerah Irigasi / Kalimantan Barat) --}}
                 <div class="ptb-breadcrumb">
                     <button type="button" class="ptb-btn-sidebar" id="btnExpandSidebar" onclick="toggleSidebarView()" title="Buka Sidebar">
                         <i class="fas fa-indent mr-1"></i> Buka Sidebar
                     </button>
-                    <i class="fas fa-map-marked-alt mr-1" style="font-size:13px; color:#15803d;"></i>
-                    <span>Peta Daerah Irigasi</span>
-                    <i class="fas fa-chevron-right mx-1.5" style="font-size:9px; color:#94a3b8;"></i>
-                    <span>Kalimantan Barat</span>
+                    <span class="ptb-bullet-dot"></span>
+                    <span class="ptb-title-main">Peta Daerah Irigasi</span>
+                    <span class="ptb-sep">/</span>
+                    <span class="ptb-title-sub">Kalimantan Barat</span>
                 </div>
 
                 {{-- Tab Kanan --}}
@@ -169,6 +180,12 @@
                     <span>Memuat koordinat GIS ArcMap...</span>
                 </div>
                 <div id="map"></div>
+            </div>
+
+            {{-- Footer Status Peta Sesuai Gambar Referensi --}}
+            <div class="peta-map-footer">
+                <span class="pmf-left">Peta siap. Silakan cari pos atau nama daerah irigasi.</span>
+                <span class="pmf-right">Geser untuk menjelajah <span class="pmf-dot">&bull;</span> Klik objek untuk detail</span>
             </div>
 
         </main>
