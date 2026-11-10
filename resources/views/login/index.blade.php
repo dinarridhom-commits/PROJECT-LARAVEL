@@ -458,50 +458,47 @@
             color: #1e293b;
         }
 
-        /* CAPTCHA Styling */
-        .captcha-box {
-            background-color: #f1f5f9;
-            border: 1.5px dashed #94a3b8;
-            border-radius: 10px;
-            letter-spacing: 8px;
-            font-size: 21px;
-            font-family: 'Courier New', Courier, monospace;
-            font-weight: 800;
-            color: #1e3a8a;
-            padding: 8px 16px;
-            user-select: none;
-            flex-grow: 1;
-            text-align: center;
+        /* Google reCAPTCHA v3 Card Styling */
+        .recaptcha-v3-card {
+            background-color: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px 14px;
+            transition: all 0.2s ease;
         }
 
-        .btn-refresh-captcha {
-            height: 46px;
-            width: 46px;
+        .recaptcha-v3-card:hover {
+            border-color: #cbd5e1;
+            background-color: #ffffff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .recaptcha-v3-icon {
+            width: 36px;
+            height: 36px;
             border-radius: 10px;
-            border: 1.5px solid #cbd5e1;
-            background: #f8fafc;
-            color: #475569;
+            background: #eff6ff;
+            color: #1e3a8a;
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
+            font-size: 16px;
             flex-shrink: 0;
+            border: 1px solid #bfdbfe;
         }
 
-        .btn-refresh-captcha:hover {
-            background: #e2e8f0;
-            color: #1e293b;
-            border-color: #94a3b8;
-            transform: rotate(30deg);
+        .recaptcha-v3-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #0f172a;
+            line-height: 1.25;
         }
 
-        .btn-refresh-captcha.spinning i {
-            animation: spin 0.6s linear infinite;
-        }
-
-        @keyframes spin {
-            100% { transform: rotate(360deg); }
+        .recaptcha-v3-sub {
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 2px;
+            line-height: 1.35;
         }
 
         /* Remember Me Checkbox */
@@ -787,7 +784,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('login') }}" method="POST" autocomplete="off">
+            <form action="{{ route('login') }}" method="POST" autocomplete="off" id="loginForm">
                 @csrf
 
                 <!-- Email / Username -->
@@ -842,38 +839,23 @@
                     @enderror
                 </div>
 
-                <!-- CAPTCHA -->
-                <div class="form-group mb-3">
-                    <label for="captcha" class="form-label-custom">
-                        Kode Verifikasi (CAPTCHA) <span class="text-danger">*</span>
-                    </label>
-                    <div class="d-flex align-items-center mb-2" style="gap: 8px;">
-                        <div class="captcha-box" id="captchaBox">
-                            {{ $captcha }}
+                <!-- Google reCAPTCHA v3 Protection -->
+                <input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response">
+
+                <div class="recaptcha-v3-card mb-3">
+                    <div class="d-flex align-items-center" style="gap: 12px;">
+                        <div class="recaptcha-v3-icon">
+                            <i class="fab fa-google"></i>
                         </div>
-                        <button type="button"
-                                class="btn-refresh-captcha"
-                                id="btnRefreshCaptcha"
-                                onclick="refreshCaptchaCode()"
-                                title="Ganti kode CAPTCHA baru">
-                            <i class="fas fa-sync-alt"></i>
-                        </button>
-                    </div>
-                    <div class="input-group-custom">
-                        <i class="fas fa-shield-alt input-icon-left"></i>
-                        <input type="text"
-                               name="captcha"
-                               id="captcha"
-                               class="form-control input-custom @error('captcha') is-invalid @enderror"
-                               placeholder="Ketik 5 karakter kode di atas"
-                               autocomplete="off"
-                               required>
-                    </div>
-                    @error('captcha')
-                        <div class="invalid-feedback ml-1 d-block" style="font-size: 12px;">
-                            {{ $message }}
+                        <div class="recaptcha-v3-info flex-grow-1">
+                            <div class="recaptcha-v3-title">
+                                <i class="fas fa-shield-alt text-success mr-1"></i> Terproteksi Google reCAPTCHA v3
+                            </div>
+                            <div class="recaptcha-v3-sub">
+                                Sistem memverifikasi keamanan otomatis di latar belakang tanpa perlu mengetik kode manual.
+                            </div>
                         </div>
-                    @enderror
+                    </div>
                 </div>
 
                 <!-- Remember Me -->
@@ -916,7 +898,12 @@
     <script src="{{ asset('sbadmin/vendor/jquery/jquery.min.js') }}"></script>
     <script src="{{ asset('sbadmin/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 
-    <!-- Script Password Toggle & CAPTCHA Refresh Interaktif -->
+    <!-- Google reCAPTCHA v3 API Script (Aktif jika Site Key dikonfigurasi di .env) -->
+    @if(!empty(config('services.recaptcha.site_key')))
+        <script src="https://www.google.com/recaptcha/api.js?render={{ config('services.recaptcha.site_key') }}"></script>
+    @endif
+
+    <!-- Script Password Toggle & reCAPTCHA v3 Otomatis -->
     <script>
         function togglePasswordVisibility(inputId, btn) {
             var input = document.getElementById(inputId);
@@ -936,35 +923,38 @@
             }
         }
 
-        function refreshCaptchaCode() {
-            var btn = document.getElementById('btnRefreshCaptcha');
-            var box = document.getElementById('captchaBox');
-            if (!btn || !box) return;
+        // Handle Submit Login dengan Google reCAPTCHA v3
+        document.addEventListener('DOMContentLoaded', function() {
+            var loginForm = document.getElementById('loginForm');
+            if (!loginForm) return;
 
-            btn.classList.add('spinning');
+            loginForm.addEventListener('submit', function(e) {
+                var siteKey = "{{ config('services.recaptcha.site_key') }}";
 
-            fetch('{{ route("captcha.refresh") }}')
-                .then(function(res) {
-                    if (!res.ok) throw new Error('Network error');
-                    return res.json();
-                })
-                .then(function(data) {
-                    if (data && data.captcha) {
-                        box.textContent = data.captcha;
-                        var input = document.getElementById('captcha');
-                        if (input) input.value = '';
+                // Jika reCAPTCHA v3 dikonfigurasi dan script siap, ambil token terlebih dahulu
+                if (siteKey && typeof grecaptcha !== 'undefined') {
+                    e.preventDefault();
+                    var submitBtn = loginForm.querySelector('.btn-submit-login');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> <span>Memverifikasi keamanan...</span>';
                     }
-                })
-                .catch(function() {
-                    // Fallback jika fetch gagal
-                    location.reload();
-                })
-                .finally(function() {
-                    setTimeout(function() {
-                        btn.classList.remove('spinning');
-                    }, 400);
-                });
-        }
+
+                    grecaptcha.ready(function() {
+                        grecaptcha.execute(siteKey, { action: 'login' }).then(function(token) {
+                            var responseInput = document.getElementById('g-recaptcha-response');
+                            if (responseInput) {
+                                responseInput.value = token;
+                            }
+                            loginForm.submit();
+                        }).catch(function(err) {
+                            console.warn('reCAPTCHA error:', err);
+                            loginForm.submit();
+                        });
+                    });
+                }
+            });
+        });
     </script>
 </body>
 
