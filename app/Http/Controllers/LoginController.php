@@ -94,7 +94,8 @@ class LoginController extends Controller
             $request->session()->regenerate();
             ActivityLog::record('LOGIN', 'Pengguna berhasil login ke sistem WebGIS.');
 
-            return redirect()->intended('/peta');
+            // Setelah login berhasil, arahkan ke Dashboard Analisis Data Website
+            return redirect()->intended(route('dashboard'));
         }
 
         // Jika username/email atau password salah

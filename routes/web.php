@@ -15,8 +15,7 @@ use App\Http\Controllers\ActivityLogController;
    - Auth (sudah login)  → peta.blade.php
    ============================================================ */
 
-Route::get('/', [DashboardController::class, 'petaRouter'])->name('dashboard');
-Route::get('/home', [DashboardController::class, 'petaRouter'])->name('home');
+Route::get('/', [DashboardController::class, 'petaRouter'])->name('home');
 Route::get('/peta', [DashboardController::class, 'petaRouter'])->name('peta');
 
 Route::get('/contact', function () { return view('contact'); })->name('contact');
@@ -50,6 +49,9 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
    ============================================================ */
 Route::middleware('auth')->group(function () {
 
+    // Dashboard Utama: Grafik & Analisis Data Website
+    Route::get('/dashboard', [DashboardController::class, 'analyticsDashboard'])->name('dashboard');
+
     // Edit Profil Pengguna (Nama, Email, Password) - untuk semua pengguna yang login
     Route::put('/profile', [UserController::class, 'updateProfile'])->name('profile.update');
 
@@ -63,9 +65,9 @@ Route::middleware('auth')->group(function () {
         Route::delete('/peta/delete-geojson', [DashboardController::class, 'deleteGeojson'])->name('peta.delete-geojson');
         Route::delete('/peta/delete-geojson-bulk', [DashboardController::class, 'deleteGeojsonBulk'])->name('peta.delete-geojson-bulk');
 
-        // Akses Utama Admin Panel
+        // Akses Utama Admin Panel (dialihkan ke Dashboard Analisis)
         Route::get('/admin', function() {
-            return redirect()->route('users.index');
+            return redirect()->route('dashboard');
         })->name('admin.panel');
 
         // Melihat daftar pengguna

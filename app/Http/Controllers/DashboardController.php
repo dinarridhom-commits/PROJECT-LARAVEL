@@ -10,6 +10,98 @@ use Illuminate\Support\Facades\Auth;
 class DashboardController extends Controller
 {
     /**
+     * Dashboard Utama (Grafik & Analisis Data Website)
+     * View: dashboard/index.blade.php
+     */
+    public function analyticsDashboard()
+    {
+        $path = public_path('geojson');
+        $fileList = [];
+        $categoryCounts = [
+            'baku'       => 0,
+            'fungsional' => 0,
+            'potensial'  => 0,
+            'saluran'    => 0,
+            'bangunan'   => 0,
+            'custom'     => 0,
+        ];
+        $wilayahCounts = [
+            'Kab. Sambas'      => 0,
+            'Kab. Ketapang'     => 0,
+            'Kab. Kubu Raya'    => 0,
+            'Kab. Mempawah & Kota Pontianak' => 0,
+            'Kab. Bengkayang & Lainnya'      => 0,
+        ];
+
+        if (file_exists($path)) {
+            $files = File::files($path);
+            foreach ($files as $file) {
+                $ext = strtolower($file->getExtension());
+                if (in_array($ext, ['json', 'geojson'])) {
+                    $fn = $file->getFilename();
+                    $nameUpper = strtoupper($fn);
+
+                    // Deteksi Kategori
+                    if (str_starts_with($nameUpper, 'BAKU')) {
+                        $categoryCounts['baku']++;
+                    } elseif (str_starts_with($nameUpper, 'FUNGSIONAL')) {
+                        $categoryCounts['fungsional']++;
+                    } elseif (str_starts_with($nameUpper, 'POTENSIAL')) {
+                        $categoryCounts['potensial']++;
+                    } elseif (str_starts_with($nameUpper, 'SALURAN')) {
+                        $categoryCounts['saluran']++;
+                    } elseif (str_starts_with($nameUpper, 'BANGUNAN')) {
+                        $categoryCounts['bangunan']++;
+                    } else {
+                        $categoryCounts['custom']++;
+                    }
+
+                    // Deteksi Wilayah
+                    if (str_contains($nameUpper, 'SAMBAS') || str_contains($nameUpper, 'PEMANGKAT') || str_contains($nameUpper, 'SEBANGKAU') || str_contains($nameUpper, 'SEBUBUS') || str_contains($nameUpper, 'SEMELAGI') || str_contains($nameUpper, 'SARANG') || str_contains($nameUpper, 'PMK') || str_contains($nameUpper, 'SBK') || str_contains($nameUpper, 'SBB') || str_contains($nameUpper, 'SML')) {
+                        $wilayahCounts['Kab. Sambas']++;
+                    } elseif (str_contains($nameUpper, 'KETAPANG') || str_contains($nameUpper, 'PEMATANG') || str_contains($nameUpper, 'KINJIL') || str_contains($nameUpper, 'SKJ') || str_contains($nameUpper, 'PGI') || str_contains($nameUpper, 'PGII')) {
+                        $wilayahCounts['Kab. Ketapang']++;
+                    } elseif (str_contains($nameUpper, 'KUBU') || str_contains($nameUpper, 'TELUK_BAYUR') || str_contains($nameUpper, 'BAYUR') || str_contains($nameUpper, 'KK') || str_contains($nameUpper, 'TB')) {
+                        $wilayahCounts['Kab. Kubu Raya']++;
+                    } elseif (str_contains($nameUpper, 'PONTIANAK') || str_contains($nameUpper, 'MEMPAWAH')) {
+                        $wilayahCounts['Kab. Mempawah & Kota Pontianak']++;
+                    } else {
+                        $wilayahCounts['Kab. Bengkayang & Lainnya']++;
+                    }
+
+                    $fileList[] = [
+                        'name' => $fn,
+                        'size' => round($file->getSize() / 1024, 1) . ' KB',
+                        'date' => date('d M Y, H:i', $file->getMTime()),
+                        'time' => $file->getMTime(),
+                    ];
+                }
+            }
+        }
+
+        // Urutkan file terbaru
+        usort($fileList, fn($a, $b) => $b['time'] <=> $a['time']);
+        $recentFiles = array_slice($fileList, 0, 6);
+
+        $totalGisFiles   = count($fileList);
+        $totalUsers      = \App\Models\User::count();
+        $superAdminCount = \App\Models\User::where('role', 'superadmin')->count();
+        $adminCount      = \App\Models\User::where('role', 'admin')->count();
+        $recentLogs      = ActivityLog::latest()->take(6)->get();
+
+        return view('dashboard.index', compact(
+            'categoryCounts',
+            'wilayahCounts',
+            'totalGisFiles',
+            'totalUsers',
+            'superAdminCount',
+            'adminCount',
+            'recentFiles',
+            'recentLogs'
+        ));
+    }
+
+    /**
      * Router Peta: menentukan view berdasarkan status login.
      * - Guest (belum login) → petaPublik() → peta-publik.blade.php
      * - Auth (sudah login)  → peta()       → peta.blade.php

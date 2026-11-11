@@ -113,6 +113,35 @@ body {
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
+/* Tombol Cepat Buka Peta di Navbar Admin */
+.bws-btn-peta-nav {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 14px;
+    background: #ffffff;
+    color: #1e3a8a;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    border: 1.5px solid rgba(255, 255, 255, 0.5);
+    transition: all 0.2s ease;
+    margin-right: 8px;
+}
+.bws-btn-peta-nav:hover {
+    background: #f8fafc;
+    color: #1d4ed8;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    text-decoration: none;
+}
+.bws-btn-peta-nav i {
+    color: #2563eb;
+    font-size: 13.5px;
+}
+
 /* Garis Aksen Emas PU */
 .bws-accent-strip {
     height: 4px;

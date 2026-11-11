@@ -42,9 +42,13 @@
             {{-- Kanan: Tombol Masuk / Profil --}}
             <div class="peta-navbar-right">
                 @auth
-                    {{-- Tombol Langsung Manajemen User / Admin Panel --}}
+                    {{-- Tombol Langsung Dashboard & Manajemen User --}}
                     @if(in_array(Auth::user()->role, ['superadmin', 'admin']))
-                    <a href="{{ route('users.index') }}" class="peta-btn-admin-nav" title="Buka Manajemen User / Admin Panel">
+                    <a href="{{ route('dashboard') }}" class="peta-btn-admin-nav" title="Buka Dashboard Analytics Admin">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="{{ route('users.index') }}" class="peta-btn-admin-nav" title="Buka Manajemen User">
                         <i class="fas fa-users-cog"></i>
                         <span>Manajemen User</span>
                     </a>

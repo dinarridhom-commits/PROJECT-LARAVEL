@@ -30,7 +30,17 @@
         </div>
 
         <div class="bws-nav-right">
-            @php $isMapPage = request()->is('peta') || request()->is('/') || request()->is('home') || request()->is('dashboard'); @endphp
+            @php $isMapPage = request()->is('peta') || request()->is('/') || request()->is('home'); @endphp
+
+            @auth
+            {{-- Tombol Cepat Buka Peta WebGIS (Saran Utama) --}}
+            @if(!$isMapPage)
+            <a href="{{ route('peta') }}" class="bws-btn-peta-nav" title="Buka Peta Interaktif WebGIS">
+                <i class="fas fa-map-marked-alt mr-1.5"></i>
+                <span>Buka Peta</span>
+            </a>
+            @endif
+            @endauth
 
             {{-- Tombol Fullscreen — sembunyikan di halaman peta (sudah ada di gambar referensi) --}}
             @if(!$isMapPage)
@@ -151,17 +161,17 @@
      TIDAK DITAMPILKAN DI HALAMAN PETA AGAR TIDAK MENGGANGGU TAMPILAN PETA.
      ============================================================ --}}
 @php
-    $isMapPage = request()->is('peta') || request()->is('/') || request()->is('home') || request()->is('dashboard');
+    $isMapPage = request()->is('peta') || request()->is('/') || request()->is('home');
 @endphp
 
 @if(!$isMapPage && empty($hideSubnav))
 <nav class="bws-subnav">
     <div class="bws-subnav-inner">
 
-        {{-- 1. DASHBOARD / PETA --}}
-        <a href="{{ route('peta') }}"
-           class="bws-subnav-link {{ (request()->is('peta') || request()->is('/') || request()->is('home') || request()->is('dashboard')) && !request()->has('layer') ? 'active' : '' }}">
-            <i class="fas fa-th-large text-primary mr-2"></i>
+        {{-- 1. DASHBOARD ANALYTICS --}}
+        <a href="{{ route('dashboard') }}"
+           class="bws-subnav-link {{ request()->is('dashboard*') ? 'active' : '' }}">
+            <i class="fas fa-chart-line text-primary mr-2"></i>
             <span>Dashboard</span>
         </a>
 
