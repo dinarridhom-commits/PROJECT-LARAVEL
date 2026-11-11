@@ -124,28 +124,135 @@ window.map = map;
 var mapBounds = L.latLngBounds();
 
 // ============================================================
-// TOMBOL FULLSCREEN PETA (LAYAR PENUH)
+// MAP ACTION CONTROLS (Sesuai Gambar 3 & 4: GPS, Home, Fullscreen)
 // ============================================================
-var FullscreenControl = L.Control.extend({
+var userLocationMarker = null;
+var userLocationCircle = null;
+
+function handleUserGeolocation(btnEl) {
+    if (!navigator.geolocation) {
+        alert('Fitur Geolocation tidak didukung oleh browser Anda.');
+        return;
+    }
+
+    var icon = btnEl ? btnEl.querySelector('i') : null;
+    if (icon) icon.className = 'fas fa-spinner fa-spin';
+
+    navigator.geolocation.getCurrentPosition(
+        function(position) {
+            if (icon) icon.className = 'fas fa-crosshairs';
+            var lat = position.coords.latitude;
+            var lng = position.coords.longitude;
+            var accuracy = position.coords.accuracy;
+
+            // Hapus marker sebelumnya jika ada
+            if (userLocationMarker) map.removeLayer(userLocationMarker);
+            if (userLocationCircle) map.removeLayer(userLocationCircle);
+
+            // Buat marker lokasi dengan radar glow
+            userLocationCircle = L.circle([lat, lng], {
+                radius: Math.max(accuracy, 100),
+                color: '#10b981',
+                fillColor: '#10b981',
+                fillOpacity: 0.15,
+                weight: 1.5
+            }).addTo(map);
+
+            var pulsingIcon = L.divIcon({
+                className: 'user-loc-pulsing-marker',
+                html: '<div class="user-loc-dot"></div><div class="user-loc-pulse"></div>',
+                iconSize: [22, 22],
+                iconAnchor: [11, 11]
+            });
+
+            userLocationMarker = L.marker([lat, lng], { icon: pulsingIcon }).addTo(map);
+            userLocationMarker.bindPopup(
+                '<div style="font-family: inherit; font-size: 12.5px; padding: 4px;">' +
+                    '<div style="font-weight: 700; color: #166534; margin-bottom: 2px;">' +
+                        '<i class="fas fa-map-pin mr-1 text-danger"></i> Lokasi Anda Saat Ini' +
+                    '</div>' +
+                    '<div style="color: #64748b; font-size: 11px;">Akurasi GPS: &plusmn;' + Math.round(accuracy) + ' meter</div>' +
+                '</div>'
+            ).openPopup();
+
+            // Zoom dengan pembesaran optimal (sesuai Gambar 4: zoom 12.5 tidak terlalu besar)
+            map.flyTo([lat, lng], 12.5, { animate: true, duration: 1.0 });
+        },
+        function(error) {
+            if (icon) icon.className = 'fas fa-crosshairs';
+            var msg = 'Gagal mendeteksi lokasi GPS.';
+            if (error.code === error.PERMISSION_DENIED) {
+                msg = 'Izin akses lokasi ditolak oleh browser.';
+            } else if (error.code === error.POSITION_UNAVAILABLE) {
+                msg = 'Informasi lokasi tidak tersedia saat ini.';
+            } else if (error.code === error.TIMEOUT) {
+                msg = 'Waktu permintaan lokasi habis.';
+            }
+            alert(msg);
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+}
+
+function handleHomeReset() {
+    if (mapBounds && mapBounds.isValid && mapBounds.isValid()) {
+        map.fitBounds(mapBounds, { padding: [50, 50], maxZoom: 12.5 });
+    } else {
+        map.setView(defaultCenter, 8.5);
+    }
+}
+
+var MapActionsControl = L.Control.extend({
     options: { position: 'topleft' },
     onAdd: function() {
-        var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-fullscreen');
-        var btn = L.DomUtil.create('a', 'leaflet-control-fullscreen-button', container);
-        btn.href = '#';
-        btn.title = 'Layar Penuh (Fullscreen Peta)';
-        btn.setAttribute('role', 'button');
-        btn.setAttribute('aria-label', 'Layar Penuh');
-        btn.innerHTML = '<i class="fas fa-expand"></i>';
+        var container = L.DomUtil.create('div', 'leaflet-bar map-action-control-group');
+        
+        // 1. Tombol GPS / Lokasi Saya (Target Crosshairs)
+        var btnLocate = L.DomUtil.create('a', 'map-action-btn btn-locate', container);
+        btnLocate.href = '#';
+        btnLocate.title = 'Deteksi Lokasi Saya (GPS)';
+        btnLocate.setAttribute('role', 'button');
+        btnLocate.setAttribute('aria-label', 'Lokasi Saya');
+        btnLocate.innerHTML = '<i class="fas fa-crosshairs"></i>';
+
+        // 2. Tombol Home / Pusat Peta (Rumah)
+        var btnHome = L.DomUtil.create('a', 'map-action-btn btn-home', container);
+        btnHome.href = '#';
+        btnHome.title = 'Kembali ke Pusat Peta (Reset View)';
+        btnHome.setAttribute('role', 'button');
+        btnHome.setAttribute('aria-label', 'Pusat Peta');
+        btnHome.innerHTML = '<i class="fas fa-home"></i>';
+
+        // 3. Tombol Fullscreen (Layar Penuh)
+        var btnFs = L.DomUtil.create('a', 'map-action-btn btn-fullscreen', container);
+        btnFs.href = '#';
+        btnFs.title = 'Layar Penuh (Fullscreen Peta)';
+        btnFs.setAttribute('role', 'button');
+        btnFs.setAttribute('aria-label', 'Layar Penuh');
+        btnFs.innerHTML = '<i class="fas fa-expand"></i>';
 
         L.DomEvent.disableClickPropagation(container);
-        L.DomEvent.on(btn, 'click', function(e) {
+        L.DomEvent.disableScrollPropagation(container);
+
+        L.DomEvent.on(btnLocate, 'click', function(e) {
             L.DomEvent.stop(e);
-            toggleMapFullscreen(btn);
+            handleUserGeolocation(btnLocate);
         });
+
+        L.DomEvent.on(btnHome, 'click', function(e) {
+            L.DomEvent.stop(e);
+            handleHomeReset();
+        });
+
+        L.DomEvent.on(btnFs, 'click', function(e) {
+            L.DomEvent.stop(e);
+            toggleMapFullscreen(btnFs);
+        });
+
         return container;
     }
 });
-map.addControl(new FullscreenControl());
+map.addControl(new MapActionsControl());
 
 function toggleMapFullscreen(btnEl) {
     var mapWrap = document.querySelector('.peta-v2-map-wrap') || document.getElementById('section-map') || document.getElementById('map');
@@ -154,7 +261,7 @@ function toggleMapFullscreen(btnEl) {
     var isFs = mapWrap.classList.toggle('is-fullscreen');
     document.body.classList.toggle('map-is-fullscreen', isFs);
 
-    var icon = btnEl ? btnEl.querySelector('i') : document.querySelector('.leaflet-control-fullscreen-button i');
+    var icon = btnEl ? btnEl.querySelector('i') : document.querySelector('.map-action-btn.btn-fullscreen i');
     if (isFs) {
         if (icon) icon.className = 'fas fa-compress';
         if (btnEl) btnEl.title = 'Keluar Layar Penuh (ESC)';
@@ -516,9 +623,9 @@ map.on('overlayadd', function(e) {
 // Tombol Reset Peta (kembali ke bounds awal semua layer)
 window.resetMapView = function() {
     if (mapBounds.isValid && mapBounds.isValid()) {
-        map.fitBounds(mapBounds, { padding: [40, 40] });
+        map.fitBounds(mapBounds, { padding: [50, 50], maxZoom: 12.5 });
     } else {
-        map.setView(defaultCenter, 8);
+        map.setView(defaultCenter, 8.5);
     }
 };
 
@@ -858,7 +965,7 @@ if (window.geojsonFiles && window.geojsonFiles.length > 0) {
     setTimeout(function() {
         if (mapLoadingEl && mapLoadingEl.style.display !== 'none') {
             mapLoadingEl.style.display = 'none';
-            if (mapBounds.isValid()) map.fitBounds(mapBounds, { padding: [40, 40] });
+            if (mapBounds.isValid()) map.fitBounds(mapBounds, { padding: [50, 50], maxZoom: 12.5 });
             renderTable();
         }
     }, 8000);
@@ -1034,7 +1141,7 @@ if (window.geojsonFiles && window.geojsonFiles.length > 0) {
                 loadedCount++;
                 if (loadedCount >= window.geojsonFiles.length) {
                     if (mapLoadingEl) mapLoadingEl.style.display = 'none';
-                    if (mapBounds.isValid()) map.fitBounds(mapBounds, { padding: [40, 40] });
+                    if (mapBounds.isValid()) map.fitBounds(mapBounds, { padding: [50, 50], maxZoom: 12.5 });
                     renderTable();
                     applyUrlLayerFilter();
                     if (typeof initSidebarSearch === 'function') initSidebarSearch();
@@ -1070,7 +1177,7 @@ function applyUrlLayerFilter() {
         }
     });
     if (layerBounds.isValid && layerBounds.isValid()) {
-        map.fitBounds(layerBounds, { padding: [50, 50], maxZoom: 14 });
+        map.fitBounds(layerBounds, { padding: [50, 50], maxZoom: 12.5 });
     }
 }
 
@@ -1421,11 +1528,11 @@ function focusOnMapObject(row) {
         .openOn(map);
     }
 
-    // Jalankan animasi zoom peta
+    // Jalankan animasi zoom peta (dibatasi maxZoom 12.5 agar tidak terlalu besar sesuai Gambar 4)
     if (row.bounds && row.bounds.isValid && row.bounds.isValid()) {
-        map.fitBounds(row.bounds, { padding: [60, 60], maxZoom: 16 });
+        map.fitBounds(row.bounds, { padding: [60, 60], maxZoom: 12.5 });
     } else if (targetLatLng) {
-        map.flyTo(targetLatLng, 15, { animate: true, duration: 0.8 });
+        map.flyTo(targetLatLng, 12.5, { animate: true, duration: 0.8 });
     }
 
     map.once('moveend', function() {

@@ -2960,6 +2960,213 @@ body.page-peta-publik {
     margin: 0;
 }
 
+/* ============================================================
+   SIDEBAR KATEGORI & LAYER PETA (SESUAI GAMBAR NO 1)
+   ============================================================ */
+.psb-categories-section {
+    padding: 12px 14px;
+    border-top: 1px solid #f1f5f9;
+    border-bottom: 1px solid #f1f5f9;
+    background: #ffffff;
+}
+
+.psb-categories-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.psb-categories-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0f172a;
+    letter-spacing: -0.2px;
+}
+
+.psb-categories-subtitle {
+    font-size: 11px;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.psb-category-list {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.psb-category-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    background: #ffffff;
+    border: 1px solid #f1f5f9;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.psb-category-item:hover {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+    transform: translateX(2px);
+}
+
+.psb-category-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.psb-category-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13.5px;
+    flex-shrink: 0;
+}
+
+.cat-icon-baku {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.cat-icon-fungsional {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.cat-icon-potensial {
+    background: #ffedd5;
+    color: #ea580c;
+}
+
+.cat-icon-saluran {
+    background: #f3e8ff;
+    color: #9333ea;
+}
+
+.cat-icon-bangunan {
+    background: #ffe4e6;
+    color: #e11d48;
+}
+
+.psb-category-name {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.25;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.psb-category-toggle-btn {
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: #ffffff;
+    background: #10b981;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.psb-category-item.disabled {
+    opacity: 0.5;
+}
+
+.psb-category-item.disabled .psb-category-toggle-btn {
+    background: #e2e8f0;
+    color: transparent;
+}
+
+.psb-category-item.disabled .psb-category-name {
+    color: #64748b;
+}
+
+/* ============================================================
+   TOMBOL KONTROL PETA (SESUAI GAMBAR 3 & 4: GPS, HOME, FULLSCREEN)
+   ============================================================ */
+.map-action-control-group {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    margin-top: 8px !important;
+}
+
+.map-action-control-group .map-action-btn {
+    width: 34px !important;
+    height: 34px !important;
+    line-height: 34px !important;
+    background: #ffffff !important;
+    border-radius: 9px !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.14) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #2d5a3f !important; /* Forest green khas GIS sesuai Gambar 3 */
+    font-size: 14px !important;
+    text-decoration: none !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+.map-action-control-group .map-action-btn:hover {
+    background: #f8fafc !important;
+    color: #166534 !important;
+    transform: scale(1.06);
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.2) !important;
+}
+
+/* Radar Pulse Marker Lokasi Saya */
+.user-loc-pulsing-marker {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.user-loc-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #10b981;
+    border: 2.5px solid #ffffff;
+    box-shadow: 0 0 6px rgba(0,0,0,0.3);
+    position: relative;
+    z-index: 2;
+}
+.user-loc-pulse {
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(16, 185, 129, 0.35);
+    animation: userLocPulseAnim 2s infinite ease-out;
+    z-index: 1;
+}
+@keyframes userLocPulseAnim {
+    0% { transform: scale(0.5); opacity: 1; }
+    100% { transform: scale(1.5); opacity: 0; }
+}
+
 
 
 

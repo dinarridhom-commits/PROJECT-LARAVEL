@@ -132,6 +132,80 @@
                 </div>
             </div>
 
+            {{-- Kategori & Layer Peta (Sesuai Gambar No 1) --}}
+            <div class="psb-categories-section">
+                <div class="psb-categories-header">
+                    <span class="psb-categories-title">Tampilkan kategori</span>
+                    <span class="psb-categories-subtitle">Layer peta</span>
+                </div>
+                <div class="psb-category-list">
+                    {{-- 1. DIR Baku (Hijau) --}}
+                    <div class="psb-category-item active" id="cat-baku" onclick="toggleSidebarCategory('baku', event)">
+                        <div class="psb-category-left">
+                            <div class="psb-category-icon cat-icon-baku">
+                                <i class="fas fa-seedling"></i>
+                            </div>
+                            <span class="psb-category-name">Daerah Irigasi Baku</span>
+                        </div>
+                        <button type="button" class="psb-category-toggle-btn active" id="btn-toggle-baku" aria-label="Toggle DIR Baku">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    </div>
+
+                    {{-- 2. DIR Fungsional (Biru) --}}
+                    <div class="psb-category-item active" id="cat-fungsional" onclick="toggleSidebarCategory('fungsional', event)">
+                        <div class="psb-category-left">
+                            <div class="psb-category-icon cat-icon-fungsional">
+                                <i class="fas fa-water"></i>
+                            </div>
+                            <span class="psb-category-name">Daerah Irigasi Fungsional</span>
+                        </div>
+                        <button type="button" class="psb-category-toggle-btn active" id="btn-toggle-fungsional" aria-label="Toggle DIR Fungsional">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    </div>
+
+                    {{-- 3. DIR Potensial (Oranye) --}}
+                    <div class="psb-category-item active" id="cat-potensial" onclick="toggleSidebarCategory('potensial', event)">
+                        <div class="psb-category-left">
+                            <div class="psb-category-icon cat-icon-potensial">
+                                <i class="fas fa-chart-area"></i>
+                            </div>
+                            <span class="psb-category-name">Daerah Irigasi Potensial</span>
+                        </div>
+                        <button type="button" class="psb-category-toggle-btn active" id="btn-toggle-potensial" aria-label="Toggle DIR Potensial">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    </div>
+
+                    {{-- 4. Jaringan Saluran Irigasi (Ungu/Cyan) --}}
+                    <div class="psb-category-item disabled" id="cat-saluran" onclick="toggleSidebarCategory('saluran', event)">
+                        <div class="psb-category-left">
+                            <div class="psb-category-icon cat-icon-saluran">
+                                <i class="fas fa-route"></i>
+                            </div>
+                            <span class="psb-category-name">Jaringan Saluran Irigasi</span>
+                        </div>
+                        <button type="button" class="psb-category-toggle-btn" id="btn-toggle-saluran" aria-label="Toggle Saluran">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    </div>
+
+                    {{-- 5. Bangunan Air (Merah/Pink) --}}
+                    <div class="psb-category-item disabled" id="cat-bangunan" onclick="toggleSidebarCategory('bangunan', event)">
+                        <div class="psb-category-left">
+                            <div class="psb-category-icon cat-icon-bangunan">
+                                <i class="fas fa-archway"></i>
+                            </div>
+                            <span class="psb-category-name">Bangunan Air / Pelengkap</span>
+                        </div>
+                        <button type="button" class="psb-category-toggle-btn" id="btn-toggle-bangunan" aria-label="Toggle Bangunan Air">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             {{-- Footer Identitas Lembaga Sesuai Gambar Referensi --}}
             <div class="psb-footer mt-auto pt-3">
                 <div class="psb-footer-box">
@@ -303,6 +377,40 @@
     window.syncSearchInputs = function(value) {
         var s1 = document.getElementById('cari-sidebar');
         if (s1 && s1 !== document.activeElement) s1.value = value;
+    };
+
+    /* Toggle Kategori Sidebar (Sesuai Gambar 1) */
+    window.toggleSidebarCategory = function(category, event) {
+        if (event) event.stopPropagation();
+        var item = document.getElementById('cat-' + category);
+        var btn = document.getElementById('btn-toggle-' + category);
+        if (!item || !btn) return;
+
+        var layerMap = {
+            'baku'      : window.layerBaku,
+            'fungsional': window.layerFungsional,
+            'potensial' : window.layerPotensial,
+            'saluran'   : window.layerSaluran,
+            'bangunan'  : window.layerBangunan
+        };
+        var layer = layerMap[category];
+        var isCurrentlyActive = item.classList.contains('active');
+
+        if (isCurrentlyActive) {
+            item.classList.remove('active');
+            item.classList.add('disabled');
+            btn.classList.remove('active');
+            if (layer && window.map && window.map.hasLayer(layer)) {
+                window.map.removeLayer(layer);
+            }
+        } else {
+            item.classList.remove('disabled');
+            item.classList.add('active');
+            btn.classList.add('active');
+            if (layer && window.map && !window.map.hasLayer(layer)) {
+                window.map.addLayer(layer);
+            }
+        }
     };
 
     /* Switch Tab di dalam Modal Panduan Pengguna */
