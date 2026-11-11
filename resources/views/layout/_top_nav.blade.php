@@ -168,13 +168,6 @@
 <nav class="bws-subnav">
     <div class="bws-subnav-inner">
 
-        {{-- 1. DASHBOARD ANALYTICS --}}
-        <a href="{{ route('dashboard') }}"
-           class="bws-subnav-link {{ request()->is('dashboard*') ? 'active' : '' }}">
-            <i class="fas fa-chart-line text-primary mr-2"></i>
-            <span>Dashboard</span>
-        </a>
-
         {{-- 2. MASTER DATA (DROPDOWN) --}}
         <div class="bws-subnav-dropdown">
             <button type="button" class="bws-subnav-link {{ request()->has('layer') ? 'active' : '' }}">
