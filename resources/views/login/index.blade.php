@@ -128,14 +128,14 @@
             min-height: 620px;
         }
 
-        /* Left Hero Panel (Visual & Instansi) */
+        /* Left Hero Panel (Visual & Instansi Sesuai Gambar No 2) */
         .auth-hero-panel {
-            flex: 1.15;
-            background: linear-gradient(150deg, #1e3a8a 0%, #1e40af 45%, #1d4ed8 100%);
-            padding: 44px 42px;
+            flex: 1;
+            background: linear-gradient(145deg, #0f2e59 0%, #173b75 45%, #1e40af 100%);
+            padding: 48px 40px;
             display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            align-items: center;
+            justify-content: center;
             color: #ffffff;
             position: relative;
             overflow: hidden;
@@ -145,43 +145,57 @@
         .auth-hero-panel::before {
             content: '';
             position: absolute;
-            top: -60px;
-            right: -60px;
-            width: 280px;
-            height: 280px;
+            top: -70px;
+            right: -70px;
+            width: 300px;
+            height: 300px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(56, 189, 248, 0.25) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.22) 0%, transparent 70%);
             pointer-events: none;
         }
 
         .auth-hero-panel::after {
             content: '';
             position: absolute;
-            bottom: -50px;
-            left: -50px;
-            width: 240px;
-            height: 240px;
+            bottom: -60px;
+            left: -60px;
+            width: 260px;
+            height: 260px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(251, 191, 36, 0.15) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(251, 191, 36, 0.14) 0%, transparent 70%);
             pointer-events: none;
         }
 
-        /* Institution Header */
+        /* Institution Header (Sesuai Gambar 2 Resmi BWSK I) */
         .instansi-header {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 20px;
             position: relative;
-            z-index: 1;
+            z-index: 2;
+            padding: 24px 28px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            max-width: 100%;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .instansi-header:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.25);
         }
 
         .instansi-logo-box {
-            width: 58px;
-            height: 58px;
+            width: 76px;
+            height: 76px;
             background: #ffffff;
-            border-radius: 14px;
-            padding: 5px;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+            border-radius: 18px;
+            padding: 6px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.2);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -192,147 +206,39 @@
             width: 100%;
             height: 100%;
             object-fit: contain;
+            border-radius: 12px;
         }
 
         .instansi-text-wrap {
             display: flex;
             flex-direction: column;
+            justify-content: center;
         }
 
         .instansi-ministry {
-            font-size: 11px;
-            font-weight: 700;
+            font-size: 13px;
+            font-weight: 800;
             letter-spacing: 0.8px;
-            color: #fde68a;
+            color: #fbbf24;
             text-transform: uppercase;
             line-height: 1.3;
         }
 
         .instansi-ditjen {
-            font-size: 12px;
+            font-size: 15.5px;
             font-weight: 500;
-            color: rgba(255, 255, 255, 0.85);
-            line-height: 1.3;
-            margin-top: 2px;
-        }
-
-        .instansi-unit {
-            font-size: 14px;
-            font-weight: 700;
             color: #ffffff;
-            line-height: 1.3;
+            line-height: 1.35;
             margin-top: 3px;
         }
 
-        /* Hero Content & Features */
-        .hero-main-content {
-            margin: 32px 0;
-            position: relative;
-            z-index: 1;
-        }
-
-        .hero-title-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            color: #ffffff;
-            padding: 4px 12px;
-            border-radius: 9999px;
-            font-size: 11.5px;
-            font-weight: 600;
-            margin-bottom: 14px;
-        }
-
-        .hero-system-title {
-            font-size: 25px;
+        .instansi-unit {
+            font-size: 18.5px;
             font-weight: 800;
+            color: #ffffff;
             line-height: 1.3;
-            letter-spacing: -0.4px;
-            color: #ffffff;
-            margin-bottom: 10px;
-        }
-
-        .hero-system-desc {
-            font-size: 13.5px;
-            line-height: 1.6;
-            color: rgba(255, 255, 255, 0.85);
-            margin-bottom: 24px;
-        }
-
-        /* Feature List */
-        .hero-features {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-
-        .feature-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 14px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 12px;
-            padding: 12px 14px;
-            transition: transform 0.2s ease, background 0.2s ease;
-        }
-
-        .feature-item:hover {
-            background: rgba(255, 255, 255, 0.12);
-            transform: translateX(3px);
-        }
-
-        .feature-icon-box {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.18);
-            color: #fde68a;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 15px;
-            flex-shrink: 0;
-        }
-
-        .feature-text-title {
-            font-size: 13px;
-            font-weight: 700;
-            color: #ffffff;
-            line-height: 1.25;
-            margin-bottom: 3px;
-        }
-
-        .feature-text-sub {
-            font-size: 11.5px;
-            color: rgba(255, 255, 255, 0.8);
-            line-height: 1.4;
-            margin: 0;
-        }
-
-        /* Hero Footer */
-        .hero-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-top: 1px solid rgba(255, 255, 255, 0.15);
-            padding-top: 18px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .badge-system-version {
-            display: inline-flex;
-            align-items: center;
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 4px 12px;
-            border-radius: 9999px;
-            font-size: 11.5px;
-            font-weight: 600;
-            color: rgba(255, 255, 255, 0.9);
+            margin-top: 4px;
+            letter-spacing: -0.2px;
         }
 
         /* Right Form Panel */
@@ -618,19 +524,33 @@
             }
 
             .auth-hero-panel {
-                padding: 32px 28px;
+                padding: 24px 20px;
+                min-height: auto;
             }
 
-            .hero-system-title {
-                font-size: 21px;
+            .instansi-header {
+                padding: 16px 18px;
+                gap: 14px;
+                border-radius: 16px;
             }
 
-            .hero-features {
-                display: none; /* Hemat ruang di mobile agar form tetap fokus */
+            .instansi-logo-box {
+                width: 58px;
+                height: 58px;
+                border-radius: 14px;
+                padding: 5px;
             }
 
-            .hero-footer {
-                display: none;
+            .instansi-ministry {
+                font-size: 11px;
+            }
+
+            .instansi-ditjen {
+                font-size: 13.5px;
+            }
+
+            .instansi-unit {
+                font-size: 16px;
             }
 
             .auth-form-panel {
@@ -661,77 +581,20 @@
     <!-- Split Card Container -->
     <div class="auth-card-split">
 
-        <!-- SISI KIRI: HERO PANEL (Visual, Instansi, & Ringkasan Fitur WebGIS) -->
+        <!-- SISI KIRI: HERO PANEL (Identitas Resmi Instansi Sesuai Gambar No 2) -->
         <div class="auth-hero-panel">
             
-            <!-- Header Instansi -->
+            <!-- Branding Instansi (Logo & Identitas Resmi) -->
             <div class="instansi-header">
                 <div class="instansi-logo-box">
-                    <img src="{{ asset('sbadmin/img/logo-pu.jpeg') }}" alt="Logo Kementerian PUPR">
+                    <img src="{{ asset('sbadmin/img/logo-pu.jpeg') }}" alt="Logo Kementerian Pekerjaan Umum">
                 </div>
                 <div class="instansi-text-wrap">
-                    <span class="instansi-ministry">Kementerian Pekerjaan Umum</span>
+                    <span class="instansi-ministry">KEMENTERIAN PEKERJAAN UMUM</span>
                     <span class="instansi-ditjen">Direktorat Jenderal Sumber Daya Air</span>
                     <span class="instansi-unit">Balai Wilayah Sungai Kalimantan I Pontianak</span>
                 </div>
             </div>
-
-            <!-- Content Utama -->
-            <div class="hero-main-content">
-                <div class="hero-title-badge">
-                    <i class="fas fa-satellite"></i>
-                    <span>Sistem Informasi Geospasial</span>
-                </div>
-                <h1 class="hero-system-title">
-                    WebGIS Infrastruktur Sumber Daya Air
-                </h1>
-                <p class="hero-system-desc">
-                    Platform geospasial terpadu pemetaan dan pemantauan Daerah Irigasi, Jaringan Saluran Air, serta Bangunan Air di wilayah Kalimantan Barat.
-                </p>
-
-                <!-- Poin-Poin Fitur Utama -->
-                <div class="hero-features">
-                    <div class="feature-item">
-                        <div class="feature-icon-box">
-                            <i class="fas fa-map-marked-alt"></i>
-                        </div>
-                        <div>
-                            <div class="feature-text-title">Pemetaan Jaringan & Bangunan Air</div>
-                            <p class="feature-text-sub">Visualisasi spasial akurat seluruh titik bangunan air dan trace saluran irigasi.</p>
-                        </div>
-                    </div>
-
-                    <div class="feature-item">
-                        <div class="feature-icon-box">
-                            <i class="fas fa-layer-group"></i>
-                        </div>
-                        <div>
-                            <div class="feature-text-title">Manajemen Data Spasial Real-Time</div>
-                            <p class="feature-text-sub">Pencarian cepat, filter layer interaktif, dan integrasi data SHP/GeoJSON.</p>
-                        </div>
-                    </div>
-
-                    <div class="feature-item">
-                        <div class="feature-icon-box">
-                            <i class="fas fa-user-shield"></i>
-                        </div>
-                        <div>
-                            <div class="feature-text-title">Akses Otoritas Staf & Super Admin</div>
-                            <p class="feature-text-sub">Manajemen hak akses terpusat untuk Staf GIS dan Super Admin.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Footer Hero Panel -->
-            <!-- <div class="hero-footer">
-                <span class="badge-system-version">
-                    <i class="fas fa-code-branch mr-1 text-warning"></i> 
-                </span>
-                <small style="color: rgba(255,255,255,0.7); font-size: 11.5px;">
-                    <i class="fas fa-check-circle mr-1 text-success"></i> 
-                </small>
-            </div> -->
 
         </div>
 
