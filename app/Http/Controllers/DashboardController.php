@@ -359,7 +359,9 @@ class DashboardController extends Controller
 
 
     /**
-     * Upload file GeoJSON dan simpan langsung ke folder public/geojson
+     * Upload file GeoJSON:
+     * - Jika Super Admin: Langsung disetujui (approved) dan disimpan ke public/geojson
+     * - Jika Admin biasa: Masuk ke antrean verifikasi (pending) dan disimpan ke storage/app/gis_pending
      */
     public function uploadGeojson(Request $request)
     {
@@ -370,7 +372,9 @@ class DashboardController extends Controller
             'file_geojson.required' => 'Silakan pilih file GeoJSON terlebih dahulu.',
         ]);
 
-        $destinationPath = public_path('geojson');
+        $isSuperAdmin = (Auth::check() && Auth::user()->role === 'superadmin');
+        $destinationPath = $isSuperAdmin ? public_path('geojson') : storage_path('app/gis_pending');
+
         if (!File::exists($destinationPath)) {
             File::makeDirectory($destinationPath, 0755, true);
         }
@@ -387,10 +391,12 @@ class DashboardController extends Controller
             $ext = strtolower($file->getClientOriginalExtension());
             $originalName = $file->getClientOriginalName();
             $baseName = pathinfo($originalName, PATHINFO_FILENAME);
+            $savedFilename = null;
 
             if (in_array($ext, ['geojson', 'json'])) {
                 $file->move($destinationPath, $originalName);
                 $uploaded[] = $originalName;
+                $savedFilename = $originalName;
             } elseif ($ext === 'kml') {
                 $kmlContent = file_get_contents($file->getRealPath());
                 $geojson = $this->parseKmlToGeoJson($kmlContent, $baseName);
@@ -398,6 +404,7 @@ class DashboardController extends Controller
                     $targetName = $baseName . '.geojson';
                     File::put($destinationPath . DIRECTORY_SEPARATOR . $targetName, json_encode($geojson, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
                     $uploaded[] = $targetName . ' (dari .kml)';
+                    $savedFilename = $targetName;
                 } else {
                     $failed[] = $originalName . ' (Gagal mengkonversi struktur KML ke GeoJSON)';
                 }
@@ -409,6 +416,7 @@ class DashboardController extends Controller
                         $targetName = $baseName . '.geojson';
                         File::put($destinationPath . DIRECTORY_SEPARATOR . $targetName, json_encode($geojson, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
                         $uploaded[] = $targetName . ' (dari .kmz)';
+                        $savedFilename = $targetName;
                     } else {
                         $failed[] = $originalName . ' (Gagal mem-parsing KML di dalam KMZ)';
                     }
@@ -416,19 +424,63 @@ class DashboardController extends Controller
                     $failed[] = $originalName . ' (Tidak ditemukan file .kml di dalam arsip KMZ)';
                 }
             } elseif (in_array($ext, ['zip', 'rar'])) {
-                // Ekstrak arsip ZIP/RAR dan konversi Shapefile (.shp), KML, atau GeoJSON di dalamnya
                 $this->processArchiveAndConvert($file->getRealPath(), $ext, $baseName, $destinationPath, $uploaded, $failed, $originalName);
+                $savedFilename = $baseName . '.geojson';
             } else {
                 $failed[] = $originalName . ' (Format tidak didukung. Gunakan .geojson, .json, .kml, .kmz, atau Shapefile .zip)';
+            }
+
+            // Catat ke Database GisLayer
+            if ($savedFilename) {
+                $upper = strtoupper($savedFilename);
+                $cat = 'custom';
+                if (str_starts_with($upper, 'BAKU')) $cat = 'baku';
+                elseif (str_starts_with($upper, 'FUNGSIONAL')) $cat = 'fungsional';
+                elseif (str_starts_with($upper, 'POTENSIAL')) $cat = 'potensial';
+                elseif (str_starts_with($upper, 'SALURAN')) $cat = 'saluran';
+                elseif (str_starts_with($upper, 'BANGUNAN')) $cat = 'bangunan';
+
+                $sizeKb = '0 KB';
+                $filePath = $destinationPath . DIRECTORY_SEPARATOR . $savedFilename;
+                if (File::exists($filePath)) {
+                    $sizeKb = round(File::size($filePath) / 1024, 1) . ' KB';
+                }
+
+                \App\Models\GisLayer::updateOrCreate(
+                    ['filename' => $savedFilename],
+                    [
+                        'user_id'     => Auth::id(),
+                        'nama_objek'  => trim(str_replace(['.json', '.geojson', '_'], ['', '', ' '], $savedFilename)),
+                        'category'    => $cat,
+                        'file_size'   => $sizeKb,
+                        'status'      => $isSuperAdmin ? 'approved' : 'pending',
+                        'reviewed_by' => $isSuperAdmin ? Auth::id() : null,
+                        'reviewed_at' => $isSuperAdmin ? now() : null,
+                    ]
+                );
             }
         }
 
         if (count($uploaded) > 0) {
-            $msg = count($uploaded) . ' file spasial berhasil diunggah dan disimpan ke GeoJSON (' . implode(', ', $uploaded) . ').';
+            if ($isSuperAdmin) {
+                $msg = count($uploaded) . ' berkas GIS berhasil diunggah langsung dan aktif di peta.';
+            } else {
+                $msg = count($uploaded) . ' berkas GIS berhasil diunggah dan masuk ke antrean verifikasi Super Admin.';
+                // Kirim Notifikasi ke Super Admin
+                \App\Models\UserNotification::notify(
+                    'Verifikasi Berkas GIS Baru',
+                    Auth::user()->name . ' mengunggah ' . count($uploaded) . ' berkas spasial baru: ' . implode(', ', $uploaded) . '. Mohon diverifikasi.',
+                    'superadmin',
+                    null,
+                    'warning',
+                    route('gis.verification')
+                );
+            }
+
             if (count($failed) > 0) {
                 $msg .= ' Beberapa file dilewati: ' . implode(', ', $failed);
             }
-            ActivityLog::record('UPLOAD_GEOJSON', 'Mengunggah ' . count($uploaded) . ' file GIS: ' . implode(', ', $uploaded));
+            ActivityLog::record('UPLOAD_GEOJSON', ($isSuperAdmin ? 'Super Admin' : 'Admin') . ' mengunggah ' . count($uploaded) . ' file GIS: ' . implode(', ', $uploaded));
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success'  => true,
@@ -451,7 +503,7 @@ class DashboardController extends Controller
     }
 
     /**
-     * Menghapus file GeoJSON dari folder public/geojson
+     * SOFT DELETE File GeoJSON: Pindahkan berkas ke storage/app/gis_trash dan tandai soft delete di database
      */
     public function deleteGeojson(Request $request)
     {
@@ -465,28 +517,34 @@ class DashboardController extends Controller
         $fileName = basename(urldecode($request->input('file_name')));
         $folderPath = public_path('geojson');
         $filePath = $folderPath . DIRECTORY_SEPARATOR . $fileName;
+        $trashFolder = storage_path('app/gis_trash');
+
+        if (!File::exists($trashFolder)) {
+            File::makeDirectory($trashFolder, 0755, true);
+        }
 
         if (File::exists($filePath)) {
-            @chmod($folderPath, 0777);
-            @chmod($filePath, 0777);
-            $deleted = @unlink($filePath);
-            if (!$deleted && File::exists($filePath)) {
-                $deleted = File::delete($filePath);
+            $trashPath = $trashFolder . DIRECTORY_SEPARATOR . $fileName;
+            if (File::exists($trashPath)) {
+                File::delete($trashPath);
+            }
+            File::move($filePath, $trashPath);
+
+            // Soft delete record di database
+            $layer = \App\Models\GisLayer::where('filename', $fileName)->first();
+            if ($layer) {
+                $layer->delete();
             }
 
-            if ($deleted || !File::exists($filePath)) {
-                ActivityLog::record('DELETE_GEOJSON', "Menghapus file GIS '{$fileName}' dari server");
-                return redirect()->route('peta')->with('success', "File GIS '{$fileName}' berhasil dihapus dari sistem dan peta!");
-            }
-
-            return redirect()->route('peta')->with('error', "Gagal menghapus file '{$fileName}'. Server tidak memiliki izin hapus (permission denied).");
+            ActivityLog::record('SOFT_DELETE_GEOJSON', "Memindahkan file GIS '{$fileName}' ke Tong Sampah (Trash)");
+            return redirect()->route('peta')->with('success', "File GIS '{$fileName}' berhasil dipindahkan ke Tong Sampah (Dapat dipulihkan oleh Super Admin).");
         }
 
         return redirect()->route('peta')->with('error', "File '{$fileName}' tidak ditemukan di folder public/geojson.");
     }
 
     /**
-     * Menghapus banyak file GeoJSON sekaligus dari folder public/geojson
+     * SOFT DELETE Banyak File GeoJSON sekaligus
      */
     public function deleteGeojsonBulk(Request $request)
     {
@@ -499,7 +557,10 @@ class DashboardController extends Controller
         ]);
 
         $folderPath = public_path('geojson');
-        @chmod($folderPath, 0777);
+        $trashFolder = storage_path('app/gis_trash');
+        if (!File::exists($trashFolder)) {
+            File::makeDirectory($trashFolder, 0755, true);
+        }
 
         $deleted = [];
         $failed = [];
@@ -510,17 +571,18 @@ class DashboardController extends Controller
             $filePath = $folderPath . DIRECTORY_SEPARATOR . $fileName;
 
             if (File::exists($filePath)) {
-                @chmod($filePath, 0777);
-                $isDel = @unlink($filePath);
-                if (!$isDel && File::exists($filePath)) {
-                    $isDel = File::delete($filePath);
+                $trashPath = $trashFolder . DIRECTORY_SEPARATOR . $fileName;
+                if (File::exists($trashPath)) {
+                    File::delete($trashPath);
+                }
+                File::move($filePath, $trashPath);
+
+                $layer = \App\Models\GisLayer::where('filename', $fileName)->first();
+                if ($layer) {
+                    $layer->delete();
                 }
 
-                if ($isDel || !File::exists($filePath)) {
-                    $deleted[] = $fileName;
-                } else {
-                    $failed[] = $fileName;
-                }
+                $deleted[] = $fileName;
             } else {
                 $notFound[] = $fileName;
             }

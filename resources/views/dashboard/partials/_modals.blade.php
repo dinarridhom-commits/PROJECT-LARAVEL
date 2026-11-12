@@ -261,8 +261,8 @@
             </div>
 
             <div class="modal-footer bg-light py-2 d-flex justify-content-between align-items-center">
-                {{-- Tombol hapus terpilih (bulk delete) --}}
-                <div>
+                {{-- Tombol hapus terpilih (bulk delete) & Tong Sampah --}}
+                <div class="d-flex align-items-center">
                     <button type="button"
                             id="btn-hapus-terpilih"
                             class="btn btn-danger btn-sm font-weight-bold"
@@ -271,6 +271,11 @@
                         <i class="fas fa-trash-alt mr-1"></i>
                         Hapus Terpilih (<span id="btn-bulk-count">0</span>)
                     </button>
+                    @if(Auth::check() && Auth::user()->role === 'superadmin')
+                    <a href="{{ route('gis.trash') }}" class="btn btn-outline-secondary btn-sm font-weight-bold ml-2" title="Buka Tong Sampah Berkas GIS (Trash)">
+                        <i class="fas fa-trash-restore mr-1 text-danger"></i> Tong Sampah GIS
+                    </a>
+                    @endif
                 </div>
                 <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">
                     <i class="fas fa-times mr-1"></i>Tutup

@@ -43,6 +43,30 @@
             @endif
             @endauth
 
+            @auth
+            {{-- Lonceng Notifikasi Sistem --}}
+            <div class="dropdown d-inline-block">
+                <button type="button" class="bws-header-btn position-relative" id="notifBellDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Pemberitahuan &amp; Notifikasi Sistem" onclick="loadNotifications()">
+                    <i class="fas fa-bell"></i>
+                    <span class="bws-badge-pill" id="notifCountBadge" style="display:none; background:#ef4444; border:1.5px solid #ffffff;">0</span>
+                </button>
+                <div class="dropdown-menu dropdown-menu-right shadow-lg py-0 border-0" aria-labelledby="notifBellDropdown" style="width: 330px; border-radius: 12px; overflow: hidden; z-index: 1050;">
+                    <div class="p-3 bg-primary text-white d-flex align-items-center justify-content-between">
+                        <span class="font-weight-bold" style="font-size: 13px;"><i class="fas fa-bell mr-1.5"></i> Notifikasi Sistem</span>
+                        <button type="button" class="btn btn-xs btn-outline-light text-white" onclick="markAllNotificationsRead()" style="font-size: 10px; border-radius: 4px;">Tandai Dibaca</button>
+                    </div>
+                    <div id="notifListContainer" style="max-height: 280px; overflow-y: auto;">
+                        <div class="text-center py-4 text-muted small"><i class="fas fa-spinner fa-spin mr-1"></i> Memuat notifikasi...</div>
+                    </div>
+                    @if(Auth::user()->role === 'superadmin')
+                    <div class="p-2 bg-light text-center border-top">
+                        <a href="{{ route('gis.verification') }}" class="small font-weight-bold text-primary">Lihat Antrean Verifikasi &rarr;</a>
+                    </div>
+                    @endif
+                </div>
+            </div>
+            @endauth
+
             {{-- Tombol Fullscreen — sembunyikan di halaman peta (sudah ada di gambar referensi) --}}
             @if(!$isMapPage)
             <button type="button" class="bws-header-btn" id="btnFullscreenToggle" title="Tampilan Layar Penuh">
@@ -247,7 +271,22 @@
         </a>
         @endif
 
-        {{-- 4. LOG AKTIVITAS (Super Admin) --}}
+        {{-- 4. VERIFIKASI FILE GIS (Khusus Super Admin) --}}
+        @if(Auth::check() && Auth::user()->role === 'superadmin')
+        @php
+            $pendingGisCount = \App\Models\GisLayer::where('status', 'pending')->count();
+        @endphp
+        <a href="{{ route('gis.verification') }}"
+           class="bws-subnav-link {{ request()->is('gis/verification*') ? 'active' : '' }}">
+            <i class="fas fa-clipboard-check text-success mr-2"></i>
+            <span>Verifikasi GIS</span>
+            @if($pendingGisCount > 0)
+                <span class="badge badge-warning text-dark font-weight-bold ml-1.5" style="font-size:10px; border-radius:10px; padding:2px 6px;">{{ $pendingGisCount }}</span>
+            @endif
+        </a>
+        @endif
+
+        {{-- 5. LOG AKTIVITAS (Super Admin) --}}
         @if(Auth::check() && Auth::user()->role === 'superadmin')
         <a href="{{ route('activity-logs.index') }}"
            class="bws-subnav-link {{ request()->is('activity-logs*') ? 'active' : '' }}">
@@ -324,5 +363,79 @@
             initSubnavDropdowns();
         }
     })();
+
+    // Script Notifikasi Sistem In-App
+    function loadNotifications() {
+        var container = document.getElementById('notifListContainer');
+        var badge = document.getElementById('notifCountBadge');
+        if (!container) return;
+
+        fetch('{{ route("notifications.get") }}')
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                if (badge) {
+                    if (data.unread > 0) {
+                        badge.textContent = data.unread;
+                        badge.style.display = 'inline-block';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                }
+
+                if (!data.notifications || data.notifications.length === 0) {
+                    container.innerHTML = '<div class="text-center py-4 text-muted small"><i class="fas fa-check-circle text-success mb-2 d-block fa-2x"></i>Belum ada notifikasi baru.</div>';
+                    return;
+                }
+
+                var html = '';
+                data.notifications.forEach(function(n) {
+                    var bg = n.is_read ? '' : 'background: #f0fdf4;';
+                    var icon = 'fa-info-circle text-primary';
+                    if (n.type === 'success') icon = 'fa-check-circle text-success';
+                    else if (n.type === 'warning') icon = 'fa-exclamation-triangle text-warning';
+                    else if (n.type === 'danger') icon = 'fa-times-circle text-danger';
+
+                    html += '<div class="p-2.5 border-bottom d-flex align-items-start" style="' + bg + ' font-size: 12px; gap: 10px;">' +
+                        '<div class="mt-1"><i class="fas ' + icon + '"></i></div>' +
+                        '<div class="flex-grow-1">' +
+                            '<div class="font-weight-bold text-dark">' + n.title + '</div>' +
+                            '<div class="text-muted" style="line-height: 1.3;">' + n.message + '</div>' +
+                            (n.link ? '<a href="' + n.link + '" class="small font-weight-bold text-primary mt-1 d-inline-block">Buka &rarr;</a>' : '') +
+                        '</div>' +
+                    '</div>';
+                });
+                container.innerHTML = html;
+            })
+            .catch(function(err) {
+                container.innerHTML = '<div class="text-center py-3 text-danger small">Gagal memuat notifikasi.</div>';
+            });
+    }
+
+    function markAllNotificationsRead() {
+        fetch('{{ route("notifications.readAll") }}', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type': 'application/json'
+            }
+        }).then(function() {
+            var badge = document.getElementById('notifCountBadge');
+            if (badge) badge.style.display = 'none';
+            loadNotifications();
+        });
+    }
+
+    // Auto-fetch unread count saat halaman pertama dimuat
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch('{{ route("notifications.get") }}')
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                var badge = document.getElementById('notifCountBadge');
+                if (badge && data.unread > 0) {
+                    badge.textContent = data.unread;
+                    badge.style.display = 'inline-block';
+                }
+            }).catch(function() {});
+    });
 </script>
 @endif

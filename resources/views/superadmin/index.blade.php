@@ -17,6 +17,15 @@
     </div>
 
     <div class="d-flex align-items-center">
+        {{-- Tombol Tong Sampah Pengguna --}}
+        <a href="{{ route('users.trash') }}" class="btn btn-outline-secondary shadow-sm mr-2 font-weight-bold" title="Lihat akun yang terhapus sementara">
+            <i class="fas fa-trash-alt mr-1 text-danger"></i> Tong Sampah
+            @php $trashedCount = \App\Models\User::onlyTrashed()->count(); @endphp
+            @if($trashedCount > 0)
+                <span class="badge badge-danger ml-1">{{ $trashedCount }}</span>
+            @endif
+        </a>
+
         <button type="button" class="btn btn-primary shadow-sm mr-2" data-toggle="modal" data-target="#modalCreateUser">
             <i class="fas fa-user-plus mr-1"></i> Tambah Pengguna
         </button>

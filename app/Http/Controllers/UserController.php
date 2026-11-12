@@ -146,11 +146,10 @@ class UserController extends Controller
     }
 
     /**
-     * Menghapus pengguna
+     * Menghapus pengguna (Soft Delete)
      */
     public function destroy(User $user)
     {
-
         // Jangan izinkan superadmin menghapus akunnya sendiri
         if (Auth::id() === $user->id) {
             return back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
@@ -158,11 +157,60 @@ class UserController extends Controller
 
         $userName = $user->name;
         $userRole = $user->role;
-        $user->delete();
+        $user->delete(); // Otomatis mengisi deleted_at karena SoftDeletes
 
-        ActivityLog::record('DELETE_USER', "Menghapus akun user '{$userName}' (Role: {$userRole})");
+        ActivityLog::record('SOFT_DELETE_USER', "Memindahkan akun user '{$userName}' (Role: {$userRole}) ke Tong Sampah");
 
-        return redirect()->route('users.index')->with('success', "User '{$userName}' berhasil dihapus.");
+        return redirect()->route('users.index')->with('success', "User '{$userName}' berhasil dipindahkan ke Tong Sampah.");
+    }
+
+    /**
+     * Halaman Tong Sampah Pengguna (Hanya Super Admin)
+     */
+    public function trash()
+    {
+        if (Auth::user()->role !== 'superadmin') {
+            abort(403, 'Akses terbatas untuk Super Admin.');
+        }
+
+        $trashedUsers = User::onlyTrashed()->latest('deleted_at')->get();
+        return view('superadmin.trash', compact('trashedUsers'));
+    }
+
+    /**
+     * Memulihkan akun pengguna dari Tong Sampah
+     */
+    public function restore($id)
+    {
+        if (Auth::user()->role !== 'superadmin') {
+            abort(403, 'Akses terbatas untuk Super Admin.');
+        }
+
+        $user = User::onlyTrashed()->findOrFail($id);
+        $user->restore();
+
+        ActivityLog::record('RESTORE_USER', "Memulihkan kembali akun user '{$user->name}' ({$user->email})");
+
+        return redirect()->route('users.trash')->with('success', "Akun '{$user->name}' berhasil dipulihkan.");
+    }
+
+    /**
+     * Menghapus akun pengguna secara permanen
+     */
+    public function forceDelete($id)
+    {
+        if (Auth::user()->role !== 'superadmin') {
+            abort(403, 'Akses terbatas untuk Super Admin.');
+        }
+
+        $user = User::onlyTrashed()->findOrFail($id);
+        $name = $user->name;
+        $email = $user->email;
+        $user->forceDelete();
+
+        ActivityLog::record('FORCE_DELETE_USER', "Menghapus akun user '{$name}' ({$email}) secara permanen");
+
+        return redirect()->route('users.trash')->with('success', "Akun '{$name}' telah dihapus secara permanen dari basis data.");
     }
 
     /**

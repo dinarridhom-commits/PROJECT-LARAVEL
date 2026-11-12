@@ -6,6 +6,8 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegistrasiController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\GisLayerController;
+use App\Http\Controllers\NotificationController;
 
 /* ============================================================
    1. ROUTE UTAMA (Publik & Auth)
@@ -55,6 +57,11 @@ Route::middleware('auth')->group(function () {
     // Edit Profil Pengguna (Nama, Email, Password) - untuk semua pengguna yang login
     Route::put('/profile', [UserController::class, 'updateProfile'])->name('profile.update');
 
+    // Notifikasi In-App
+    Route::get('/notifications', [NotificationController::class, 'getNotifications'])->name('notifications.get');
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.readAll');
+
     /* --- HAK AKSES: ADMIN & SUPER ADMIN ---
        Memiliki akses untuk upload GeoJSON, hapus file GIS, download data, dan edit data */
     Route::middleware('role:superadmin,admin')->group(function () {
@@ -75,12 +82,27 @@ Route::middleware('auth')->group(function () {
     });
 
     /* --- HAK AKSES KHUSUS: SUPER ADMIN ---
-       Mengatur manajemen pengguna dan log aktivitas sistem */
+       Mengatur manajemen pengguna, verifikasi file GIS, tong sampah, dan log aktivitas sistem */
     Route::middleware('role:superadmin')->group(function () {
+        // Tong Sampah & Pemulihan Akun Pengguna (Soft Delete User)
+        Route::get('/users/trash', [UserController::class, 'trash'])->name('users.trash');
+        Route::put('/users/{id}/restore', [UserController::class, 'restore'])->name('users.restore');
+        Route::delete('/users/{id}/force-delete', [UserController::class, 'forceDelete'])->name('users.forceDelete');
+
         // Pembuatan akun staf/admin, ubah role/password, & hapus akun pengguna
         Route::post('/users', [UserController::class, 'store'])->name('users.store');
         Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
         Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+
+        // Verifikasi File GIS Unggahan Admin (Approval Workflow)
+        Route::get('/gis/verification', [GisLayerController::class, 'verificationIndex'])->name('gis.verification');
+        Route::post('/gis/verification/{id}/approve', [GisLayerController::class, 'approve'])->name('gis.approve');
+        Route::post('/gis/verification/{id}/reject', [GisLayerController::class, 'reject'])->name('gis.reject');
+
+        // Tong Sampah & Pemulihan Berkas GIS (Soft Delete File GIS)
+        Route::get('/gis/trash', [GisLayerController::class, 'trash'])->name('gis.trash');
+        Route::put('/gis/trash/{id}/restore', [GisLayerController::class, 'restore'])->name('gis.restore');
+        Route::delete('/gis/trash/{id}/force-delete', [GisLayerController::class, 'forceDelete'])->name('gis.forceDelete');
 
         // Log Aktivitas Sistem
         Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
