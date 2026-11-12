@@ -44,7 +44,7 @@ body {
     background-color: var(--bws-primary);
     position: sticky;
     top: 0;
-    z-index: 1030;
+    z-index: 1060;
     box-shadow: 0 4px 14px rgba(15, 23, 42, 0.12);
 }
 .bws-navbar-inner {
@@ -87,13 +87,249 @@ body {
 }
 .bws-header-btn:hover { background: rgba(255,255,255,0.16); color: #ffffff; }
 
-/* Badge notifikasi jumlah file GIS */
+/* Badge notifikasi jumlah file GIS / unread */
 .bws-badge-pill {
-    position: absolute; top: 2px; right: 2px;
+    position: absolute; top: 0px; right: 0px;
     background: #ef4444; color: #ffffff;
     font-size: 10px; font-weight: 700;
-    padding: 2px 6px; border-radius: 10px; line-height: 1;
-    border: 1.5px solid var(--bws-primary);
+    min-width: 18px; height: 18px;
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 0 4px; border-radius: 10px; line-height: 1;
+    border: 2px solid var(--bws-primary);
+    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.4);
+}
+
+/* ============================================================
+   NOTIFIKASI DROPDOWN PANEL MODERN
+   ============================================================ */
+.bws-notif-menu {
+    width: 390px;
+    max-width: calc(100vw - 24px);
+    border-radius: 14px;
+    box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(15, 23, 42, 0.08);
+    border: none;
+    padding: 0;
+    margin-top: 10px !important;
+    overflow: hidden;
+    z-index: 2050 !important;
+    animation: bwsNotifFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes bwsNotifFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.bws-notif-header {
+    padding: 13px 18px;
+    background: #ffffff;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.bws-notif-header-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+}
+
+.bws-notif-header-badge {
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 12px;
+    border: 1px solid #bfdbfe;
+}
+
+.bws-notif-btn-read {
+    background: transparent;
+    border: none;
+    color: #2563eb;
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.bws-notif-btn-read:hover {
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+.bws-notif-list {
+    max-height: 380px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.bws-notif-list::-webkit-scrollbar {
+    width: 5px;
+}
+.bws-notif-list::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+.bws-notif-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 13px 18px;
+    border-bottom: 1px solid #f1f5f9;
+    background: #ffffff;
+    transition: all 0.15s ease;
+    position: relative;
+    text-decoration: none !important;
+}
+.bws-notif-item:hover {
+    background: #f8fafc;
+    text-decoration: none !important;
+}
+.bws-notif-item.unread {
+    background: #f0f7ff;
+}
+.bws-notif-item.unread:hover {
+    background: #e5f0fe;
+}
+
+.bws-notif-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+.bws-notif-icon.danger {
+    background: #fee2e2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+}
+.bws-notif-icon.success {
+    background: #dcfce7;
+    color: #16a34a;
+    border: 1px solid #bbf7d0;
+}
+.bws-notif-icon.warning {
+    background: #fef3c7;
+    color: #d97706;
+    border: 1px solid #fde68a;
+}
+.bws-notif-icon.info {
+    background: #e0f2fe;
+    color: #0284c7;
+    border: 1px solid #bae6fd;
+}
+
+.bws-notif-content {
+    flex: 1;
+    min-width: 0;
+}
+.bws-notif-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 3px;
+}
+.bws-notif-title {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1.3;
+}
+.bws-notif-time {
+    font-size: 11px;
+    color: #94a3b8;
+    white-space: nowrap;
+    font-weight: 500;
+}
+.bws-notif-desc {
+    font-size: 12px;
+    color: #475569;
+    line-height: 1.45;
+    margin-bottom: 0;
+    word-break: break-word;
+}
+.bws-notif-note {
+    margin-top: 6px;
+    padding: 6px 10px;
+    background: rgba(239, 68, 68, 0.08);
+    border-left: 3px solid #ef4444;
+    border-radius: 4px;
+    font-size: 11.5px;
+    color: #b91c1c;
+    font-style: italic;
+    line-height: 1.35;
+}
+.bws-notif-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #2563eb;
+    background: #ffffff;
+    border: 1px solid #bfdbfe;
+    padding: 3px 10px;
+    border-radius: 6px;
+    text-decoration: none !important;
+    transition: all 0.15s ease;
+}
+.bws-notif-action-btn:hover {
+    background: #2563eb;
+    color: #ffffff;
+    border-color: #2563eb;
+    text-decoration: none !important;
+}
+.bws-notif-unread-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #2563eb;
+    display: inline-block;
+    flex-shrink: 0;
+    margin-left: 6px;
+}
+
+.bws-notif-footer {
+    padding: 10px 16px;
+    background: #f8fafc;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.bws-notif-footer-link {
+    font-size: 11.5px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+.bws-notif-footer-link:hover {
+    text-decoration: underline;
 }
 
 /* Profile Pill */
@@ -159,7 +395,7 @@ body {
     border-bottom: 1px solid #e2e8f0;
     box-shadow: 0 2px 5px rgba(15, 23, 42, 0.05);
     position: relative;
-    z-index: 1050;
+    z-index: 1040;
     overflow: visible !important;
 }
 .bws-subnav-inner {

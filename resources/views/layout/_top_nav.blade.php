@@ -44,23 +44,46 @@
             @endauth
 
             @auth
-            {{-- Lonceng Notifikasi Sistem --}}
+            {{-- Lonceng Notifikasi Sistem Modern --}}
             <div class="dropdown d-inline-block">
                 <button type="button" class="bws-header-btn position-relative" id="notifBellDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Pemberitahuan &amp; Notifikasi Sistem" onclick="loadNotifications()">
                     <i class="fas fa-bell"></i>
-                    <span class="bws-badge-pill" id="notifCountBadge" style="display:none; background:#ef4444; border:1.5px solid #ffffff;">0</span>
+                    <span class="bws-badge-pill" id="notifCountBadge" style="display:none;">0</span>
                 </button>
-                <div class="dropdown-menu dropdown-menu-right shadow-lg py-0 border-0" aria-labelledby="notifBellDropdown" style="width: 330px; border-radius: 12px; overflow: hidden; z-index: 1050;">
-                    <div class="p-3 bg-primary text-white d-flex align-items-center justify-content-between">
-                        <span class="font-weight-bold" style="font-size: 13px;"><i class="fas fa-bell mr-1.5"></i> Notifikasi Sistem</span>
-                        <button type="button" class="btn btn-xs btn-outline-light text-white" onclick="markAllNotificationsRead()" style="font-size: 10px; border-radius: 4px;">Tandai Dibaca</button>
+                <div class="dropdown-menu dropdown-menu-right bws-notif-menu" aria-labelledby="notifBellDropdown">
+                    <div class="bws-notif-header">
+                        <div class="bws-notif-header-title">
+                            <i class="fas fa-bell text-primary"></i>
+                            <span>Notifikasi</span>
+                            <span class="bws-notif-header-badge" id="notifHeaderBadge" style="display:none;">0 Baru</span>
+                        </div>
+                        <button type="button" class="bws-notif-btn-read" onclick="markAllNotificationsRead()" title="Tandai semua telah dibaca">
+                            <i class="fas fa-check-double"></i>
+                            <span>Tandai Dibaca</span>
+                        </button>
                     </div>
-                    <div id="notifListContainer" style="max-height: 280px; overflow-y: auto;">
-                        <div class="text-center py-4 text-muted small"><i class="fas fa-spinner fa-spin mr-1"></i> Memuat notifikasi...</div>
+
+                    <div id="notifListContainer" class="bws-notif-list">
+                        <div class="text-center py-5 text-muted small">
+                            <i class="fas fa-spinner fa-spin mr-1 fa-lg text-primary"></i>
+                            <div class="mt-2">Memuat notifikasi...</div>
+                        </div>
                     </div>
+
                     @if(Auth::user()->role === 'superadmin')
-                    <div class="p-2 bg-light text-center border-top">
-                        <a href="{{ route('gis.verification') }}" class="small font-weight-bold text-primary">Lihat Antrean Verifikasi &rarr;</a>
+                    <div class="bws-notif-footer">
+                        <a href="{{ route('gis.verification') }}" class="bws-notif-footer-link text-primary">
+                            <i class="fas fa-tasks mr-1"></i> Antrean Verifikasi
+                        </a>
+                        <a href="{{ route('gis.trash') }}" class="bws-notif-footer-link text-muted">
+                            <i class="fas fa-trash-alt mr-1"></i> Tong Sampah GIS
+                        </a>
+                    </div>
+                    @else
+                    <div class="bws-notif-footer justify-content-center">
+                        <span class="text-muted" style="font-size: 11px;">
+                            <i class="fas fa-shield-alt mr-1 text-primary"></i> Notifikasi Terpusat WebGIS BWS Kalimantan I
+                        </span>
                     </div>
                     @endif
                 </div>
@@ -364,51 +387,124 @@
         }
     })();
 
-    // Script Notifikasi Sistem In-App
+    // Script Notifikasi Sistem In-App Modern
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function updateBadgeUI(count) {
+        var badge = document.getElementById('notifCountBadge');
+        var headerBadge = document.getElementById('notifHeaderBadge');
+        if (badge) {
+            if (count > 0) {
+                badge.textContent = count > 99 ? '99+' : count;
+                badge.style.display = 'inline-flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+        if (headerBadge) {
+            if (count > 0) {
+                headerBadge.textContent = count + ' Baru';
+                headerBadge.style.display = 'inline-block';
+            } else {
+                headerBadge.style.display = 'none';
+            }
+        }
+    }
+
     function loadNotifications() {
         var container = document.getElementById('notifListContainer');
-        var badge = document.getElementById('notifCountBadge');
         if (!container) return;
 
         fetch('{{ route("notifications.get") }}')
             .then(function(res) { return res.json(); })
             .then(function(data) {
-                if (badge) {
-                    if (data.unread > 0) {
-                        badge.textContent = data.unread;
-                        badge.style.display = 'inline-block';
-                    } else {
-                        badge.style.display = 'none';
-                    }
-                }
+                updateBadgeUI(data.unread || 0);
 
                 if (!data.notifications || data.notifications.length === 0) {
-                    container.innerHTML = '<div class="text-center py-4 text-muted small"><i class="fas fa-check-circle text-success mb-2 d-block fa-2x"></i>Belum ada notifikasi baru.</div>';
+                    container.innerHTML = 
+                        '<div class="text-center py-5 px-3">' +
+                            '<div style="width: 48px; height: 48px; border-radius: 50%; background: #f1f5f9; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 10px; color: #94a3b8; font-size: 20px;">' +
+                                '<i class="fas fa-bell-slash"></i>' +
+                            '</div>' +
+                            '<div class="font-weight-bold text-dark" style="font-size: 13px;">Belum Ada Notifikasi</div>' +
+                            '<div class="text-muted small mt-1" style="font-size: 11.5px; line-height: 1.4;">Semua pemberitahuan aktivitas berkas GIS akan tampil di sini.</div>' +
+                        '</div>';
                     return;
                 }
 
                 var html = '';
                 data.notifications.forEach(function(n) {
-                    var bg = n.is_read ? '' : 'background: #f0fdf4;';
-                    var icon = 'fa-info-circle text-primary';
-                    if (n.type === 'success') icon = 'fa-check-circle text-success';
-                    else if (n.type === 'warning') icon = 'fa-exclamation-triangle text-warning';
-                    else if (n.type === 'danger') icon = 'fa-times-circle text-danger';
+                    var isUnread = !n.is_read;
+                    var itemClass = 'bws-notif-item' + (isUnread ? ' unread' : '');
+                    
+                    var iconClass = 'info';
+                    var iconFa = 'fa-info-circle';
+                    if (n.type === 'success') {
+                        iconClass = 'success';
+                        iconFa = 'fa-check-circle';
+                    } else if (n.type === 'warning') {
+                        iconClass = 'warning';
+                        iconFa = 'fa-exclamation-triangle';
+                    } else if (n.type === 'danger') {
+                        iconClass = 'danger';
+                        iconFa = 'fa-times-circle';
+                    }
 
-                    html += '<div class="p-2.5 border-bottom d-flex align-items-start" style="' + bg + ' font-size: 12px; gap: 10px;">' +
-                        '<div class="mt-1"><i class="fas ' + icon + '"></i></div>' +
-                        '<div class="flex-grow-1">' +
-                            '<div class="font-weight-bold text-dark">' + n.title + '</div>' +
-                            '<div class="text-muted" style="line-height: 1.3;">' + n.message + '</div>' +
-                            (n.link ? '<a href="' + n.link + '" class="small font-weight-bold text-primary mt-1 d-inline-block">Buka &rarr;</a>' : '') +
+                    // Format message & parse "Catatan:" if present
+                    var rawMsg = n.message || '';
+                    var mainMsg = rawMsg;
+                    var noteHtml = '';
+                    var notePos = rawMsg.indexOf('Catatan:');
+                    if (notePos !== -1) {
+                        mainMsg = rawMsg.substring(0, notePos).trim();
+                        var noteContent = rawMsg.substring(notePos).trim();
+                        noteHtml = '<div class="bws-notif-note"><i class="fas fa-comment-dots mr-1"></i>' + escapeHtml(noteContent) + '</div>';
+                    }
+
+                    var timeDisplay = n.time_ago || n.time_formatted || '';
+
+                    html += '<div class="' + itemClass + '" onclick="markSingleRead(' + n.id + ')" style="cursor: pointer;">' +
+                        '<div class="bws-notif-icon ' + iconClass + '">' +
+                            '<i class="fas ' + iconFa + '"></i>' +
                         '</div>' +
+                        '<div class="bws-notif-content">' +
+                            '<div class="bws-notif-top-row">' +
+                                '<span class="bws-notif-title">' + escapeHtml(n.title) + '</span>' +
+                                '<span class="bws-notif-time">' + escapeHtml(timeDisplay) + '</span>' +
+                            '</div>' +
+                            '<p class="bws-notif-desc">' + escapeHtml(mainMsg) + '</p>' +
+                            noteHtml +
+                            (n.link ? '<a href="' + n.link + '" class="bws-notif-action-btn" onclick="event.stopPropagation();"><i class="fas fa-arrow-right"></i> Buka Berkas</a>' : '') +
+                        '</div>' +
+                        (isUnread ? '<span class="bws-notif-unread-dot" title="Belum dibaca"></span>' : '') +
                     '</div>';
                 });
+
                 container.innerHTML = html;
             })
             .catch(function(err) {
-                container.innerHTML = '<div class="text-center py-3 text-danger small">Gagal memuat notifikasi.</div>';
+                container.innerHTML = '<div class="text-center py-4 text-danger small"><i class="fas fa-exclamation-circle mr-1"></i> Gagal memuat notifikasi.</div>';
             });
+    }
+
+    function markSingleRead(id) {
+        fetch('{{ url("notifications/read") }}/' + id, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type': 'application/json'
+            }
+        }).then(function() {
+            loadNotifications();
+        }).catch(function() {});
     }
 
     function markAllNotificationsRead() {
@@ -419,8 +515,7 @@
                 'Content-Type': 'application/json'
             }
         }).then(function() {
-            var badge = document.getElementById('notifCountBadge');
-            if (badge) badge.style.display = 'none';
+            updateBadgeUI(0);
             loadNotifications();
         });
     }
@@ -430,11 +525,7 @@
         fetch('{{ route("notifications.get") }}')
             .then(function(res) { return res.json(); })
             .then(function(data) {
-                var badge = document.getElementById('notifCountBadge');
-                if (badge && data.unread > 0) {
-                    badge.textContent = data.unread;
-                    badge.style.display = 'inline-block';
-                }
+                updateBadgeUI(data.unread || 0);
             }).catch(function() {});
     });
 </script>

@@ -33,7 +33,18 @@ class NotificationController extends Controller
         }
 
         $unreadCount = (clone $query)->where('is_read', false)->count();
-        $notifications = $query->latest()->take(10)->get();
+        $notifications = $query->latest()->take(15)->get()->map(function($n) {
+            return [
+                'id'             => $n->id,
+                'type'           => $n->type,
+                'title'          => $n->title,
+                'message'        => $n->message,
+                'link'           => $n->link,
+                'is_read'        => (bool) $n->is_read,
+                'time_ago'       => $n->created_at ? $n->created_at->diffForHumans() : '',
+                'time_formatted' => $n->created_at ? $n->created_at->format('d M Y, H:i') : '',
+            ];
+        });
 
         return response()->json([
             'unread'        => $unreadCount,
