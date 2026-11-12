@@ -27,6 +27,13 @@
                     <i class="fas fa-users-cog mr-1"></i> Kelola Pengguna
                 </a>
             </div>
+
+            {{-- Status Command Center Real-Time --}}
+            <div class="dash-hero-status-bar d-flex flex-wrap align-items-center mt-3 pt-2" style="border-top: 1px solid rgba(255,255,255,0.18); gap: 14px; font-size: 11.5px; color: rgba(255,255,255,0.92);">
+                <span><i class="fas fa-circle text-success mr-1.5" style="font-size: 8px;"></i> Status: <b>Sistem Terhubung &amp; Aktif</b></span>
+                <span><i class="fas fa-calendar-check mr-1.5 text-warning"></i> Sinkronisasi: <b>{{ date('d M Y') }}</b></span>
+                <span><i class="fas fa-map-marked-alt mr-1.5 text-info"></i> Wilayah Kerja: <b>14 Kab/Kota Kalbar</b></span>
+            </div>
         </div>
         <div class="dash-hero-illustration d-none d-lg-flex">
             <div class="dash-hero-circle">
@@ -102,7 +109,8 @@
                                 38.450 <span class="text-muted font-weight-normal" style="font-size: 13px;">Hektare (Ha)</span>
                             </div>
                             <small class="text-muted mt-1 d-block">
-                                <i class="fas fa-chart-area text-warning mr-1"></i> Sebaran Irigasi Kalbar
+                                <span class="badge badge-warning text-dark px-1.5 mr-1 font-weight-bold" style="background:#fef3c7; color:#92400e;">Rekap BWS</span>
+                                <span class="badge badge-light border px-1.5" style="font-size:10px;">Kalimantan Barat</span>
                             </small>
                         </div>
                         <div class="dash-stat-icon bg-warning-soft text-warning">
@@ -170,6 +178,11 @@
                 <div class="card-body p-3 d-flex flex-column justify-content-center">
                     <div style="position: relative; height: 260px; width: 100%;">
                         <canvas id="chartKategori"></canvas>
+                        {{-- Overlay Center Text di Tengah Donut Chart --}}
+                        <div class="chart-donut-center" id="donutCenterInfo">
+                            <div class="donut-center-number" id="donutCenterTotal">{{ $totalGisFiles }}</div>
+                            <div class="donut-center-label">Total Layer</div>
+                        </div>
                     </div>
                     <div class="mt-3 pt-2 border-top d-flex flex-wrap justify-content-center" id="legendKategoriPills" style="gap: 8px 14px; font-size: 11.5px;">
                         <span><i class="fas fa-circle mr-1" style="color: #27ae60;"></i> Baku (<b id="lblBaku">{{ $categoryCounts['baku'] }}</b>)</span>
@@ -508,6 +521,32 @@
     }
     .mini-legend-item { display: inline-flex; align-items: center; gap: 5px; color: #334155; }
     .mini-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+
+    /* Center Text di Lubang Tengah Donut Chart */
+    .chart-donut-center {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        pointer-events: none;
+        user-select: none;
+    }
+    .donut-center-number {
+        font-size: 28px;
+        font-weight: 800;
+        color: #0f172a;
+        line-height: 1;
+        letter-spacing: -0.5px;
+    }
+    .donut-center-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        margin-top: 3px;
+    }
 </style>
 
 {{-- ============================================================
@@ -577,6 +616,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 ];
                 doughnutChart.update();
 
+                // Update Total di Tengah Lubang Donat
+                var sum = (dataObj.baku || 0) + (dataObj.fungsional || 0) + (dataObj.potensial || 0) + (dataObj.saluran || 0) + (dataObj.bangunan || 0) + (dataObj.custom || 0);
+                var cntCenter = document.getElementById('donutCenterTotal');
+                if (cntCenter) cntCenter.textContent = sum;
+
                 var b = document.getElementById('lblBaku');
                 var f = document.getElementById('lblFungsional');
                 var p = document.getElementById('lblPotensial');
@@ -591,7 +635,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // 2. BAR CHART: Sebaran per Wilayah / Kabupaten
+    // 2. BAR CHART: Sebaran per Wilayah / Kabupaten (Warna Berbeda Per Kabupaten)
     var ctxWil = document.getElementById('chartWilayah');
     if (ctxWil) {
         new Chart(ctxWil, {
@@ -614,16 +658,22 @@ document.addEventListener('DOMContentLoaded', function() {
                         {{ $wilayahCounts['Kab. Bengkayang & Lainnya'] }}
                     ],
                     backgroundColor: [
-                        'rgba(39, 174, 96, 0.85)',
-                        'rgba(41, 128, 185, 0.85)',
-                        'rgba(230, 126, 34, 0.85)',
-                        'rgba(9, 132, 227, 0.85)',
-                        'rgba(142, 68, 173, 0.85)'
+                        '#10b981', // Sambas (Emerald Green)
+                        '#3b82f6', // Ketapang (Royal Blue)
+                        '#f59e0b', // Kubu Raya (Amber Gold)
+                        '#06b6d4', // Mempawah & Pontianak (Cyan)
+                        '#8b5cf6'  // Bengkayang & Lainnya (Violet)
                     ],
-                    borderColor: ['#27ae60', '#2980b9', '#e67e22', '#0984e3', '#8e44ad'],
+                    borderColor: [
+                        '#059669',
+                        '#2563eb',
+                        '#d97706',
+                        '#0891b2',
+                        '#7c3aed'
+                    ],
                     borderWidth: 1.5,
-                    borderRadius: 6,
-                    maxBarThickness: 42
+                    borderRadius: 8,
+                    maxBarThickness: 46
                 }]
             },
             options: {
