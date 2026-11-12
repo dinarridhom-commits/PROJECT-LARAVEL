@@ -166,10 +166,6 @@
                     </div>
                 </div>
             </form>
-
-            <button type="button" class="btn btn-success btn-sm font-weight-bold shadow-sm" data-toggle="modal" data-target="#modalCreateUser">
-                <i class="fas fa-plus mr-1"></i> Buat Akun
-            </button>
         </div>
 
     </div>
