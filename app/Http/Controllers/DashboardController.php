@@ -103,27 +103,10 @@ class DashboardController extends Controller
         $adminCount      = \App\Models\User::where('role', 'admin')->count();
         $recentLogs      = ActivityLog::latest()->take(6)->get();
 
-        // Titik-titik representatif untuk widget Mini-Map Preview di Dashboard
-        $miniMapPoints = [
-            ['name' => 'DIR Pemangkat Komplek', 'kab' => 'Kab. Sambas', 'lat' => 1.1833, 'lng' => 108.9667, 'cat' => 'DIR Baku', 'color' => '#27ae60'],
-            ['name' => 'DIR Sebangkau', 'kab' => 'Kab. Sambas', 'lat' => 1.2500, 'lng' => 109.0500, 'cat' => 'DIR Baku', 'color' => '#27ae60'],
-            ['name' => 'DIR Sebubus', 'kab' => 'Kab. Sambas', 'lat' => 1.4800, 'lng' => 109.2800, 'cat' => 'DIR Baku', 'color' => '#27ae60'],
-            ['name' => 'DIR Semelagi', 'kab' => 'Kab. Sambas', 'lat' => 1.3500, 'lng' => 109.1500, 'cat' => 'DIR Baku', 'color' => '#27ae60'],
-            ['name' => 'DIR Sarang Burung', 'kab' => 'Kab. Sambas', 'lat' => 1.4000, 'lng' => 109.2000, 'cat' => 'DIR Baku', 'color' => '#27ae60'],
-            ['name' => 'DIR Pematang Gadung I & II', 'kab' => 'Kab. Ketapang', 'lat' => -1.8500, 'lng' => 109.9800, 'cat' => 'DIR Baku', 'color' => '#27ae60'],
-            ['name' => 'DIR Sungai Kinjil', 'kab' => 'Kab. Ketapang', 'lat' => -1.7800, 'lng' => 110.0200, 'cat' => 'DIR Baku', 'color' => '#27ae60'],
-            ['name' => 'DIR Kubu Komplek', 'kab' => 'Kab. Kubu Raya', 'lat' => -0.5200, 'lng' => 109.3300, 'cat' => 'DIR Baku', 'color' => '#27ae60'],
-            ['name' => 'Jaringan Saluran Irigasi KK', 'kab' => 'Kab. Kubu Raya', 'lat' => -0.4500, 'lng' => 109.4000, 'cat' => 'Jaringan Saluran', 'color' => '#0984e3'],
-            ['name' => 'Bangunan Air PMK', 'kab' => 'Kab. Sambas', 'lat' => 1.1600, 'lng' => 108.9800, 'cat' => 'Bangunan Air', 'color' => '#d63031'],
-            ['name' => 'DIR Potensial Teluk Bayur', 'kab' => 'Kab. Kubu Raya', 'lat' => -0.3800, 'lng' => 109.2500, 'cat' => 'DIR Potensial', 'color' => '#e67e22'],
-            ['name' => 'DIR Fungsional Kakap', 'kab' => 'Kab. Kubu Raya', 'lat' => -0.0800, 'lng' => 109.1800, 'cat' => 'DIR Fungsional', 'color' => '#2980b9'],
-        ];
-
         return view('dashboard.index', compact(
             'categoryCounts',
             'wilayahCounts',
             'wilayahCategoryData',
-            'miniMapPoints',
             'totalGisFiles',
             'totalUsers',
             'superAdminCount',

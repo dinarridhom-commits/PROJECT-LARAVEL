@@ -220,42 +220,6 @@
     </div>
 
     {{-- ============================================================
-         3.1 WIDGET MINI-MAP PREVIEW KALIMANTAN BARAT (LIVE PREVIEW)
-         ============================================================ --}}
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm" style="border-radius: 14px; overflow: hidden;">
-                <div class="card-header bg-white py-3 d-flex flex-wrap align-items-center justify-content-between" style="border-bottom: 1px solid #f1f5f9; gap: 8px;">
-                    <div>
-                        <h6 class="m-0 font-weight-bold text-dark">
-                            <i class="fas fa-map-marked-alt text-primary mr-2"></i>Pratinjau Sebaran Spasial (Live Mini-Map)
-                        </h6>
-                        <small class="text-muted">Peta sebaran titik Daerah Irigasi &amp; Bangunan Air di Kalimantan Barat</small>
-                    </div>
-                    <div class="d-flex align-items-center" style="gap: 8px;">
-                        <span class="badge badge-light border text-muted px-2 py-1" style="font-size: 11px;">
-                            <i class="fas fa-circle text-success mr-1"></i> Sebaran Aktif
-                        </span>
-                        <a href="{{ route('peta') }}" class="btn btn-sm btn-primary font-weight-bold px-3 py-1.5 shadow-sm" style="border-radius: 6px; font-size: 12px;">
-                            <i class="fas fa-expand-arrows-alt mr-1"></i> Buka Peta Interaktif Lengkap
-                        </a>
-                    </div>
-                </div>
-                <div class="card-body p-0 position-relative">
-                    <div id="miniDashboardMap" style="height: 320px; width: 100%; background: #f8fafc;"></div>
-                    <div class="mini-map-legend-overlay">
-                        <span class="mini-legend-item"><span class="mini-dot" style="background:#27ae60;"></span> DIR Baku</span>
-                        <span class="mini-legend-item"><span class="mini-dot" style="background:#2980b9;"></span> Fungsional</span>
-                        <span class="mini-legend-item"><span class="mini-dot" style="background:#e67e22;"></span> Potensial</span>
-                        <span class="mini-legend-item"><span class="mini-dot" style="background:#0984e3;"></span> Saluran</span>
-                        <span class="mini-legend-item"><span class="mini-dot" style="background:#d63031;"></span> Bangunan Air</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- ============================================================
          4. ROW BAWAH: DATA TERKINI & AKTIVITAS AUDIT LOG
          ============================================================ --}}
     <div class="row">
@@ -503,24 +467,6 @@
     .dash-timeline-info {
         padding-left: 6px;
     }
-    .mini-map-legend-overlay {
-        position: absolute;
-        bottom: 12px;
-        right: 12px;
-        background: rgba(255, 255, 255, 0.92);
-        backdrop-filter: blur(8px);
-        padding: 6px 12px;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.15);
-        z-index: 1000;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        font-size: 11px;
-        font-weight: 600;
-    }
-    .mini-legend-item { display: inline-flex; align-items: center; gap: 5px; color: #334155; }
-    .mini-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
 
     /* Center Text di Lubang Tengah Donut Chart */
     .chart-donut-center {
@@ -702,46 +648,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         });
-    }
-
-    // 3. MINI-MAP LEAFLET PREVIEW
-    var miniMapEl = document.getElementById('miniDashboardMap');
-    if (miniMapEl && typeof L !== 'undefined') {
-        var miniMap = L.map('miniDashboardMap', {
-            center: [-0.05, 109.8],
-            zoom: 7,
-            zoomControl: true,
-            scrollWheelZoom: false
-        });
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap contributors',
-            maxZoom: 18
-        }).addTo(miniMap);
-
-        var points = @json($miniMapPoints);
-        if (points && points.length > 0) {
-            points.forEach(function(pt) {
-                var marker = L.circleMarker([pt.lat, pt.lng], {
-                    radius: 7,
-                    fillColor: pt.color,
-                    color: '#ffffff',
-                    weight: 2,
-                    opacity: 1,
-                    fillOpacity: 0.9
-                }).addTo(miniMap);
-
-                marker.bindPopup(
-                    '<div style="font-size:12px; min-width:160px;">' +
-                    '<b style="color:#0f172a;">' + pt.name + '</b><br>' +
-                    '<span class="badge badge-light border mt-1" style="color:' + pt.color + '; font-weight:700;">' + pt.cat + '</span><br>' +
-                    '<small class="text-muted">' + pt.kab + '</small><br>' +
-                    '<a href="{{ route("peta") }}" class="btn btn-xs btn-primary text-white mt-1.5 py-0.5 px-2" style="font-size:10.5px; border-radius:4px;">' +
-                    '<i class="fas fa-search-location mr-1"></i>Buka di Peta</a>' +
-                    '</div>'
-                );
-            });
-        }
     }
 });
 </script>
