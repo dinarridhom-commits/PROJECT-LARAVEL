@@ -116,6 +116,10 @@
                     <div class="peta-hero-loc-region">Kalimantan Barat</div>
                     <div class="peta-hero-loc-sub">BWS Kalimantan I | Pontianak</div>
                 </div>
+                {{-- Tombol Ciutkan / Perluas Banner untuk Memperbesar Area Peta --}}
+                <button type="button" class="btn-toggle-hero-compact ml-2" id="btnToggleHero" onclick="toggleHeroBanner()" title="Ciutkan banner untuk memperbesar tampilan peta">
+                    <i class="fas fa-chevron-up" id="iconHeroToggle"></i>
+                </button>
             </div>
         </div>
     </section>
@@ -317,17 +321,62 @@
                     <button class="ptb-btn-reset" id="btnResetPeta" onclick="resetPetaView()" title="Reset tampilan peta">
                         <i class="fas fa-redo-alt mr-1"></i> Reset
                     </button>
+                    {{-- Tombol Mode Layar Penuh GIS (Clean Focus View) --}}
+                    <button class="ptb-btn-focus-gis" id="btnFocusGis" onclick="toggleFocusGisMode()" title="Mode Layar Penuh GIS (Sembunyikan Navbar &amp; Banner)">
+                        <i class="fas fa-expand mr-1" id="iconFocusGis"></i>
+                        <span class="d-none d-sm-inline" id="textFocusGis">Fokus</span>
+                    </button>
                 </div>
             </div>
 
 
             {{-- SECTION PETA --}}
-            <div id="section-map" class="peta-v2-map-wrap">
+            <div id="section-map" class="peta-v2-map-wrap position-relative">
                 <div class="bws-map-loading" id="map-loading">
                     <i class="fas fa-spinner fa-spin"></i>
                     <span>Memuat koordinat GIS ArcMap...</span>
                 </div>
                 <div id="map"></div>
+
+                {{-- WIDGET FLOATING LEGENDA WARNA KATEGORI --}}
+                <div class="bws-floating-legend shadow" id="bwsFloatingLegend">
+                    <div class="bws-legend-header" onclick="toggleFloatingLegend()">
+                        <div class="bws-legend-title">
+                            <i class="fas fa-layer-group text-primary mr-1.5"></i>
+                            <span>Legenda Layer</span>
+                        </div>
+                        <button type="button" class="bws-legend-toggle-btn" title="Ciutkan / Buka">
+                            <i class="fas fa-chevron-down" id="iconLegendChevron"></i>
+                        </button>
+                    </div>
+                    <div class="bws-legend-body" id="bwsLegendBody">
+                        <div class="bws-legend-row">
+                            <span class="bws-legend-badge" style="background:#27ae60;"></span>
+                            <span class="bws-legend-name">DIR Baku</span>
+                        </div>
+                        <div class="bws-legend-row">
+                            <span class="bws-legend-badge" style="background:#2980b9;"></span>
+                            <span class="bws-legend-name">DIR Fungsional</span>
+                        </div>
+                        <div class="bws-legend-row">
+                            <span class="bws-legend-badge" style="background:#e67e22;"></span>
+                            <span class="bws-legend-name">DIR Potensial</span>
+                        </div>
+                        <div class="bws-legend-row">
+                            <span class="bws-legend-line" style="background:#06b6d4;"></span>
+                            <span class="bws-legend-name">Jaringan Saluran</span>
+                        </div>
+                        <div class="bws-legend-row">
+                            <span class="bws-legend-dot" style="background:#f43f5e;"></span>
+                            <span class="bws-legend-name">Bangunan Air</span>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Tombol Melayang Keluar dari Mode Fokus (Muncul saat Mode Fokus Aktif) --}}
+                <button type="button" class="bws-btn-exit-focus shadow" id="btnExitFocusMode" onclick="toggleFocusGisMode()" title="Keluar dari Mode Fokus">
+                    <i class="fas fa-compress mr-1.5"></i> Keluar Mode Layar Penuh
+                </button>
             </div>
 
 

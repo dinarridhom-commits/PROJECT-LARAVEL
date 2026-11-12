@@ -3165,36 +3165,270 @@ body.page-peta-publik {
     box-shadow: 0 6px 16px rgba(15, 23, 42, 0.2) !important;
 }
 
-/* Radar Pulse Marker Lokasi Saya */
-.user-loc-pulsing-marker {
-    position: relative;
+/* ============================================================
+   P14. FITUR BARU: HERO COLLAPSIBLE, FLOATING LEGEND & FOCUS GIS
+   ============================================================ */
+
+/* 1. Tombol Toggle Ciutkan Banner Hero */
+.btn-toggle-hero-compact {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    color: #ffffff;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    flex-shrink: 0;
 }
-.user-loc-dot {
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: #10b981;
-    border: 2.5px solid #ffffff;
-    box-shadow: 0 0 6px rgba(0,0,0,0.3);
-    position: relative;
-    z-index: 2;
+.btn-toggle-hero-compact:hover {
+    background: rgba(255, 255, 255, 0.35);
+    transform: scale(1.1);
+    color: #ffffff;
 }
-.user-loc-pulse {
+.btn-toggle-hero-compact i {
+    transition: transform 0.3s ease;
+}
+
+/* State Hero Banner Collapsed (Mode Ramping / Layar Peta Lebih Luas) */
+.peta-hero.is-collapsed {
+    padding: 3px 0 !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.peta-hero.is-collapsed .peta-hero-desc {
+    display: none !important;
+}
+.peta-hero.is-collapsed .peta-hero-title {
+    font-size: 13px !important;
+    margin: 0 !important;
+}
+.peta-hero.is-collapsed .peta-hero-badge {
+    display: none !important;
+}
+.peta-hero.is-collapsed .peta-hero-location {
+    padding: 3px 10px !important;
+    min-width: auto !important;
+}
+.peta-hero.is-collapsed .peta-hero-loc-icon {
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 10px !important;
+}
+.peta-hero.is-collapsed .peta-hero-loc-region {
+    font-size: 11px !important;
+}
+.peta-hero.is-collapsed .peta-hero-loc-sub {
+    display: none !important;
+}
+.peta-hero.is-collapsed #iconHeroToggle {
+    transform: rotate(180deg);
+}
+
+/* Versi Halaman Publik Collapsed */
+.peta-hero-wrap.is-collapsed {
+    margin-bottom: 4px !important;
+}
+.peta-hero-wrap.is-collapsed .peta-hero-card {
+    padding: 6px 14px !important;
+    min-height: auto !important;
+}
+.peta-hero-wrap.is-collapsed .peta-hero-desc,
+.peta-hero-wrap.is-collapsed .peta-hero-badge,
+.peta-hero-wrap.is-collapsed .peta-hero-loc-sub {
+    display: none !important;
+}
+.peta-hero-wrap.is-collapsed .peta-hero-title {
+    font-size: 13px !important;
+    margin: 0 !important;
+}
+.peta-hero-wrap.is-collapsed #iconHeroToggle {
+    transform: rotate(180deg);
+}
+
+/* 2. Tombol Mode Fokus GIS di Tab Bar */
+.ptb-btn-focus-gis {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 12px;
+    border-radius: 6px;
+    border: 1px solid #bfdbfe;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-left: 4px;
+}
+.ptb-btn-focus-gis:hover {
+    background: #dbeafe;
+    color: #1e40af;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.2);
+}
+
+/* 3. Floating Legend (Legenda Warna Floating di Pojok Peta) */
+.bws-floating-legend {
     position: absolute;
-    width: 32px;
-    height: 32px;
+    bottom: 24px;
+    right: 14px;
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(203, 213, 225, 0.85);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.16);
+    z-index: 1000;
+    min-width: 175px;
+    overflow: hidden;
+    transition: all 0.25s ease;
+}
+.bws-floating-legend:hover {
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.22);
+}
+.bws-legend-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s ease;
+}
+.bws-legend-header:hover {
+    background: #f1f5f9;
+}
+.bws-legend-title {
+    font-size: 11.5px;
+    font-weight: 800;
+    color: #1e293b;
+    letter-spacing: 0.3px;
+    display: flex;
+    align-items: center;
+}
+.bws-legend-toggle-btn {
+    border: none;
+    background: transparent;
+    color: #64748b;
+    font-size: 10px;
+    padding: 0;
+    cursor: pointer;
+    transition: transform 0.25s ease;
+}
+.bws-legend-body {
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: max-height 0.3s ease, opacity 0.25s ease;
+}
+.bws-legend-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #334155;
+}
+.bws-legend-badge {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+.bws-legend-line {
+    width: 14px;
+    height: 3.5px;
+    border-radius: 2px;
+    flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+.bws-legend-dot {
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
-    background: rgba(16, 185, 129, 0.35);
-    animation: userLocPulseAnim 2s infinite ease-out;
-    z-index: 1;
+    flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
 }
-@keyframes userLocPulseAnim {
-    0% { transform: scale(0.5); opacity: 1; }
-    100% { transform: scale(1.5); opacity: 0; }
+.bws-legend-name {
+    line-height: 1.2;
 }
+
+/* State Legenda Tertutup (Collapsed) */
+.bws-floating-legend.is-collapsed .bws-legend-body {
+    display: none;
+}
+.bws-floating-legend.is-collapsed .bws-legend-header {
+    border-bottom: none;
+}
+.bws-floating-legend.is-collapsed #iconLegendChevron {
+    transform: rotate(-90deg);
+}
+
+/* 4. Tombol Keluar dari Mode Layar Penuh Fokus */
+.bws-btn-exit-focus {
+    display: none;
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1e3a8a;
+    color: #ffffff;
+    border: 2px solid #ffffff;
+    border-radius: 50px;
+    padding: 7px 18px;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    z-index: 2000;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
+}
+.bws-btn-exit-focus:hover {
+    background: #1d4ed8;
+    transform: translateX(-50%) translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    color: #ffffff;
+}
+
+/* 5. Clean GIS Mode (Full Focus GIS Viewport) */
+body.gis-focus-mode .peta-navbar,
+body.gis-focus-mode .bws-subnav,
+body.gis-focus-mode .peta-hero,
+body.gis-focus-mode .peta-hero-wrap,
+body.gis-focus-mode .peta-map-footer {
+    display: none !important;
+}
+body.gis-focus-mode .peta-v2-container {
+    height: 100vh !important;
+    max-height: 100vh !important;
+    padding: 0 !important;
+    gap: 0 !important;
+    border-radius: 0 !important;
+}
+body.gis-focus-mode .peta-v2-sidebar {
+    border-radius: 0 !important;
+    border-right: 1px solid #cbd5e1;
+    height: 100vh !important;
+}
+body.gis-focus-mode .peta-v2-main,
+body.gis-focus-mode .peta-v2-map-wrap,
+body.gis-focus-mode #map {
+    border-radius: 0 !important;
+    height: 100% !important;
+}
+body.gis-focus-mode .bws-btn-exit-focus {
+    display: inline-flex !important;
+    align-items: center;
+}
+
 
 
 

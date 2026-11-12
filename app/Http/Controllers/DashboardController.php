@@ -26,11 +26,21 @@ class DashboardController extends Controller
             'custom'     => 0,
         ];
         $wilayahCounts = [
-            'Kab. Sambas'      => 0,
-            'Kab. Ketapang'     => 0,
-            'Kab. Kubu Raya'    => 0,
+            'Kab. Sambas'                    => 0,
+            'Kab. Ketapang'                  => 0,
+            'Kab. Kubu Raya'                 => 0,
             'Kab. Mempawah & Kota Pontianak' => 0,
             'Kab. Bengkayang & Lainnya'      => 0,
+        ];
+
+        // Matriks data kategori per wilayah untuk filter interaktif Chart.js
+        $wilayahCategoryData = [
+            'Semua' => &$categoryCounts,
+            'Kab. Sambas' => ['baku' => 0, 'fungsional' => 0, 'potensial' => 0, 'saluran' => 0, 'bangunan' => 0, 'custom' => 0],
+            'Kab. Ketapang' => ['baku' => 0, 'fungsional' => 0, 'potensial' => 0, 'saluran' => 0, 'bangunan' => 0, 'custom' => 0],
+            'Kab. Kubu Raya' => ['baku' => 0, 'fungsional' => 0, 'potensial' => 0, 'saluran' => 0, 'bangunan' => 0, 'custom' => 0],
+            'Kab. Mempawah & Kota Pontianak' => ['baku' => 0, 'fungsional' => 0, 'potensial' => 0, 'saluran' => 0, 'bangunan' => 0, 'custom' => 0],
+            'Kab. Bengkayang & Lainnya' => ['baku' => 0, 'fungsional' => 0, 'potensial' => 0, 'saluran' => 0, 'bangunan' => 0, 'custom' => 0],
         ];
 
         if (file_exists($path)) {
@@ -42,31 +52,35 @@ class DashboardController extends Controller
                     $nameUpper = strtoupper($fn);
 
                     // Deteksi Kategori
+                    $catKey = 'custom';
                     if (str_starts_with($nameUpper, 'BAKU')) {
-                        $categoryCounts['baku']++;
+                        $catKey = 'baku';
                     } elseif (str_starts_with($nameUpper, 'FUNGSIONAL')) {
-                        $categoryCounts['fungsional']++;
+                        $catKey = 'fungsional';
                     } elseif (str_starts_with($nameUpper, 'POTENSIAL')) {
-                        $categoryCounts['potensial']++;
+                        $catKey = 'potensial';
                     } elseif (str_starts_with($nameUpper, 'SALURAN')) {
-                        $categoryCounts['saluran']++;
+                        $catKey = 'saluran';
                     } elseif (str_starts_with($nameUpper, 'BANGUNAN')) {
-                        $categoryCounts['bangunan']++;
-                    } else {
-                        $categoryCounts['custom']++;
+                        $catKey = 'bangunan';
                     }
+                    $categoryCounts[$catKey]++;
 
                     // Deteksi Wilayah
+                    $wilayahKey = 'Kab. Bengkayang & Lainnya';
                     if (str_contains($nameUpper, 'SAMBAS') || str_contains($nameUpper, 'PEMANGKAT') || str_contains($nameUpper, 'SEBANGKAU') || str_contains($nameUpper, 'SEBUBUS') || str_contains($nameUpper, 'SEMELAGI') || str_contains($nameUpper, 'SARANG') || str_contains($nameUpper, 'PMK') || str_contains($nameUpper, 'SBK') || str_contains($nameUpper, 'SBB') || str_contains($nameUpper, 'SML')) {
-                        $wilayahCounts['Kab. Sambas']++;
+                        $wilayahKey = 'Kab. Sambas';
                     } elseif (str_contains($nameUpper, 'KETAPANG') || str_contains($nameUpper, 'PEMATANG') || str_contains($nameUpper, 'KINJIL') || str_contains($nameUpper, 'SKJ') || str_contains($nameUpper, 'PGI') || str_contains($nameUpper, 'PGII')) {
-                        $wilayahCounts['Kab. Ketapang']++;
+                        $wilayahKey = 'Kab. Ketapang';
                     } elseif (str_contains($nameUpper, 'KUBU') || str_contains($nameUpper, 'TELUK_BAYUR') || str_contains($nameUpper, 'BAYUR') || str_contains($nameUpper, 'KK') || str_contains($nameUpper, 'TB')) {
-                        $wilayahCounts['Kab. Kubu Raya']++;
+                        $wilayahKey = 'Kab. Kubu Raya';
                     } elseif (str_contains($nameUpper, 'PONTIANAK') || str_contains($nameUpper, 'MEMPAWAH')) {
-                        $wilayahCounts['Kab. Mempawah & Kota Pontianak']++;
-                    } else {
-                        $wilayahCounts['Kab. Bengkayang & Lainnya']++;
+                        $wilayahKey = 'Kab. Mempawah & Kota Pontianak';
+                    }
+
+                    $wilayahCounts[$wilayahKey]++;
+                    if (isset($wilayahCategoryData[$wilayahKey][$catKey])) {
+                        $wilayahCategoryData[$wilayahKey][$catKey]++;
                     }
 
                     $fileList[] = [
@@ -89,9 +103,27 @@ class DashboardController extends Controller
         $adminCount      = \App\Models\User::where('role', 'admin')->count();
         $recentLogs      = ActivityLog::latest()->take(6)->get();
 
+        // Titik-titik representatif untuk widget Mini-Map Preview di Dashboard
+        $miniMapPoints = [
+            ['name' => 'DIR Pemangkat Komplek', 'kab' => 'Kab. Sambas', 'lat' => 1.1833, 'lng' => 108.9667, 'cat' => 'DIR Baku', 'color' => '#27ae60'],
+            ['name' => 'DIR Sebangkau', 'kab' => 'Kab. Sambas', 'lat' => 1.2500, 'lng' => 109.0500, 'cat' => 'DIR Baku', 'color' => '#27ae60'],
+            ['name' => 'DIR Sebubus', 'kab' => 'Kab. Sambas', 'lat' => 1.4800, 'lng' => 109.2800, 'cat' => 'DIR Baku', 'color' => '#27ae60'],
+            ['name' => 'DIR Semelagi', 'kab' => 'Kab. Sambas', 'lat' => 1.3500, 'lng' => 109.1500, 'cat' => 'DIR Baku', 'color' => '#27ae60'],
+            ['name' => 'DIR Sarang Burung', 'kab' => 'Kab. Sambas', 'lat' => 1.4000, 'lng' => 109.2000, 'cat' => 'DIR Baku', 'color' => '#27ae60'],
+            ['name' => 'DIR Pematang Gadung I & II', 'kab' => 'Kab. Ketapang', 'lat' => -1.8500, 'lng' => 109.9800, 'cat' => 'DIR Baku', 'color' => '#27ae60'],
+            ['name' => 'DIR Sungai Kinjil', 'kab' => 'Kab. Ketapang', 'lat' => -1.7800, 'lng' => 110.0200, 'cat' => 'DIR Baku', 'color' => '#27ae60'],
+            ['name' => 'DIR Kubu Komplek', 'kab' => 'Kab. Kubu Raya', 'lat' => -0.5200, 'lng' => 109.3300, 'cat' => 'DIR Baku', 'color' => '#27ae60'],
+            ['name' => 'Jaringan Saluran Irigasi KK', 'kab' => 'Kab. Kubu Raya', 'lat' => -0.4500, 'lng' => 109.4000, 'cat' => 'Jaringan Saluran', 'color' => '#0984e3'],
+            ['name' => 'Bangunan Air PMK', 'kab' => 'Kab. Sambas', 'lat' => 1.1600, 'lng' => 108.9800, 'cat' => 'Bangunan Air', 'color' => '#d63031'],
+            ['name' => 'DIR Potensial Teluk Bayur', 'kab' => 'Kab. Kubu Raya', 'lat' => -0.3800, 'lng' => 109.2500, 'cat' => 'DIR Potensial', 'color' => '#e67e22'],
+            ['name' => 'DIR Fungsional Kakap', 'kab' => 'Kab. Kubu Raya', 'lat' => -0.0800, 'lng' => 109.1800, 'cat' => 'DIR Fungsional', 'color' => '#2980b9'],
+        ];
+
         return view('dashboard.index', compact(
             'categoryCounts',
             'wilayahCounts',
+            'wilayahCategoryData',
+            'miniMapPoints',
             'totalGisFiles',
             'totalUsers',
             'superAdminCount',

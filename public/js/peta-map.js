@@ -888,15 +888,17 @@ window.copyPopupCoord = function(lat, lng, btnEl) {
 };
 
 /**
- * Membangun konten HTML Card Popup interaktif (sesuai standar Gambar No. 2)
+ * Membangun konten HTML Card Popup interaktif (sesuai standar Gambar No. 2 & PUPR)
  * Digunakan saat marker di klik di peta maupun saat tombol "Fokus" di tabel ditekan.
  */
 function buildFeatureCardPopup(cleanName, categoryBadge, properties, fileName, lat, lng) {
     var p = properties || {};
-    var html = '<div class="bws-popup-card">' +
-        '<div class="bws-popup-title">' + cleanName + '</div>' +
-        '<div class="bws-popup-badge-wrap">' + categoryBadge + '</div>' +
-        '<table class="table table-sm table-bordered mb-0"><tbody>';
+    var html = '<div class="bws-popup-card shadow-sm">' +
+        '<div class="bws-popup-header-row d-flex align-items-center justify-content-between mb-1.5">' +
+            '<div class="bws-popup-badge-wrap">' + categoryBadge + '</div>' +
+        '</div>' +
+        '<div class="bws-popup-title font-weight-bold mb-2">' + cleanName + '</div>' +
+        '<table class="table table-sm table-bordered mb-2"><tbody>';
 
     var countProp = 0;
     for (var k in p) {
@@ -905,7 +907,17 @@ function buildFeatureCardPopup(cleanName, categoryBadge, properties, fileName, l
             if (val !== null && val !== undefined && val !== '' && typeof val !== 'object') {
                 if (countProp < 5) {
                     var displayLabel = formatAttributeLabel(k);
-                    html += '<tr><th class="bws-attr-th">' + displayLabel + '</th><td class="bws-attr-td">' + val + '</td></tr>';
+                    var kUpper = k.toUpperCase();
+                    var valFormatted = val;
+
+                    // Highlight atribut penting (Luas, Panjang, Debit)
+                    if (kUpper.indexOf('LUAS') !== -1 || kUpper.indexOf('AREA') !== -1 || kUpper.indexOf('HA') !== -1) {
+                        valFormatted = '<span class="badge badge-success px-1.5 py-0.5 font-weight-bold">' + val + '</span>';
+                    } else if (kUpper.indexOf('PANJANG') !== -1 || kUpper.indexOf('LENGTH') !== -1) {
+                        valFormatted = '<span class="badge badge-info px-1.5 py-0.5 font-weight-bold">' + val + '</span>';
+                    }
+
+                    html += '<tr><th class="bws-attr-th text-muted">' + displayLabel + '</th><td class="bws-attr-td font-weight-medium">' + valFormatted + '</td></tr>';
                     countProp++;
                 }
             }
@@ -931,11 +943,11 @@ function buildFeatureCardPopup(cleanName, categoryBadge, properties, fileName, l
     // Tombol Aksi Lapangan: "Salin Koordinat" dan "Buka di Google Maps"
     if (validLat !== null && validLng !== null) {
         var gmapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + validLat.toFixed(6) + ',' + validLng.toFixed(6);
-        html += '<div class="bws-popup-actions">' +
-            '<button type="button" class="bws-popup-act-btn bws-btn-copy" onclick="copyPopupCoord(' + validLat + ', ' + validLng + ', this)" title="Salin titik koordinat (Latitude, Longitude)">' +
+        html += '<div class="bws-popup-actions d-flex gap-2 pt-1 border-top">' +
+            '<button type="button" class="bws-popup-act-btn bws-btn-copy btn btn-sm btn-outline-secondary flex-grow-1" onclick="copyPopupCoord(' + validLat + ', ' + validLng + ', this)" title="Salin titik koordinat (Latitude, Longitude)">' +
                 '<i class="far fa-copy mr-1"></i><span>Salin Koordinat</span>' +
             '</button>' +
-            '<a href="' + gmapsUrl + '" target="_blank" rel="noopener noreferrer" class="bws-popup-act-btn bws-btn-gmaps" title="Buka rute navigasi dan lokasi fisik di Google Maps">' +
+            '<a href="' + gmapsUrl + '" target="_blank" rel="noopener noreferrer" class="bws-popup-act-btn bws-btn-gmaps btn btn-sm btn-outline-primary flex-grow-1" title="Buka rute navigasi dan lokasi fisik di Google Maps">' +
                 '<i class="fas fa-location-arrow mr-1"></i><span>Google Maps</span>' +
             '</a>' +
         '</div>';
@@ -2049,4 +2061,57 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    /* ============================================================
+       6. HANDLER FITUR BARU: HERO COLLAPSIBLE, LEGENDA & FOCUS GIS
+       ============================================================ */
+
+    // A. Toggle Hero Banner (Ciutkan / Perluas)
+    window.toggleHeroBanner = function() {
+        var heroEl = document.querySelector('.peta-hero') || document.querySelector('.peta-hero-wrap');
+        if (!heroEl) return;
+        var isCollapsed = heroEl.classList.toggle('is-collapsed');
+        try {
+            localStorage.setItem('bws_hero_collapsed', isCollapsed ? '1' : '0');
+        } catch(e) {}
+        setTimeout(function() {
+            if (map && map.invalidateSize) map.invalidateSize();
+        }, 320);
+    };
+
+    // B. Toggle Floating Legend
+    window.toggleFloatingLegend = function() {
+        var legEl = document.getElementById('bwsFloatingLegend');
+        if (!legEl) return;
+        var isCollapsed = legEl.classList.toggle('is-collapsed');
+        try {
+            localStorage.setItem('bws_legend_collapsed', isCollapsed ? '1' : '0');
+        } catch(e) {}
+    };
+
+    // C. Toggle Mode Layar Penuh GIS (Clean Focus GIS Mode)
+    window.toggleFocusGisMode = function() {
+        var isFocus = document.body.classList.toggle('gis-focus-mode');
+        var textFocus = document.getElementById('textFocusGis');
+        var iconFocus = document.getElementById('iconFocusGis');
+        if (textFocus) textFocus.textContent = isFocus ? 'Keluar' : 'Fokus';
+        if (iconFocus) {
+            iconFocus.className = isFocus ? 'fas fa-compress mr-1' : 'fas fa-expand mr-1';
+        }
+        setTimeout(function() {
+            if (map && map.invalidateSize) map.invalidateSize();
+        }, 320);
+    };
+
+    // Restore preferensi yang tersimpan
+    try {
+        if (localStorage.getItem('bws_hero_collapsed') === '1') {
+            var heroEl = document.querySelector('.peta-hero') || document.querySelector('.peta-hero-wrap');
+            if (heroEl) heroEl.classList.add('is-collapsed');
+        }
+        if (localStorage.getItem('bws_legend_collapsed') === '1') {
+            var legEl = document.getElementById('bwsFloatingLegend');
+            if (legEl) legEl.classList.add('is-collapsed');
+        }
+    } catch(e) {}
 });

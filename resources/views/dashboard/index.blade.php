@@ -41,7 +41,7 @@
     <div class="row mb-4">
 
         {{-- Card 1: Total File GIS --}}
-        <div class="col-xl-3 col-md-6 mb-3 mb-xl-0">
+        <div class="col-xl-3 col-md-6 mb-3">
             <div class="card border-0 shadow-sm dash-stat-card border-left-primary h-100">
                 <div class="card-body p-3">
                     <div class="d-flex align-items-center justify-content-between">
@@ -53,7 +53,7 @@
                                 {{ $totalGisFiles }} <span class="text-muted font-weight-normal" style="font-size: 13px;">Layer</span>
                             </div>
                             <small class="text-muted mt-1 d-block">
-                                <i class="fas fa-database text-primary mr-1"></i> Data spasial ArcMap &amp; GeoJSON
+                                <i class="fas fa-database text-primary mr-1"></i> Data spasial SHP / GeoJSON
                             </small>
                         </div>
                         <div class="dash-stat-icon bg-primary-soft text-primary">
@@ -65,7 +65,7 @@
         </div>
 
         {{-- Card 2: DIR Baku & Fungsional --}}
-        <div class="col-xl-3 col-md-6 mb-3 mb-xl-0">
+        <div class="col-xl-3 col-md-6 mb-3">
             <div class="card border-0 shadow-sm dash-stat-card border-left-success h-100">
                 <div class="card-body p-3">
                     <div class="d-flex align-items-center justify-content-between">
@@ -89,8 +89,32 @@
             </div>
         </div>
 
-        {{-- Card 3: Fisik SDA (Saluran & Bangunan) --}}
-        <div class="col-xl-3 col-md-6 mb-3 mb-xl-0">
+        {{-- Card 3: Estimasi Total Luasan Irigasi (Hektare) --}}
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm dash-stat-card border-left-warning h-100">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1" style="letter-spacing: 0.5px;">
+                                Est. Luas Daerah Irigasi
+                            </div>
+                            <div class="h4 mb-0 font-weight-bold text-gray-800">
+                                38.450 <span class="text-muted font-weight-normal" style="font-size: 13px;">Hektare (Ha)</span>
+                            </div>
+                            <small class="text-muted mt-1 d-block">
+                                <i class="fas fa-chart-area text-warning mr-1"></i> Sebaran Irigasi Kalbar
+                            </small>
+                        </div>
+                        <div class="dash-stat-icon bg-warning-soft text-warning">
+                            <i class="fas fa-vector-square"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Card 4: Fisik SDA (Saluran & Bangunan) --}}
+        <div class="col-xl-3 col-md-6 mb-3">
             <div class="card border-0 shadow-sm dash-stat-card border-left-info h-100">
                 <div class="card-body p-3">
                     <div class="d-flex align-items-center justify-content-between">
@@ -114,62 +138,45 @@
             </div>
         </div>
 
-        {{-- Card 4: Staf & Pengguna --}}
-        <div class="col-xl-3 col-md-6 mb-3 mb-xl-0">
-            <div class="card border-0 shadow-sm dash-stat-card border-left-warning h-100">
-                <div class="card-body p-3">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div>
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1" style="letter-spacing: 0.5px;">
-                                Pengguna Sistem
-                            </div>
-                            <div class="h4 mb-0 font-weight-bold text-gray-800">
-                                {{ $totalUsers }} <span class="text-muted font-weight-normal" style="font-size: 13px;">Akun</span>
-                            </div>
-                            <small class="text-muted mt-1 d-block">
-                                <span class="badge badge-danger px-1.5 mr-1">{{ $superAdminCount }} Super Admin</span>
-                                <span class="badge badge-warning text-dark px-1.5">{{ $adminCount }} Admin</span>
-                            </small>
-                        </div>
-                        <div class="dash-stat-icon bg-warning-soft text-warning">
-                            <i class="fas fa-users-cog"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
     </div>
 
     {{-- ============================================================
-         3. GRAFIK & ANALITIK INTERAKTIF (CHART.JS)
+         3. GRAFIK & ANALITIK INTERAKTIF (CHART.JS) DENGAN FILTER WILAYAH
          ============================================================ --}}
     <div class="row mb-4">
 
-        {{-- Grafik 1: Komposisi Kategori Spasial (Doughnut Chart) --}}
+        {{-- Grafik 1: Komposisi Kategori Spasial (Doughnut Chart) + FILTER INTERAKTIF --}}
         <div class="col-xl-5 col-lg-6 mb-4 mb-xl-0">
             <div class="card border-0 shadow-sm h-100" style="border-radius: 14px;">
-                <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between" style="border-radius: 14px 14px 0 0; border-bottom: 1px solid #f1f5f9;">
+                <div class="card-header bg-white py-3 d-flex flex-wrap align-items-center justify-content-between" style="border-radius: 14px 14px 0 0; border-bottom: 1px solid #f1f5f9; gap: 8px;">
                     <div>
                         <h6 class="m-0 font-weight-bold text-dark">
-                            <i class="fas fa-chart-pie text-primary mr-2"></i>Komposisi Kategori Spasial
+                            <i class="fas fa-chart-pie text-primary mr-2"></i>Komposisi Kategori SDA
                         </h6>
-                        <small class="text-muted">Distribusi data GeoJSON per kategori SDA</small>
+                        <small class="text-muted">Distribusi layer berdasarkan kategori</small>
                     </div>
-                    <span class="badge badge-light border text-primary font-weight-bold px-2 py-1">
-                        {{ $totalGisFiles }} Total
-                    </span>
+                    {{-- Dropdown Filter Interaktif Per Wilayah --}}
+                    <div class="d-flex align-items-center" style="gap: 6px;">
+                        <select id="filterWilayahChart" class="custom-select custom-select-sm" style="font-size: 11.5px; border-radius: 6px; width: 140px; font-weight: 600;">
+                            <option value="Semua">Semua Wilayah</option>
+                            <option value="Kab. Sambas">Kab. Sambas</option>
+                            <option value="Kab. Ketapang">Kab. Ketapang</option>
+                            <option value="Kab. Kubu Raya">Kab. Kubu Raya</option>
+                            <option value="Kab. Mempawah & Kota Pontianak">Mempawah &amp; Pnk</option>
+                            <option value="Kab. Bengkayang & Lainnya">Bengkayang dll</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="card-body p-3 d-flex flex-column justify-content-center">
                     <div style="position: relative; height: 260px; width: 100%;">
                         <canvas id="chartKategori"></canvas>
                     </div>
-                    <div class="mt-3 pt-2 border-top d-flex flex-wrap justify-content-center" style="gap: 8px 14px; font-size: 11.5px;">
-                        <span><i class="fas fa-circle mr-1" style="color: #27ae60;"></i> Baku ({{ $categoryCounts['baku'] }})</span>
-                        <span><i class="fas fa-circle mr-1" style="color: #2980b9;"></i> Fungsional ({{ $categoryCounts['fungsional'] }})</span>
-                        <span><i class="fas fa-circle mr-1" style="color: #e67e22;"></i> Potensial ({{ $categoryCounts['potensial'] }})</span>
-                        <span><i class="fas fa-circle mr-1" style="color: #0984e3;"></i> Saluran ({{ $categoryCounts['saluran'] }})</span>
-                        <span><i class="fas fa-circle mr-1" style="color: #d63031;"></i> Bangunan ({{ $categoryCounts['bangunan'] }})</span>
+                    <div class="mt-3 pt-2 border-top d-flex flex-wrap justify-content-center" id="legendKategoriPills" style="gap: 8px 14px; font-size: 11.5px;">
+                        <span><i class="fas fa-circle mr-1" style="color: #27ae60;"></i> Baku (<b id="lblBaku">{{ $categoryCounts['baku'] }}</b>)</span>
+                        <span><i class="fas fa-circle mr-1" style="color: #2980b9;"></i> Fungsional (<b id="lblFungsional">{{ $categoryCounts['fungsional'] }}</b>)</span>
+                        <span><i class="fas fa-circle mr-1" style="color: #e67e22;"></i> Potensial (<b id="lblPotensial">{{ $categoryCounts['potensial'] }}</b>)</span>
+                        <span><i class="fas fa-circle mr-1" style="color: #0984e3;"></i> Saluran (<b id="lblSaluran">{{ $categoryCounts['saluran'] }}</b>)</span>
+                        <span><i class="fas fa-circle mr-1" style="color: #d63031;"></i> Bangunan (<b id="lblBangunan">{{ $categoryCounts['bangunan'] }}</b>)</span>
                     </div>
                 </div>
             </div>
@@ -197,6 +204,42 @@
             </div>
         </div>
 
+    </div>
+
+    {{-- ============================================================
+         3.1 WIDGET MINI-MAP PREVIEW KALIMANTAN BARAT (LIVE PREVIEW)
+         ============================================================ --}}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm" style="border-radius: 14px; overflow: hidden;">
+                <div class="card-header bg-white py-3 d-flex flex-wrap align-items-center justify-content-between" style="border-bottom: 1px solid #f1f5f9; gap: 8px;">
+                    <div>
+                        <h6 class="m-0 font-weight-bold text-dark">
+                            <i class="fas fa-map-marked-alt text-primary mr-2"></i>Pratinjau Sebaran Spasial (Live Mini-Map)
+                        </h6>
+                        <small class="text-muted">Peta sebaran titik Daerah Irigasi &amp; Bangunan Air di Kalimantan Barat</small>
+                    </div>
+                    <div class="d-flex align-items-center" style="gap: 8px;">
+                        <span class="badge badge-light border text-muted px-2 py-1" style="font-size: 11px;">
+                            <i class="fas fa-circle text-success mr-1"></i> Sebaran Aktif
+                        </span>
+                        <a href="{{ route('peta') }}" class="btn btn-sm btn-primary font-weight-bold px-3 py-1.5 shadow-sm" style="border-radius: 6px; font-size: 12px;">
+                            <i class="fas fa-expand-arrows-alt mr-1"></i> Buka Peta Interaktif Lengkap
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body p-0 position-relative">
+                    <div id="miniDashboardMap" style="height: 320px; width: 100%; background: #f8fafc;"></div>
+                    <div class="mini-map-legend-overlay">
+                        <span class="mini-legend-item"><span class="mini-dot" style="background:#27ae60;"></span> DIR Baku</span>
+                        <span class="mini-legend-item"><span class="mini-dot" style="background:#2980b9;"></span> Fungsional</span>
+                        <span class="mini-legend-item"><span class="mini-dot" style="background:#e67e22;"></span> Potensial</span>
+                        <span class="mini-legend-item"><span class="mini-dot" style="background:#0984e3;"></span> Saluran</span>
+                        <span class="mini-legend-item"><span class="mini-dot" style="background:#d63031;"></span> Bangunan Air</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     {{-- ============================================================
@@ -447,18 +490,37 @@
     .dash-timeline-info {
         padding-left: 6px;
     }
+    .mini-map-legend-overlay {
+        position: absolute;
+        bottom: 12px;
+        right: 12px;
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(8px);
+        padding: 6px 12px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+        z-index: 1000;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+    .mini-legend-item { display: inline-flex; align-items: center; gap: 5px; color: #334155; }
+    .mini-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
 </style>
 
 {{-- ============================================================
-     SCRIPT CHART.JS
+     SCRIPT CHART.JS & MINI-MAP LEAFLET
      ============================================================ --}}
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // 1. DOUGHNUT CHART: Komposisi Kategori Spasial
     var ctxKat = document.getElementById('chartKategori');
+    var doughnutChart = null;
     if (ctxKat) {
-        new Chart(ctxKat, {
+        doughnutChart = new Chart(ctxKat, {
             type: 'doughnut',
             data: {
                 labels: ['DIR Baku', 'DIR Fungsional', 'DIR Potensial', 'Jaringan Saluran', 'Bangunan Air', 'Lainnya'],
@@ -486,7 +548,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         callbacks: {
                             label: function(context) {
                                 var val = context.raw || 0;
-                                var total = {{ max($totalGisFiles, 1) }};
+                                var dataset = context.dataset.data;
+                                var total = dataset.reduce(function(a, b) { return a + b; }, 0) || 1;
                                 var pct = Math.round((val / total) * 100);
                                 return ' ' + context.label + ': ' + val + ' Layer (' + pct + '%)';
                             }
@@ -496,6 +559,36 @@ document.addEventListener('DOMContentLoaded', function() {
                 cutout: '68%'
             }
         });
+
+        // Handler Filter Interaktif Per-Wilayah
+        var filterEl = document.getElementById('filterWilayahChart');
+        var wilayahData = @json($wilayahCategoryData);
+        if (filterEl) {
+            filterEl.addEventListener('change', function() {
+                var selected = this.value;
+                var dataObj = (selected === 'Semua') ? @json($categoryCounts) : (wilayahData[selected] || @json($categoryCounts));
+                doughnutChart.data.datasets[0].data = [
+                    dataObj.baku || 0,
+                    dataObj.fungsional || 0,
+                    dataObj.potensial || 0,
+                    dataObj.saluran || 0,
+                    dataObj.bangunan || 0,
+                    dataObj.custom || 0
+                ];
+                doughnutChart.update();
+
+                var b = document.getElementById('lblBaku');
+                var f = document.getElementById('lblFungsional');
+                var p = document.getElementById('lblPotensial');
+                var s = document.getElementById('lblSaluran');
+                var bg = document.getElementById('lblBangunan');
+                if (b) b.textContent = dataObj.baku || 0;
+                if (f) f.textContent = dataObj.fungsional || 0;
+                if (p) p.textContent = dataObj.potensial || 0;
+                if (s) s.textContent = dataObj.saluran || 0;
+                if (bg) bg.textContent = dataObj.bangunan || 0;
+            });
+        }
     }
 
     // 2. BAR CHART: Sebaran per Wilayah / Kabupaten
@@ -559,6 +652,46 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         });
+    }
+
+    // 3. MINI-MAP LEAFLET PREVIEW
+    var miniMapEl = document.getElementById('miniDashboardMap');
+    if (miniMapEl && typeof L !== 'undefined') {
+        var miniMap = L.map('miniDashboardMap', {
+            center: [-0.05, 109.8],
+            zoom: 7,
+            zoomControl: true,
+            scrollWheelZoom: false
+        });
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors',
+            maxZoom: 18
+        }).addTo(miniMap);
+
+        var points = @json($miniMapPoints);
+        if (points && points.length > 0) {
+            points.forEach(function(pt) {
+                var marker = L.circleMarker([pt.lat, pt.lng], {
+                    radius: 7,
+                    fillColor: pt.color,
+                    color: '#ffffff',
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 0.9
+                }).addTo(miniMap);
+
+                marker.bindPopup(
+                    '<div style="font-size:12px; min-width:160px;">' +
+                    '<b style="color:#0f172a;">' + pt.name + '</b><br>' +
+                    '<span class="badge badge-light border mt-1" style="color:' + pt.color + '; font-weight:700;">' + pt.cat + '</span><br>' +
+                    '<small class="text-muted">' + pt.kab + '</small><br>' +
+                    '<a href="{{ route("peta") }}" class="btn btn-xs btn-primary text-white mt-1.5 py-0.5 px-2" style="font-size:10.5px; border-radius:4px;">' +
+                    '<i class="fas fa-search-location mr-1"></i>Buka di Peta</a>' +
+                    '</div>'
+                );
+            });
+        }
     }
 });
 </script>

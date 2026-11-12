@@ -38,6 +38,7 @@
             <a href="{{ route('peta') }}" class="bws-btn-peta-nav" title="Buka Peta Interaktif WebGIS">
                 <i class="fas fa-map-marked-alt mr-1.5"></i>
                 <span>Buka Peta</span>
+                <span class="badge badge-primary px-1.5 py-0.5 ml-1 text-white font-weight-bold" style="font-size: 10px; border-radius: 10px; background: linear-gradient(135deg, #1d4ed8, #2563eb);">54 Layer</span>
             </a>
             @endif
             @endauth
