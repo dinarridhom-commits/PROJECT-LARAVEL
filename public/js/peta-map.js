@@ -223,12 +223,12 @@ var MapActionsControl = L.Control.extend({
         btnHome.setAttribute('aria-label', 'Pusat Peta');
         btnHome.innerHTML = '<i class="fas fa-home"></i>';
 
-        // 3. Tombol Fullscreen (Layar Penuh)
+        // 3. Tombol Zoom/Perbesar Layar Peta (Mode Fokus Bersih sesuai Gambar 2)
         var btnFs = L.DomUtil.create('a', 'map-action-btn btn-fullscreen', container);
         btnFs.href = '#';
-        btnFs.title = 'Layar Penuh (Fullscreen Peta)';
+        btnFs.title = 'Perbesar Tampilan Peta (Mode Layar Penuh Antarmuka)';
         btnFs.setAttribute('role', 'button');
-        btnFs.setAttribute('aria-label', 'Layar Penuh');
+        btnFs.setAttribute('aria-label', 'Perbesar Tampilan Peta');
         btnFs.innerHTML = '<i class="fas fa-expand"></i>';
 
         L.DomEvent.disableClickPropagation(container);
@@ -246,7 +246,7 @@ var MapActionsControl = L.Control.extend({
 
         L.DomEvent.on(btnFs, 'click', function(e) {
             L.DomEvent.stop(e);
-            toggleMapFullscreen(btnFs);
+            toggleFocusGisMode();
         });
 
         return container;
@@ -254,49 +254,15 @@ var MapActionsControl = L.Control.extend({
 });
 map.addControl(new MapActionsControl());
 
-function toggleMapFullscreen(btnEl) {
-    var mapWrap = document.querySelector('.peta-v2-map-wrap') || document.getElementById('section-map') || document.getElementById('map');
-    if (!mapWrap) return;
-
-    var isFs = mapWrap.classList.toggle('is-fullscreen');
-    document.body.classList.toggle('map-is-fullscreen', isFs);
-
-    var icon = btnEl ? btnEl.querySelector('i') : document.querySelector('.map-action-btn.btn-fullscreen i');
-    if (isFs) {
-        if (icon) icon.className = 'fas fa-compress';
-        if (btnEl) btnEl.title = 'Keluar Layar Penuh (ESC)';
-        if (mapWrap.requestFullscreen && !document.fullscreenElement) {
-            mapWrap.requestFullscreen().catch(function() {});
-        }
-    } else {
-        if (icon) icon.className = 'fas fa-expand';
-        if (btnEl) btnEl.title = 'Layar Penuh (Fullscreen Peta)';
-        if (document.exitFullscreen && document.fullscreenElement) {
-            document.exitFullscreen().catch(function() {});
-        }
-    }
-
-    setTimeout(function() {
-        if (map && map.invalidateSize) map.invalidateSize();
-    }, 150);
+function toggleMapFullscreen() {
+    toggleFocusGisMode();
 }
 
-// Listener tombol ESC & fullscreenchange browser
+// Listener tombol ESC untuk keluar dari mode fokus peta
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape' || e.key === 'Esc') {
-        var mapWrap = document.querySelector('.peta-v2-map-wrap.is-fullscreen');
-        if (mapWrap) {
-            var btn = document.querySelector('.leaflet-control-fullscreen-button');
-            toggleMapFullscreen(btn);
-        }
-    }
-});
-document.addEventListener('fullscreenchange', function() {
-    if (!document.fullscreenElement) {
-        var mapWrap = document.querySelector('.peta-v2-map-wrap.is-fullscreen');
-        if (mapWrap) {
-            var btn = document.querySelector('.leaflet-control-fullscreen-button');
-            toggleMapFullscreen(btn);
+        if (document.body.classList.contains('gis-focus-mode')) {
+            toggleFocusGisMode();
         }
     }
 });
@@ -2089,15 +2055,21 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch(e) {}
     };
 
-    // C. Toggle Mode Layar Penuh GIS (Clean Focus GIS Mode)
+    // C. Toggle Mode Layar Penuh GIS (Clean Focus GIS Mode sesuai Gambar 2)
     window.toggleFocusGisMode = function() {
         var isFocus = document.body.classList.toggle('gis-focus-mode');
-        var textFocus = document.getElementById('textFocusGis');
-        var iconFocus = document.getElementById('iconFocusGis');
-        if (textFocus) textFocus.textContent = isFocus ? 'Keluar' : 'Fokus';
-        if (iconFocus) {
-            iconFocus.className = isFocus ? 'fas fa-compress mr-1' : 'fas fa-expand mr-1';
+
+        // Sinkronisasi ikon tombol di Leaflet map control
+        var btnFs = document.querySelector('.map-action-btn.btn-fullscreen');
+        if (btnFs) {
+            var icon = btnFs.querySelector('i');
+            if (icon) {
+                icon.className = isFocus ? 'fas fa-compress' : 'fas fa-expand';
+            }
+            btnFs.title = isFocus ? 'Kembalikan Ukuran Peta (Keluar Mode Layar Penuh)' : 'Perbesar Tampilan Peta';
+            btnFs.setAttribute('aria-label', isFocus ? 'Kembalikan Ukuran' : 'Perbesar Tampilan Peta');
         }
+
         setTimeout(function() {
             if (map && map.invalidateSize) map.invalidateSize();
         }, 320);

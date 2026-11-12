@@ -323,14 +323,6 @@
                         <i class="fas fa-table mr-1"></i> Buka Tabel Data
                         <span class="badge badge-primary ml-1" style="font-size:10px; border-radius:10px; padding:2px 7px;">{{ count($fileList ?? []) }}</span>
                     </button>
-                    <button class="ptb-btn-reset" id="btnResetPeta" onclick="resetPetaView()" title="Reset tampilan peta">
-                        <i class="fas fa-redo-alt mr-1"></i> Reset
-                    </button>
-                    {{-- Tombol Mode Layar Penuh GIS (Clean Focus View) --}}
-                    <button class="ptb-btn-focus-gis" id="btnFocusGis" onclick="toggleFocusGisMode()" title="Mode Layar Penuh GIS (Sembunyikan Navbar &amp; Banner)">
-                        <i class="fas fa-expand mr-1" id="iconFocusGis"></i>
-                        <span class="d-none d-sm-inline" id="textFocusGis">Fokus</span>
-                    </button>
                 </div>
             </div>
 
