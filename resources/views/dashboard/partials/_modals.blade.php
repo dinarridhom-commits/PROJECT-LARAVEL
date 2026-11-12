@@ -22,115 +22,178 @@
      Progress bar realtime per batch ditampilkan saat upload.
      ============================================================ --}}
 @if(Auth::check() && in_array(Auth::user()->role, ['admin', 'superadmin']))
+{{-- ============================================================
+     MODAL 1: UPLOAD & PEMILAHAN FILE GIS (2-STEP WIZARD)
+     Fungsi: Mengunggah file GIS (ZIP/SHP, GeoJSON, KML) dengan
+     sistem pemilahan layer dan pemilihan kategori manual.
+     ============================================================ --}}
 <div class="modal fade" id="modalUploadGeojson" tabindex="-1" role="dialog"
      aria-labelledby="modalUploadGeojsonLabel" aria-hidden="true" data-backdrop="static">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <form id="formUploadGeojson"
-              action="{{ route('peta.upload-geojson') }}"
-              method="POST"
-              enctype="multipart/form-data"
-              class="modal-content border-0 shadow">
-            @csrf
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document" style="max-width: 880px;">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 14px; overflow: hidden;">
 
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title font-weight-bold" id="modalUploadGeojsonLabel">
-                    <i class="fas fa-cloud-upload-alt mr-2"></i>Upload File GIS (GeoJSON / SHP / KML)
-                </h5>
-                <button type="button" class="close text-white" data-dismiss="modal"
-                        aria-label="Close" id="btnCloseUploadModal">
+            {{-- Modal Header --}}
+            <div class="modal-header bg-primary text-white py-3 px-4 d-flex align-items-center justify-content-between">
+                <div>
+                    <h5 class="modal-title font-weight-bold mb-0" id="modalUploadGeojsonLabel" style="font-size: 16px;">
+                        <i class="fas fa-layer-group mr-2"></i>Upload &amp; Pemilahan Berkas GIS
+                    </h5>
+                    <small class="text-white-50" id="modalUploadStepSubtitle">Langkah 1 dari 2: Pilih berkas arsip ZIP atau file spasial</small>
+                </div>
+                <button type="button" class="close text-white opacity-80" data-dismiss="modal"
+                        aria-label="Close" id="btnCloseUploadModal" style="font-size: 22px;">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
 
             <div class="modal-body p-4">
 
-                {{-- Input pilih file --}}
-                <div class="form-group mb-3" id="uploadInputContainer">
-                    <label class="font-weight-bold text-gray-800">
-                        <i class="fas fa-file-code text-primary mr-1"></i>Pilih File GIS Spasial:
-                    </label>
-                    <div class="custom-file">
+                {{-- STEP 1: PILIH FILE (DRAG & DROP / BROWSE) --}}
+                <div id="uploadStep1Section">
+                    <div class="upload-dropzone p-4 text-center border-dashed rounded-lg mb-3" id="uploadDropzone"
+                         style="border: 2px dashed #93c5fd; background: #f8fbff; border-radius: 12px; cursor: pointer; transition: all 0.2s ease;"
+                         onclick="document.getElementById('inputGeojsonFile').click()">
                         <input type="file"
-                               name="file_geojson[]"
-                               class="custom-file-input"
                                id="inputGeojsonFile"
                                multiple
                                accept=".geojson,.json,.kml,.kmz,.zip"
-                               required
-                               onchange="updateFileInputLabel(this)">
-                        <label class="custom-file-label" for="inputGeojsonFile" id="labelGeojsonFile">
-                            Pilih file GeoJSON, Shapefile (.zip), atau KML/KMZ...
-                        </label>
+                               style="display: none;"
+                               onchange="handleTriageFileSelection(this)">
+                        <div class="py-3">
+                            <div style="width: 60px; height: 60px; border-radius: 50%; background: #dbeafe; color: #2563eb; display: inline-flex; align-items: center; justify-content: center; font-size: 26px; margin-bottom: 12px;">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+                            <h6 class="font-weight-bold text-dark mb-1">Pilih Berkas ZIP / Shapefile / GeoJSON / KML</h6>
+                            <p class="text-muted small mb-3">Klik untuk memilih file dari komputer, atau seret &amp; letakkan file di sini</p>
+                            <button type="button" class="btn btn-sm btn-primary px-3 py-1.5 font-weight-bold" style="border-radius: 8px;">
+                                <i class="fas fa-folder-open mr-1.5"></i> Telusuri Berkas
+                            </button>
+                        </div>
                     </div>
-                    <small class="form-text text-muted mt-2">
-                        <i class="fas fa-info-circle mr-1"></i>
-                        Format yang didukung: <code>.geojson</code>, <code>.json</code>, Shapefile ArcMap (<code>.zip</code>), atau Google Earth (<code>.kml</code>, <code>.kmz</code>).
-                        Data akan otomatis dikonversi ke GeoJSON standar oleh sistem.
-                    </small>
 
-                    {{-- Peringatan jika pengguna memilih file .rar --}}
-                    <div id="rarWarningAlert" class="alert alert-warning py-2 px-3 small mt-2 mb-0" style="display: none;">
-                        <i class="fas fa-exclamation-triangle mr-1 text-warning"></i>
-                        <strong>Perhatian:</strong>
-                        <span id="rarWarningText">Format .rar tidak didukung. Harap gunakan format .ZIP untuk Shapefile.</span>
+                    <div class="d-flex align-items-center justify-content-between p-3 rounded" style="background: #f1f5f9; font-size: 12px;">
+                        <div class="text-muted">
+                            <i class="fas fa-info-circle text-primary mr-1"></i>
+                            <strong>Mendukung Multi-Layer:</strong> File <code>.ZIP</code> berisi banyak shapefile akan otomatis diekstrak sehingga Anda dapat memilah dan menentukan kategorinya di Langkah 2.
+                        </div>
                     </div>
+
+                    {{-- Loading Spinner saat membaca isi file --}}
+                    <div id="step1InspectingLoading" class="text-center py-4 my-2" style="display: none;">
+                        <i class="fas fa-spinner fa-spin text-primary fa-2x mb-2"></i>
+                        <h6 class="font-weight-bold text-dark">Membaca struktur berkas GIS...</h6>
+                        <p class="text-muted small mb-0">Mendeteksi layer spasial di dalam berkas...</p>
+                    </div>
+
+                    {{-- Alert error step 1 --}}
+                    <div id="step1ErrorAlert" class="alert alert-danger py-2 px-3 small mt-3" style="display: none;"></div>
                 </div>
 
-                {{-- Progress bar upload --}}
-                <div id="uploadProgressSection" class="mb-3" style="display: none;">
+                {{-- STEP 2: TABEL PEMILAHAN FILE & KATEGORI (TRIAGE) --}}
+                <div id="uploadStep2Section" style="display: none;">
+
+                    {{-- Toolbar Ringkasan & Kontrol --}}
+                    <div class="p-3 mb-3 rounded d-flex flex-wrap align-items-center justify-content-between" style="background: #f8fafc; border: 1px solid #e2e8f0; gap: 10px;">
+                        <div>
+                            <div class="font-weight-bold text-dark" style="font-size: 13.5px;">
+                                <i class="fas fa-archive text-warning mr-1.5"></i>
+                                Berkas Sumber: <span id="triageArchiveName" class="text-primary font-monospace font-weight-bold">data.zip</span>
+                            </div>
+                            <div class="text-muted small mt-0.5" id="triageArchiveSummary">
+                                Ditemukan 0 layer spasial. Silakan pilih layer dan tentukan kategorinya.
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="button" class="btn btn-xs btn-outline-secondary font-weight-bold" onclick="selectAllTriage(true)" style="font-size: 11px; padding: 4px 8px; border-radius: 6px;">
+                                <i class="fas fa-check-square mr-1"></i>Pilih Semua
+                            </button>
+                            <button type="button" class="btn btn-xs btn-outline-secondary font-weight-bold ml-1" onclick="selectAllTriage(false)" style="font-size: 11px; padding: 4px 8px; border-radius: 6px;">
+                                <i class="fas fa-square mr-1"></i>Batal Semua
+                            </button>
+                            <button type="button" class="btn btn-xs btn-outline-primary font-weight-bold ml-2" onclick="resetToStep1()" style="font-size: 11px; padding: 4px 8px; border-radius: 6px;">
+                                <i class="fas fa-sync-alt mr-1"></i>Ganti File
+                            </button>
+                        </div>
+                    </div>
+
+                    {{-- Tabel Pemilahan --}}
+                    <div class="table-responsive border rounded" style="max-height: 320px; overflow-y: auto;">
+                        <table class="table table-hover align-middle mb-0" id="triageTable" style="font-size: 12.5px;">
+                            <thead class="bg-light text-muted small text-uppercase sticky-top" style="z-index: 5;">
+                                <tr>
+                                    <th style="width: 50px;" class="text-center">Pilih</th>
+                                    <th>Layer Asli</th>
+                                    <th style="min-width: 170px;">Nama Tampilan Objek</th>
+                                    <th style="min-width: 220px;">Kategori Tujuan (Pilih Manual)</th>
+                                    <th style="width: 90px;" class="text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="triageTableBody">
+                                {{-- Diisi dinamis oleh JavaScript --}}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="d-flex align-items-center justify-content-between mt-2 px-1">
+                        <small class="text-muted">
+                            <i class="fas fa-check-circle text-success mr-1"></i>
+                            <span id="triageSelectedCountBadge" class="font-weight-bold text-dark">0</span> layer dipilih untuk disimpan ke sistem.
+                        </small>
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle mr-1"></i>Pilih kategori sesuai jenis infrastruktur SDA.
+                        </small>
+                    </div>
+
+                </div>
+
+                {{-- PROGRESS BAR UPLOAD --}}
+                <div id="uploadProgressSection" class="mt-3" style="display: none;">
                     <div class="d-flex justify-content-between align-items-center mb-1">
                         <span class="font-weight-bold small text-primary" id="uploadStatusText">
-                            <i class="fas fa-spinner fa-spin mr-1"></i>Mengunggah file...
+                            <i class="fas fa-spinner fa-spin mr-1"></i>Menyimpan berkas terpilih...
                         </span>
                         <span class="font-weight-bold small text-muted" id="uploadPercentText">0%</span>
                     </div>
-                    <div class="progress" style="height: 18px; border-radius: 9px;">
+                    <div class="progress" style="height: 16px; border-radius: 8px;">
                         <div id="uploadProgressBar"
                              class="progress-bar progress-bar-striped progress-bar-animated bg-success font-weight-bold"
                              role="progressbar"
-                             style="width: 0%; font-size: 11px;">0%</div>
-                    </div>
-                    <div class="small text-muted mt-2 d-flex justify-content-between" id="uploadDetailText">
-                        <span>Memproses batch file...</span>
-                        <span id="uploadBatchCountText">Batch 0/0</span>
+                             style="width: 0%; font-size: 10.5px;">0%</div>
                     </div>
                 </div>
 
-                {{-- Alert sukses --}}
-                <div id="uploadSuccessSection"
-                     class="alert alert-success py-2 px-3 small mb-3"
-                     style="display: none;">
-                    <i class="fas fa-check-circle mr-1"></i>
-                    <span id="uploadSuccessMessage">Semua file berhasil diunggah!</span>
+                {{-- ALERT SUKSES --}}
+                <div id="uploadSuccessSection" class="alert alert-success py-2.5 px-3 small mt-3" style="display: none;">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-check-circle fa-lg mr-2 text-success"></i>
+                        <div>
+                            <div class="font-weight-bold text-dark">Proses Selesai!</div>
+                            <span id="uploadSuccessMessage">Layer terpilih berhasil diunggah dan disimpan ke sistem.</span>
+                        </div>
+                    </div>
                 </div>
 
-                {{-- Alert error --}}
-                <div id="uploadErrorSection"
-                     class="alert alert-danger py-2 px-3 small mb-3"
-                     style="display: none;">
+                {{-- ALERT ERROR --}}
+                <div id="uploadErrorSection" class="alert alert-danger py-2 px-3 small mt-3" style="display: none;">
                     <i class="fas fa-exclamation-triangle mr-1"></i>
                     <span id="uploadErrorMessage"></span>
                 </div>
 
-                {{-- Info tujuan penyimpanan --}}
-                <div class="alert alert-info py-2 px-3 small mb-0" id="uploadInfoNote">
-                    <i class="fas fa-folder-open mr-1"></i>
-                    File yang diunggah akan langsung disimpan ke folder
-                    <code>public/geojson/</code> dan otomatis dimuat ke peta interaktif.
+            </div>
+
+            {{-- FOOTER MODAL --}}
+            <div class="modal-footer bg-light py-2 px-4 d-flex align-items-center justify-content-between">
+                <button type="button" class="btn btn-secondary font-weight-bold px-3 py-1.5" data-dismiss="modal" id="btnBatalUpload" style="font-size: 13px; border-radius: 8px;">
+                    <i class="fas fa-times mr-1"></i>Tutup
+                </button>
+                <div id="step2ActionButtons" style="display: none;">
+                    <button type="button" class="btn btn-primary font-weight-bold px-4 py-1.5 shadow-sm" id="btnSubmitTriage" onclick="submitTriageUpload()" style="font-size: 13px; border-radius: 8px;">
+                        <i class="fas fa-cloud-upload-alt mr-1.5"></i>Upload <span id="btnSubmitCountText">0</span> Layer Terpilih
+                    </button>
                 </div>
-
             </div>
 
-            <div class="modal-footer bg-light" id="uploadModalFooter">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal" id="btnBatalUpload">
-                    <i class="fas fa-times mr-1"></i>Batal
-                </button>
-                <button type="submit" class="btn btn-primary font-weight-bold" id="btnSubmitUpload">
-                    <i class="fas fa-upload mr-1"></i>Upload Sekarang
-                </button>
-            </div>
-
-        </form>
+        </div>
     </div>
 </div>
 

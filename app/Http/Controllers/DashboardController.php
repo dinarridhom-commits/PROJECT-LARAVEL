@@ -386,22 +386,38 @@ class DashboardController extends Controller
 
         $uploaded = [];
         $failed = [];
+        $categories = $request->input('categories', []);
+        $objectNames = $request->input('object_names', []);
 
-        foreach ($files as $file) {
+        foreach ($files as $idx => $file) {
             $ext = strtolower($file->getClientOriginalExtension());
             $originalName = $file->getClientOriginalName();
             $baseName = pathinfo($originalName, PATHINFO_FILENAME);
             $savedFilename = null;
 
+            // Kategori dan Nama Kustom dari Form Pemilahan
+            $selectedCat = $categories[$idx] ?? null;
+            $selectedName = $objectNames[$idx] ?? null;
+
+            // Sesuaikan prefix file agar konsisten dengan layer peta
+            if ($selectedCat && in_array($selectedCat, ['baku', 'fungsional', 'potensial', 'saluran', 'bangunan'])) {
+                $prefix = ucfirst($selectedCat) . '_';
+                $cleanBase = preg_replace('/^(baku|fungsional|potensial|saluran|bangunan)[_\s-]*/i', '', $baseName);
+                $finalBase = $prefix . $cleanBase;
+            } else {
+                $finalBase = $baseName;
+            }
+
             if (in_array($ext, ['geojson', 'json'])) {
-                $file->move($destinationPath, $originalName);
-                $uploaded[] = $originalName;
-                $savedFilename = $originalName;
+                $targetFile = $finalBase . '.geojson';
+                $file->move($destinationPath, $targetFile);
+                $uploaded[] = $targetFile;
+                $savedFilename = $targetFile;
             } elseif ($ext === 'kml') {
                 $kmlContent = file_get_contents($file->getRealPath());
-                $geojson = $this->parseKmlToGeoJson($kmlContent, $baseName);
+                $geojson = $this->parseKmlToGeoJson($kmlContent, $finalBase);
                 if ($geojson) {
-                    $targetName = $baseName . '.geojson';
+                    $targetName = $finalBase . '.geojson';
                     File::put($destinationPath . DIRECTORY_SEPARATOR . $targetName, json_encode($geojson, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
                     $uploaded[] = $targetName . ' (dari .kml)';
                     $savedFilename = $targetName;
@@ -411,9 +427,9 @@ class DashboardController extends Controller
             } elseif ($ext === 'kmz') {
                 $kmlContent = $this->extractKmlFromKmz($file->getRealPath());
                 if ($kmlContent) {
-                    $geojson = $this->parseKmlToGeoJson($kmlContent, $baseName);
+                    $geojson = $this->parseKmlToGeoJson($kmlContent, $finalBase);
                     if ($geojson) {
-                        $targetName = $baseName . '.geojson';
+                        $targetName = $finalBase . '.geojson';
                         File::put($destinationPath . DIRECTORY_SEPARATOR . $targetName, json_encode($geojson, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
                         $uploaded[] = $targetName . ' (dari .kmz)';
                         $savedFilename = $targetName;
@@ -424,21 +440,24 @@ class DashboardController extends Controller
                     $failed[] = $originalName . ' (Tidak ditemukan file .kml di dalam arsip KMZ)';
                 }
             } elseif (in_array($ext, ['zip', 'rar'])) {
-                $this->processArchiveAndConvert($file->getRealPath(), $ext, $baseName, $destinationPath, $uploaded, $failed, $originalName);
-                $savedFilename = $baseName . '.geojson';
+                $this->processArchiveAndConvert($file->getRealPath(), $ext, $finalBase, $destinationPath, $uploaded, $failed, $originalName);
+                $savedFilename = $finalBase . '.geojson';
             } else {
                 $failed[] = $originalName . ' (Format tidak didukung. Gunakan .geojson, .json, .kml, .kmz, atau Shapefile .zip)';
             }
 
             // Catat ke Database GisLayer
             if ($savedFilename) {
-                $upper = strtoupper($savedFilename);
-                $cat = 'custom';
-                if (str_starts_with($upper, 'BAKU')) $cat = 'baku';
-                elseif (str_starts_with($upper, 'FUNGSIONAL')) $cat = 'fungsional';
-                elseif (str_starts_with($upper, 'POTENSIAL')) $cat = 'potensial';
-                elseif (str_starts_with($upper, 'SALURAN')) $cat = 'saluran';
-                elseif (str_starts_with($upper, 'BANGUNAN')) $cat = 'bangunan';
+                $cat = $selectedCat;
+                if (!$cat || !in_array($cat, ['baku', 'fungsional', 'potensial', 'saluran', 'bangunan'])) {
+                    $upper = strtoupper($savedFilename);
+                    $cat = 'custom';
+                    if (str_starts_with($upper, 'BAKU')) $cat = 'baku';
+                    elseif (str_starts_with($upper, 'FUNGSIONAL')) $cat = 'fungsional';
+                    elseif (str_starts_with($upper, 'POTENSIAL')) $cat = 'potensial';
+                    elseif (str_starts_with($upper, 'SALURAN')) $cat = 'saluran';
+                    elseif (str_starts_with($upper, 'BANGUNAN')) $cat = 'bangunan';
+                }
 
                 $sizeKb = '0 KB';
                 $filePath = $destinationPath . DIRECTORY_SEPARATOR . $savedFilename;
@@ -446,11 +465,15 @@ class DashboardController extends Controller
                     $sizeKb = round(File::size($filePath) / 1024, 1) . ' KB';
                 }
 
+                $displayName = $selectedName && trim($selectedName) !== ''
+                    ? trim($selectedName)
+                    : trim(str_replace(['.json', '.geojson', '_'], ['', '', ' '], $savedFilename));
+
                 \App\Models\GisLayer::updateOrCreate(
                     ['filename' => $savedFilename],
                     [
                         'user_id'     => Auth::id(),
-                        'nama_objek'  => trim(str_replace(['.json', '.geojson', '_'], ['', '', ' '], $savedFilename)),
+                        'nama_objek'  => $displayName,
                         'category'    => $cat,
                         'file_size'   => $sizeKb,
                         'status'      => $isSuperAdmin ? 'approved' : 'pending',

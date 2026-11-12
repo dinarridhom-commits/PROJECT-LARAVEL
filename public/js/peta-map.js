@@ -1863,170 +1863,432 @@ document.addEventListener('DOMContentLoaded', function() {
         c.addEventListener('change', updateBulkDeleteUI);
     });
 
-    // Form upload dengan chunked batch
-    var formUpload = document.getElementById('formUploadGeojson');
-    if (formUpload) {
-        formUpload.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            var input = document.getElementById('inputGeojsonFile');
-            if (!input || !input.files || input.files.length === 0) {
-                alert('Silakan pilih setidaknya satu file spasial (GeoJSON, SHP .zip, atau KML) terlebih dahulu.');
-                return;
+    /* ============================================================
+       SISTEM PEMILAHAN BERKAS GIS (2-STEP UPLOAD WIZARD)
+       Step 1: Inspeksi berkas ZIP / SHP / GeoJSON / KML instan di browser
+       Step 2: Tabel pemilahan manual (checklist layer & dropdown kategori)
+       ============================================================ */
+    window.triageLayers = [];
+    var currentTriageArchiveName = '';
+
+    function guessCategoryFromName(name) {
+        var lower = (name || '').toLowerCase();
+        if (lower.indexOf('saluran') !== -1 || lower.indexOf('sal_') !== -1 || lower.indexOf('sekunder') !== -1 || lower.indexOf('primer') !== -1 || lower.indexOf('tersier') !== -1) {
+            return 'saluran';
+        }
+        if (lower.indexOf('bangunan') !== -1 || lower.indexOf('bgn_') !== -1 || lower.indexOf('pintu') !== -1 || lower.indexOf('bendung') !== -1 || lower.indexOf('intake') !== -1 || lower.indexOf('talang') !== -1 || lower.indexOf('gorong') !== -1) {
+            return 'bangunan';
+        }
+        if (lower.indexOf('fungsional') !== -1 || lower.indexOf('fung_') !== -1) {
+            return 'fungsional';
+        }
+        if (lower.indexOf('potensial') !== -1 || lower.indexOf('pot_') !== -1) {
+            return 'potensial';
+        }
+        return 'baku';
+    }
+
+    function cleanDisplayName(name) {
+        var clean = (name || '')
+            .replace(/\.[^/.]+$/, "")
+            .replace(/^(baku|fungsional|potensial|saluran|bangunan)[_\s-]*/i, '')
+            .replace(/[_-]+/g, ' ')
+            .trim();
+        return clean.replace(/\b\w/g, function(l) { return l.toUpperCase(); });
+    }
+
+    window.resetToStep1 = function() {
+        window.triageLayers = [];
+        currentTriageArchiveName = '';
+
+        var fileInput = document.getElementById('inputGeojsonFile');
+        if (fileInput) fileInput.value = '';
+
+        var step1 = document.getElementById('uploadStep1Section');
+        var dropzone = document.getElementById('uploadDropzone');
+        var loading = document.getElementById('step1InspectingLoading');
+        var err1 = document.getElementById('step1ErrorAlert');
+
+        var step2 = document.getElementById('uploadStep2Section');
+        var step2Actions = document.getElementById('step2ActionButtons');
+        var progress = document.getElementById('uploadProgressSection');
+        var success = document.getElementById('uploadSuccessSection');
+        var err2 = document.getElementById('uploadErrorSection');
+
+        if (step1) step1.style.display = 'block';
+        if (dropzone) dropzone.style.display = 'block';
+        if (loading) loading.style.display = 'none';
+        if (err1) err1.style.display = 'none';
+
+        if (step2) step2.style.display = 'none';
+        if (step2Actions) step2Actions.style.display = 'none';
+        if (progress) progress.style.display = 'none';
+        if (success) success.style.display = 'none';
+        if (err2) err2.style.display = 'none';
+
+        var subTitle = document.getElementById('modalUploadStepSubtitle');
+        if (subTitle) subTitle.textContent = 'Langkah 1 dari 2: Pilih berkas arsip ZIP atau file spasial';
+    };
+
+    window.handleTriageFileSelection = async function(input) {
+        if (!input || !input.files || input.files.length === 0) return;
+
+        var rawFiles = Array.from(input.files);
+        var dropzone = document.getElementById('uploadDropzone');
+        var loading  = document.getElementById('step1InspectingLoading');
+        var errorAlert = document.getElementById('step1ErrorAlert');
+
+        // Cek file .rar
+        var rarFiles = rawFiles.filter(function(f) { return f.name.toLowerCase().endsWith('.rar'); });
+        if (rarFiles.length > 0) {
+            if (errorAlert) {
+                errorAlert.style.display = 'block';
+                errorAlert.innerHTML = '<i class="fas fa-exclamation-triangle mr-1"></i><strong>Format .RAR Tidak Didukung:</strong> ' + rarFiles.map(function(f){return f.name;}).join(', ') + '<br>' +
+                    'Harap gunakan format <strong>.ZIP</strong> untuk Shapefile.';
             }
+            input.value = '';
+            return;
+        }
 
-            var progressSection = document.getElementById('uploadProgressSection');
-            var progressBar     = document.getElementById('uploadProgressBar');
-            var percentText     = document.getElementById('uploadPercentText');
-            var statusText      = document.getElementById('uploadStatusText');
-            var detailText      = document.getElementById('uploadDetailText');
-            var batchCountText  = document.getElementById('uploadBatchCountText');
-            var successSection  = document.getElementById('uploadSuccessSection');
-            var errorSection    = document.getElementById('uploadErrorSection');
-            var btnSubmit       = document.getElementById('btnSubmitUpload');
-            var btnBatal        = document.getElementById('btnBatalUpload');
-            var btnClose        = document.getElementById('btnCloseUploadModal');
+        if (errorAlert) errorAlert.style.display = 'none';
+        if (dropzone) dropzone.style.display = 'none';
+        if (loading) loading.style.display = 'block';
 
-            if (errorSection)   { errorSection.style.display = 'none'; errorSection.innerText = ''; }
-            if (successSection)   successSection.style.display = 'none';
-            if (progressSection)  progressSection.style.display = 'block';
-            if (btnSubmit) { btnSubmit.disabled = true; btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Memproses file...'; }
-            if (btnBatal)  btnBatal.disabled = true;
-            if (btnClose)  btnClose.style.display = 'none';
+        window.triageLayers = [];
+        currentTriageArchiveName = rawFiles.length === 1 ? rawFiles[0].name : (rawFiles.length + ' Berkas GIS Dipilih');
 
-            var rawFiles = Array.from(input.files);
-
-            // Cek jika ada file .rar
-            var rarFiles = rawFiles.filter(function(f) { return f.name.toLowerCase().endsWith('.rar'); });
-            if (rarFiles.length > 0) {
-                var rarNames = rarFiles.map(function(f) { return f.name; }).join(', ');
-                if (errorSection) {
-                    errorSection.style.display = 'block';
-                    errorSection.innerHTML = '<i class="fas fa-exclamation-triangle mr-1"></i><strong>Format .RAR Tidak Didukung:</strong> ' + rarNames + '<br><br>' +
-                        'File Shapefile GIS harus dikompresi dalam format <strong>.ZIP</strong> (bukan .RAR) yang berisi file <code>.shp</code>, <code>.dbf</code>, <code>.shx</code>, dan <code>.prj</code>.<br><br>' +
-                        '<strong>Langkah Mengubah ke .ZIP:</strong><br>' +
-                        '1. Buka file <code>' + rarNames + '</code> dan ekstrak isinya ke folder.<br>' +
-                        '2. Pilih/blok file <code>.shp</code>, <code>.dbf</code>, <code>.shx</code>, <code>.prj</code>.<br>' +
-                        '3. Klik kanan &rarr; pilih <strong>Send to (Kirim ke) &rarr; Compressed (zipped) folder</strong>, ATAU di WinRAR pilih radio button <strong>ZIP</strong>.<br>' +
-                        '4. Unggah kembali file <code>.zip</code> yang baru dibuat tersebut.';
-                }
-                if (progressSection) progressSection.style.display = 'none';
-                if (btnSubmit) { btnSubmit.disabled = false; btnSubmit.innerHTML = '<i class="fas fa-upload mr-1"></i>Upload Sekarang'; }
-                if (btnBatal)  btnBatal.disabled = false;
-                if (btnClose)  btnClose.style.display = '';
-                return;
-            }
-
-            var files = [];
-
-            // Pra-pemrosesan: Konversi otomatis Shapefile (.zip) atau KML/KMZ ke GeoJSON
+        try {
             for (var i = 0; i < rawFiles.length; i++) {
                 var file = rawFiles[i];
                 var nameLower = file.name.toLowerCase();
                 var baseName = file.name.replace(/\.[^/.]+$/, "");
 
-                if (nameLower.endsWith('.zip') && typeof shp !== 'undefined') {
-                    if (statusText) statusText.innerHTML = '<i class="fas fa-cog fa-spin mr-1"></i>Mengkonversi Shapefile (' + file.name + ') ke GeoJSON...';
-                    try {
+                if (nameLower.endsWith('.zip')) {
+                    if (typeof shp !== 'undefined') {
                         var buffer = await file.arrayBuffer();
                         var converted = await shp(buffer);
+
                         if (Array.isArray(converted)) {
                             converted.forEach(function(item, cIdx) {
-                                var subName = (item.fileName || baseName + '_' + (cIdx + 1)) + '.geojson';
+                                var subName = item.fileName || (baseName + '_' + (cIdx + 1));
+                                var geomType = item.features && item.features[0] && item.features[0].geometry ? item.features[0].geometry.type : 'Polygon';
                                 var blob = new Blob([JSON.stringify(item)], { type: 'application/geo+json' });
-                                files.push(new File([blob], subName, { type: 'application/geo+json' }));
+
+                                window.triageLayers.push({
+                                    id: window.triageLayers.length,
+                                    originalName: subName,
+                                    format: 'Shapefile',
+                                    geomType: geomType,
+                                    featureCount: item.features ? item.features.length : 0,
+                                    displayName: cleanDisplayName(subName),
+                                    category: guessCategoryFromName(subName),
+                                    selected: true,
+                                    fileBlob: blob
+                                });
                             });
                         } else if (converted && converted.type === 'FeatureCollection') {
+                            var geomType = converted.features && converted.features[0] && converted.features[0].geometry ? converted.features[0].geometry.type : 'Polygon';
                             var blob = new Blob([JSON.stringify(converted)], { type: 'application/geo+json' });
-                            files.push(new File([blob], baseName + '.geojson', { type: 'application/geo+json' }));
-                        } else {
-                            files.push(file);
+
+                            window.triageLayers.push({
+                                id: window.triageLayers.length,
+                                originalName: converted.fileName || baseName,
+                                format: 'Shapefile',
+                                geomType: geomType,
+                                featureCount: converted.features ? converted.features.length : 0,
+                                displayName: cleanDisplayName(converted.fileName || baseName),
+                                category: guessCategoryFromName(converted.fileName || baseName),
+                                selected: true,
+                                fileBlob: blob
+                            });
                         }
-                    } catch (shpErr) {
-                        console.warn('shpjs conversion warning, fallback to server:', shpErr);
-                        files.push(file);
+                    } else {
+                        window.triageLayers.push({
+                            id: window.triageLayers.length,
+                            originalName: file.name,
+                            format: 'ZIP Archive',
+                            geomType: 'Unknown',
+                            featureCount: 1,
+                            displayName: cleanDisplayName(baseName),
+                            category: guessCategoryFromName(baseName),
+                            selected: true,
+                            fileBlob: file
+                        });
                     }
-                } else if (nameLower.endsWith('.kml') && typeof toGeoJSON !== 'undefined') {
-                    if (statusText) statusText.innerHTML = '<i class="fas fa-cog fa-spin mr-1"></i>Mengkonversi KML (' + file.name + ') ke GeoJSON...';
-                    try {
-                        var kmlText = await file.text();
-                        var kmlDom = new DOMParser().parseFromString(kmlText, 'text/xml');
-                        var kmlGeojson = toGeoJSON.kml(kmlDom);
-                        var blob = new Blob([JSON.stringify(kmlGeojson)], { type: 'application/geo+json' });
-                        files.push(new File([blob], baseName + '.geojson', { type: 'application/geo+json' }));
-                    } catch (kmlErr) {
-                        console.warn('toGeoJSON conversion warning, fallback to server:', kmlErr);
-                        files.push(file);
-                    }
-                } else {
-                    files.push(file);
-                }
-            }
+                } else if (nameLower.endsWith('.geojson') || nameLower.endsWith('.json')) {
+                    var text = await file.text();
+                    var parsed = JSON.parse(text);
+                    var geomType = parsed.features && parsed.features[0] && parsed.features[0].geometry ? parsed.features[0].geometry.type : 'Feature';
+                    var blob = new Blob([text], { type: 'application/geo+json' });
 
-            var totalFiles   = files.length;
-            var BATCH_SIZE   = 5;
-            var totalBatches = Math.ceil(totalFiles / BATCH_SIZE);
-
-            var totalUploaded = 0, allUploadedNames = [], allFailed = [];
-            var csrfToken = formUpload.querySelector('input[name="_token"]')
-                ? formUpload.querySelector('input[name="_token"]').value : '';
-
-            try {
-                for (var b = 0; b < totalBatches; b++) {
-                    var start = b * BATCH_SIZE;
-                    var end   = Math.min(start + BATCH_SIZE, totalFiles);
-                    var batchFiles = files.slice(start, end);
-                    var currentBatchNum = b + 1;
-
-                    if (statusText) statusText.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Mengunggah batch ' + currentBatchNum + ' dari ' + totalBatches + '...';
-                    if (batchCountText) batchCountText.textContent = 'Batch ' + currentBatchNum + '/' + totalBatches + ' (' + batchFiles.length + ' file)';
-
-                    var formData = new FormData();
-                    formData.append('_token', csrfToken);
-                    for (var f = 0; f < batchFiles.length; f++) formData.append('file_geojson[]', batchFiles[f]);
-
-                    var uploadUrl = formUpload.getAttribute('action');
-                    var response = await fetch(uploadUrl, {
-                        method: 'POST',
-                        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
-                        body: formData
+                    window.triageLayers.push({
+                        id: window.triageLayers.length,
+                        originalName: file.name,
+                        format: 'GeoJSON',
+                        geomType: geomType,
+                        featureCount: parsed.features ? parsed.features.length : 1,
+                        displayName: cleanDisplayName(baseName),
+                        category: guessCategoryFromName(baseName),
+                        selected: true,
+                        fileBlob: blob
                     });
+                } else if ((nameLower.endsWith('.kml') || nameLower.endsWith('.kmz')) && typeof toGeoJSON !== 'undefined') {
+                    var kmlText = await file.text();
+                    var kmlDom = new DOMParser().parseFromString(kmlText, 'text/xml');
+                    var kmlGeojson = toGeoJSON.kml(kmlDom);
+                    var blob = new Blob([JSON.stringify(kmlGeojson)], { type: 'application/geo+json' });
 
-                    if (!response.ok) {
-                        var errJson = await response.json().catch(function() { return {}; });
-                        throw new Error(errJson.message || ('Gagal pada pengunggahan batch ke-' + currentBatchNum + ' (HTTP ' + response.status + ')'));
-                    }
-
-                    var result = await response.json();
-                    if (result.uploaded && result.uploaded.length > 0) { allUploadedNames = allUploadedNames.concat(result.uploaded); totalUploaded += result.uploaded.length; }
-                    if (result.failed && result.failed.length > 0)     allFailed = allFailed.concat(result.failed);
-
-                    var pct = Math.round((end / totalFiles) * 100);
-                    if (progressBar)  { progressBar.style.width = pct + '%'; progressBar.textContent = pct + '%'; }
-                    if (percentText)    percentText.textContent = pct + '%';
-                    if (detailText) detailText.innerHTML = '<span>Tersimpan <b>' + totalUploaded + '</b> dari <b>' + totalFiles + '</b> file</span><span>Batch ' + currentBatchNum + '/' + totalBatches + '</span>';
+                    window.triageLayers.push({
+                        id: window.triageLayers.length,
+                        originalName: file.name,
+                        format: nameLower.endsWith('.kmz') ? 'KMZ' : 'KML',
+                        geomType: 'KML Vector',
+                        featureCount: kmlGeojson.features ? kmlGeojson.features.length : 1,
+                        displayName: cleanDisplayName(baseName),
+                        category: guessCategoryFromName(baseName),
+                        selected: true,
+                        fileBlob: blob
+                    });
                 }
-
-                if (statusText) statusText.innerHTML = '<i class="fas fa-check-circle text-success mr-1"></i>Semua file selesai diunggah!';
-                if (successSection) {
-                    var successMsg = totalUploaded + ' file GeoJSON berhasil diunggah! Memuat ulang halaman peta...';
-                    if (allFailed.length > 0) successMsg += '<br><small class="text-warning">File dilewati: ' + allFailed.join(', ') + '</small>';
-                    successSection.innerHTML = '<i class="fas fa-check-circle mr-1"></i>' + successMsg;
-                    successSection.style.display = 'block';
-                }
-                setTimeout(function() { window.location.reload(); }, 1200);
-
-            } catch (err) {
-                if (errorSection) {
-                    errorSection.innerHTML = '<i class="fas fa-exclamation-triangle mr-1"></i><b>Terjadi Kesalahan:</b> ' + err.message +
-                        (totalUploaded > 0 ? '<br><small>(' + totalUploaded + ' file sempat tersimpan sebelum error)</small>' : '');
-                    errorSection.style.display = 'block';
-                }
-                if (btnSubmit) { btnSubmit.disabled = false; btnSubmit.innerHTML = '<i class="fas fa-redo mr-1"></i>Coba Lagi'; }
-                if (btnBatal)  btnBatal.disabled = false;
-                if (btnClose)  btnClose.style.display = '';
             }
+
+            if (window.triageLayers.length === 0) {
+                throw new Error('Tidak ditemukan layer spasial valid di dalam berkas yang dipilih.');
+            }
+
+            // Pindah ke STEP 2: Tampilkan Tabel Pemilahan
+            if (loading) loading.style.display = 'none';
+            document.getElementById('uploadStep1Section').style.display = 'none';
+            document.getElementById('uploadStep2Section').style.display = 'block';
+            document.getElementById('step2ActionButtons').style.display = 'block';
+
+            var subTitle = document.getElementById('modalUploadStepSubtitle');
+            if (subTitle) subTitle.textContent = 'Langkah 2 dari 2: Pilih berkas dan tentukan kategori tujuan';
+
+            var archiveNameEl = document.getElementById('triageArchiveName');
+            if (archiveNameEl) archiveNameEl.textContent = currentTriageArchiveName;
+
+            var archiveSummaryEl = document.getElementById('triageArchiveSummary');
+            if (archiveSummaryEl) archiveSummaryEl.textContent = 'Ditemukan ' + window.triageLayers.length + ' layer spasial. Silakan pilih dan atur kategori tujuan.';
+
+            renderTriageTable();
+
+        } catch (err) {
+            console.error('Triage extraction error:', err);
+            if (loading) loading.style.display = 'none';
+            if (dropzone) dropzone.style.display = 'block';
+            if (errorAlert) {
+                errorAlert.style.display = 'block';
+                errorAlert.innerHTML = '<i class="fas fa-exclamation-triangle mr-1"></i><b>Gagal Membaca Berkas:</b> ' + err.message;
+            }
+            input.value = '';
+        }
+    };
+
+    window.renderTriageTable = function() {
+        var tbody = document.getElementById('triageTableBody');
+        if (!tbody) return;
+
+        var html = '';
+        window.triageLayers.forEach(function(layer, idx) {
+            var iconClass = 'fa-map-marked-alt text-primary';
+            if (layer.format === 'Shapefile') iconClass = 'fa-draw-polygon text-info';
+            else if (layer.format === 'KML' || layer.format === 'KMZ') iconClass = 'fa-globe-asia text-warning';
+
+            html += '<tr data-triage-idx="' + idx + '" class="' + (layer.selected ? '' : 'table-light text-muted') + '">' +
+                '<td class="text-center align-middle">' +
+                    '<input type="checkbox" style="width:16px; height:16px; cursor:pointer;" ' +
+                        (layer.selected ? 'checked' : '') +
+                        ' onchange="onTriageCheckboxChange(' + idx + ', this.checked)">' +
+                '</td>' +
+                '<td class="align-middle">' +
+                    '<div class="font-weight-bold text-dark" style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="' + escapeHtml(layer.originalName) + '">' +
+                        '<i class="fas ' + iconClass + ' mr-1.5"></i>' + escapeHtml(layer.originalName) +
+                    '</div>' +
+                    '<small class="text-muted">' + layer.format + ' &bull; ' + layer.featureCount + ' fitur</small>' +
+                '</td>' +
+                '<td class="align-middle">' +
+                    '<input type="text" class="form-control form-control-sm font-weight-bold" ' +
+                        'value="' + escapeHtml(layer.displayName) + '" ' +
+                        'placeholder="Nama Tampilan Objek" ' +
+                        'onchange="onTriageNameChange(' + idx + ', this.value)" ' +
+                        'style="border-radius:6px; font-size:12px;">' +
+                '</td>' +
+                '<td class="align-middle">' +
+                    '<select class="form-control form-control-sm" ' +
+                        'onchange="onTriageCatChange(' + idx + ', this.value)" ' +
+                        'style="border-radius:6px; font-weight:600; font-size:12px;">' +
+                        '<option value="baku" ' + (layer.category === 'baku' ? 'selected' : '') + '>🟢 Daerah Irigasi Baku</option>' +
+                        '<option value="fungsional" ' + (layer.category === 'fungsional' ? 'selected' : '') + '>🔵 Daerah Irigasi Fungsional</option>' +
+                        '<option value="potensial" ' + (layer.category === 'potensial' ? 'selected' : '') + '>🟠 Daerah Irigasi Potensial</option>' +
+                        '<option value="saluran" ' + (layer.category === 'saluran' ? 'selected' : '') + '>🟣 Jaringan Saluran Irigasi</option>' +
+                        '<option value="bangunan" ' + (layer.category === 'bangunan' ? 'selected' : '') + '>🔴 Bangunan Air / Pelengkap</option>' +
+                    '</select>' +
+                '</td>' +
+                '<td class="text-center align-middle">' +
+                    '<span class="badge ' + (layer.selected ? 'badge-success' : 'badge-light text-muted border') + '" id="triageBadge_' + idx + '" style="font-size:10.5px; padding:4px 8px;">' +
+                        (layer.selected ? 'Dipilih' : 'Dilewati') +
+                    '</span>' +
+                '</td>' +
+            '</tr>';
         });
-    }
+
+        tbody.innerHTML = html;
+        updateTriageCounter();
+    };
+
+    window.selectAllTriage = function(checked) {
+        window.triageLayers.forEach(function(l) { l.selected = checked; });
+        renderTriageTable();
+    };
+
+    window.onTriageCheckboxChange = function(idx, checked) {
+        if (window.triageLayers[idx]) {
+            window.triageLayers[idx].selected = checked;
+            var tr = document.querySelector('tr[data-triage-idx="' + idx + '"]');
+            var badge = document.getElementById('triageBadge_' + idx);
+            if (tr) {
+                if (checked) tr.classList.remove('table-light', 'text-muted');
+                else tr.classList.add('table-light', 'text-muted');
+            }
+            if (badge) {
+                badge.className = 'badge ' + (checked ? 'badge-success' : 'badge-light text-muted border');
+                badge.textContent = checked ? 'Dipilih' : 'Dilewati';
+            }
+            updateTriageCounter();
+        }
+    };
+
+    window.onTriageNameChange = function(idx, val) {
+        if (window.triageLayers[idx]) {
+            window.triageLayers[idx].displayName = val ? val.trim() : '';
+        }
+    };
+
+    window.onTriageCatChange = function(idx, val) {
+        if (window.triageLayers[idx]) {
+            window.triageLayers[idx].category = val;
+        }
+    };
+
+    window.updateTriageCounter = function() {
+        var selectedCount = window.triageLayers.filter(function(l) { return l.selected; }).length;
+        var badge = document.getElementById('triageSelectedCountBadge');
+        var btnCount = document.getElementById('btnSubmitCountText');
+        var submitBtn = document.getElementById('btnSubmitTriage');
+
+        if (badge) badge.textContent = selectedCount;
+        if (btnCount) btnCount.textContent = selectedCount;
+        if (submitBtn) {
+            submitBtn.disabled = (selectedCount === 0);
+            if (selectedCount === 0) {
+                submitBtn.innerHTML = '<i class="fas fa-ban mr-1"></i>Pilih Setidaknya 1 Layer';
+            } else {
+                submitBtn.innerHTML = '<i class="fas fa-cloud-upload-alt mr-1.5"></i>Upload ' + selectedCount + ' Layer Terpilih';
+            }
+        }
+    };
+
+    window.submitTriageUpload = async function() {
+        var selectedLayers = window.triageLayers.filter(function(l) { return l.selected; });
+        if (selectedLayers.length === 0) {
+            alert('Silakan centang setidaknya satu layer spasial untuk diunggah.');
+            return;
+        }
+
+        var progressSection = document.getElementById('uploadProgressSection');
+        var progressBar     = document.getElementById('uploadProgressBar');
+        var percentText     = document.getElementById('uploadPercentText');
+        var statusText      = document.getElementById('uploadStatusText');
+        var successSection  = document.getElementById('uploadSuccessSection');
+        var errorSection    = document.getElementById('uploadErrorSection');
+        var submitBtn       = document.getElementById('btnSubmitTriage');
+        var batalBtn        = document.getElementById('btnBatalUpload');
+        var closeBtn        = document.getElementById('btnCloseUploadModal');
+
+        if (errorSection) errorSection.style.display = 'none';
+        if (successSection) successSection.style.display = 'none';
+        if (progressSection) progressSection.style.display = 'block';
+
+        if (submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Menyimpan Berkas...'; }
+        if (batalBtn) batalBtn.disabled = true;
+        if (closeBtn) closeBtn.style.display = 'none';
+
+        var csrfMeta = document.querySelector('meta[name="csrf-token"]');
+        var csrfToken = csrfMeta ? csrfMeta.getAttribute('content') : '';
+
+        var totalFiles = selectedLayers.length;
+        var BATCH_SIZE = 5;
+        var totalBatches = Math.ceil(totalFiles / BATCH_SIZE);
+        var totalUploaded = 0;
+
+        try {
+            for (var b = 0; b < totalBatches; b++) {
+                var start = b * BATCH_SIZE;
+                var end = Math.min(start + BATCH_SIZE, totalFiles);
+                var batchLayers = selectedLayers.slice(start, end);
+                var currentBatchNum = b + 1;
+
+                if (statusText) statusText.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Mengunggah batch ' + currentBatchNum + ' dari ' + totalBatches + ' (' + batchLayers.length + ' layer)...';
+
+                var formData = new FormData();
+                formData.append('_token', csrfToken);
+
+                for (var f = 0; f < batchLayers.length; f++) {
+                    var l = batchLayers[f];
+                    var catPrefix = l.category.charAt(0).toUpperCase() + l.category.slice(1) + '_';
+                    var cleanBase = l.displayName.replace(/[^a-zA-Z0-9_\-\s]/g, '').trim().replace(/\s+/g, '_');
+                    var targetFilename = catPrefix + cleanBase + '.geojson';
+
+                    var fileObj = new File([l.fileBlob], targetFilename, { type: 'application/geo+json' });
+                    formData.append('file_geojson[]', fileObj);
+                    formData.append('categories[]', l.category);
+                    formData.append('object_names[]', l.displayName);
+                }
+
+                var uploadUrl = '/peta/upload-geojson';
+
+                var response = await fetch(uploadUrl, {
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    var errJson = await response.json().catch(function() { return {}; });
+                    throw new Error(errJson.message || ('Gagal pada batch ' + currentBatchNum + ' (HTTP ' + response.status + ')'));
+                }
+
+                var resData = await response.json();
+                if (resData.uploaded) totalUploaded += resData.uploaded.length;
+
+                var pct = Math.round((end / totalFiles) * 100);
+                if (progressBar) { progressBar.style.width = pct + '%'; progressBar.textContent = pct + '%'; }
+                if (percentText) percentText.textContent = pct + '%';
+            }
+
+            if (statusText) statusText.innerHTML = '<i class="fas fa-check-circle text-success mr-1"></i>Semua layer terpilih berhasil disimpan!';
+            if (successSection) {
+                var successMsg = totalUploaded + ' layer spasial berhasil dipilah dan disimpan sesuai kategori!';
+                successSection.innerHTML = '<i class="fas fa-check-circle mr-1 fa-lg"></i>' + successMsg;
+                successSection.style.display = 'block';
+            }
+
+            setTimeout(function() {
+                window.location.reload();
+            }, 1400);
+
+        } catch (err) {
+            console.error('Triage upload error:', err);
+            if (errorSection) {
+                errorSection.innerHTML = '<i class="fas fa-exclamation-triangle mr-1"></i><b>Terjadi Kesalahan:</b> ' + err.message;
+                errorSection.style.display = 'block';
+            }
+            if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = '<i class="fas fa-redo mr-1"></i>Coba Lagi'; }
+            if (batalBtn) batalBtn.disabled = false;
+            if (closeBtn) closeBtn.style.display = '';
+        }
+    };
 
     /* ============================================================
        6. HANDLER FITUR BARU: HERO COLLAPSIBLE, LEGENDA & FOCUS GIS
