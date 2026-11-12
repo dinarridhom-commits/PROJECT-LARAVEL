@@ -1145,21 +1145,13 @@ if (window.geojsonFiles && window.geojsonFiles.length > 0) {
                     mapBounds.extend(b);
                     var center = b.getCenter();
 
-                    // Hitung koordinat penempatan akurat di dalam geometri objek (anti-meleset ke ruang kosong)
-                    var accuratePt = null;
-                    if (gj.features && gj.features.length > 0) {
-                        accuratePt = getFeatureAccurateLatLng(gj.features[0], gjLayer);
-                    }
-                    var finalLat = accuratePt ? accuratePt.lat : center.lat;
-                    var finalLng = accuratePt ? accuratePt.lng : center.lng;
-
                     allTableRows.push({
                         name: cleanName,
                         categoryType: categoryType,
                         categoryBadge: categoryBadge,
-                        lat: finalLat,
-                        lng: finalLng,
-                        accurateLatLng: accuratePt || center,
+                        lat: center.lat,
+                        lng: center.lng,
+                        centerLatLng: center,
                         fileName: fileName,
                         bounds: b,
                         layerObj: gjLayer,
@@ -1499,51 +1491,43 @@ function focusOnMapObject(row) {
         }
     }
 
-    // 4. Cari titik koordinat penempatan akurat di dalam geometri objek (bukan bounding box luar)
-    var targetLatLng = row.accurateLatLng || ((row.lat !== null && row.lng !== null && !isNaN(row.lat) && !isNaN(row.lng))
-        ? L.latLng(row.lat, row.lng)
-        : null);
-    var targetSubLayer = null;
+    // 4. Cari titik koordinat penempatan tepat di posisi tengah wilayah objek (bukan di ujung / sudut)
+    var targetLatLng = null;
+    if (row.bounds && row.bounds.isValid && row.bounds.isValid()) {
+        targetLatLng = row.bounds.getCenter();
+    } else if (row.lat !== null && row.lng !== null && !isNaN(row.lat) && !isNaN(row.lng)) {
+        targetLatLng = L.latLng(row.lat, row.lng);
+    }
 
+    var targetSubLayer = null;
     if (row.layerObj && row.layerObj.getLayers) {
         var subLayers = row.layerObj.getLayers();
         if (subLayers.length > 0) {
             targetSubLayer = subLayers[0];
-            if (targetSubLayer.feature) {
-                var accurate = getFeatureAccurateLatLng(targetSubLayer.feature, targetSubLayer);
-                if (accurate) targetLatLng = accurate;
-            }
         }
     }
 
-    if (!targetLatLng && row.bounds && row.bounds.isValid && row.bounds.isValid()) {
-        targetLatLng = row.bounds.getCenter();
-    }
-
-    // 5. Tampilkan Card Popup tepat saat pergerakan peta selesai (akurat anti-meleset)
+    // 5. Tampilkan Card Popup tepat di tengah wilayah saat pergerakan peta selesai
     var popupTriggered = false;
     function displayFocusPopup() {
         if (popupTriggered) return;
         popupTriggered = true;
         if (!targetLatLng) return;
 
-        var cardContent = '';
-        if (targetSubLayer && targetSubLayer.getPopup && targetSubLayer.getPopup()) {
-            cardContent = targetSubLayer.getPopup().getContent();
-        }
-        if (!cardContent) {
-            var props = (targetSubLayer && targetSubLayer.feature && targetSubLayer.feature.properties)
+        var props = (row.properties && Object.keys(row.properties).length > 0)
+            ? row.properties
+            : ((targetSubLayer && targetSubLayer.feature && targetSubLayer.feature.properties)
                 ? targetSubLayer.feature.properties
-                : (row.properties || {});
-            cardContent = buildFeatureCardPopup(
-                row.name,
-                row.categoryBadge,
-                props,
-                row.fileName,
-                targetLatLng.lat,
-                targetLatLng.lng
-            );
-        }
+                : {});
+
+        var cardContent = buildFeatureCardPopup(
+            row.name,
+            row.categoryBadge,
+            props,
+            row.fileName,
+            targetLatLng.lat,
+            targetLatLng.lng
+        );
 
         var popupOffset = [0, -10];
         if (targetSubLayer && targetSubLayer.options && targetSubLayer.options.radius) {
@@ -1554,6 +1538,9 @@ function focusOnMapObject(row) {
             offset: popupOffset,
             closeButton: true,
             autoClose: true,
+            autoPan: true,
+            autoPanPaddingTopLeft: [70, 70],
+            autoPanPaddingBottomRight: [50, 50],
             className: 'bws-focus-popup'
         })
         .setLatLng(targetLatLng)
@@ -1561,11 +1548,15 @@ function focusOnMapObject(row) {
         .openOn(map);
     }
 
-    // Jalankan animasi zoom peta (dibatasi maxZoom 12.5 agar tidak terlalu besar sesuai Gambar 4)
+    // Jalankan animasi framing peta: pusatkan seluruh wilayah objek dan posisikan card di tengah layar
     if (row.bounds && row.bounds.isValid && row.bounds.isValid()) {
-        map.fitBounds(row.bounds, { padding: [60, 60], maxZoom: 12.5 });
+        map.fitBounds(row.bounds, {
+            paddingTopLeft: [70, 110],
+            paddingBottomRight: [70, 70],
+            maxZoom: 13
+        });
     } else if (targetLatLng) {
-        map.flyTo(targetLatLng, 12.5, { animate: true, duration: 0.8 });
+        map.flyTo(targetLatLng, 13, { animate: true, duration: 0.8 });
     }
 
     map.once('moveend', function() {
