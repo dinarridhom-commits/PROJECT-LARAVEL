@@ -18,6 +18,20 @@
  */
 
 /* ============================================================
+   0a. UTILITY GLOBAL - escapeHtml
+   Fungsi: Sanitasi string agar aman ditampilkan sebagai HTML.
+   ============================================================ */
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+/* ============================================================
    0. REGISTRASI PROJ4 - SISTEM KOORDINAT ARCMAP / ESRI
    Fungsi: Mendaftarkan definisi proyeksi peta yang dipakai
    ArcMap/ESRI agar koordinat bisa dikonversi ke WGS84 (Leaflet).
