@@ -21,7 +21,7 @@ class GisLayerController extends Controller
         }
 
         $pendingLayers = GisLayer::where('status', 'pending')->with('user')->latest()->get();
-        $historyLayers = GisLayer::whereIn('status', ['approved', 'rejected'])->with(['user', 'reviewer'])->latest()->take(15)->get();
+        $historyLayers = GisLayer::whereIn('status', ['approved', 'rejected'])->with(['user', 'reviewer'])->latest()->get();
 
         return view('admin.gis_verification', compact('pendingLayers', 'historyLayers'));
     }

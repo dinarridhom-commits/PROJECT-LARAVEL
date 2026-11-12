@@ -158,7 +158,7 @@
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0" style="font-size: 12.5px;">
+                <table class="table table-hover align-middle mb-0" id="historyTable" style="font-size: 12.5px;">
                     <thead class="bg-light text-muted small text-uppercase">
                         <tr>
                             <th class="pl-4 py-2.5">Nama Berkas</th>
@@ -168,9 +168,9 @@
                             <th class="py-2.5">Catatan / Waktu</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="historyTableBody">
                         @forelse($historyLayers as $hl)
-                            <tr>
+                            <tr class="history-row">
                                 <td class="pl-4 font-weight-bold text-dark">
                                     {{ $hl->nama_objek }}
                                 </td>
@@ -196,9 +196,166 @@
                     </tbody>
                 </table>
             </div>
+            {{-- Pagination Footer --}}
+            <div class="bws-table-v2-footer px-3 py-2" id="historyTableFooter" style="display:none; border-top: 1px solid #eaecf0; background:#fafafa; border-radius: 0 0 12px 12px;">
+                <div class="bws-table-v2-info" id="historyFooterInfo" style="font-size:12.5px; color:#6c757d;"></div>
+                <div class="bws-table-v2-pagination" id="historyPagination"></div>
+            </div>
         </div>
     </div>
 
 </div>
 @endsection
+
+@push('scripts')
+<style>
+    .bws-table-v2-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .bws-table-v2-pagination {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        flex-wrap: wrap;
+    }
+    .bws-pg-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 32px;
+        height: 32px;
+        padding: 0 8px;
+        border-radius: 6px;
+        border: 1px solid #dee2e6;
+        background: #fff;
+        color: #495057;
+        font-size: 12.5px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        line-height: 1;
+    }
+    .bws-pg-btn:hover:not(.active):not(.disabled) {
+        background: #f1f3f5;
+        border-color: #adb5bd;
+        color: #212529;
+    }
+    .bws-pg-btn.active {
+        background: #0d6efd;
+        border-color: #0d6efd;
+        color: #fff;
+        font-weight: 700;
+        cursor: default;
+    }
+    .bws-pg-btn.disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+</style>
+<script>
+(function () {
+    const perPage = 10;
+    let currentPage = 1;
+
+    const rows = Array.from(document.querySelectorAll('#historyTableBody .history-row'));
+    const footer = document.getElementById('historyTableFooter');
+    const footerInfo = document.getElementById('historyFooterInfo');
+    const paginationEl = document.getElementById('historyPagination');
+
+    const totalRows = rows.length;
+    if (totalRows === 0) return;
+
+    const totalPages = Math.ceil(totalRows / perPage);
+    if (totalRows > perPage) {
+        footer.style.display = 'flex';
+    }
+
+    function showPage(page) {
+        currentPage = page;
+        const start = (page - 1) * perPage;
+        const end = start + perPage;
+
+        rows.forEach(function (row, idx) {
+            row.style.display = (idx >= start && idx < end) ? '' : 'none';
+        });
+
+        const actualEnd = Math.min(end, totalRows);
+        footerInfo.textContent = 'Menampilkan ' + (start + 1) + ' - ' + actualEnd + ' dari ' + totalRows + ' riwayat verifikasi';
+
+        renderPagination();
+    }
+
+    function renderPagination() {
+        paginationEl.innerHTML = '';
+
+        // Prev button
+        var prev = document.createElement('button');
+        prev.className = 'bws-pg-btn' + (currentPage === 1 ? ' disabled' : '');
+        prev.innerHTML = '&laquo;';
+        prev.title = 'Halaman sebelumnya';
+        if (currentPage > 1) prev.addEventListener('click', function () { showPage(currentPage - 1); });
+        paginationEl.appendChild(prev);
+
+        // Page number buttons — show at most 5 pages around current
+        var maxButtons = 5;
+        var half = Math.floor(maxButtons / 2);
+        var startPage = Math.max(1, currentPage - half);
+        var endPage = Math.min(totalPages, startPage + maxButtons - 1);
+        if (endPage - startPage < maxButtons - 1) {
+            startPage = Math.max(1, endPage - maxButtons + 1);
+        }
+
+        if (startPage > 1) {
+            appendPageBtn(1);
+            if (startPage > 2) appendEllipsis();
+        }
+
+        for (var p = startPage; p <= endPage; p++) {
+            appendPageBtn(p);
+        }
+
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) appendEllipsis();
+            appendPageBtn(totalPages);
+        }
+
+        // Next button
+        var next = document.createElement('button');
+        next.className = 'bws-pg-btn' + (currentPage === totalPages ? ' disabled' : '');
+        next.innerHTML = '&raquo;';
+        next.title = 'Halaman berikutnya';
+        if (currentPage < totalPages) next.addEventListener('click', function () { showPage(currentPage + 1); });
+        paginationEl.appendChild(next);
+    }
+
+    function appendPageBtn(p) {
+        var btn = document.createElement('button');
+        btn.className = 'bws-pg-btn' + (p === currentPage ? ' active' : '');
+        btn.textContent = p;
+        btn.addEventListener('click', function () { showPage(p); });
+        paginationEl.appendChild(btn);
+    }
+
+    function appendEllipsis() {
+        var span = document.createElement('span');
+        span.className = 'bws-pg-btn disabled';
+        span.textContent = '...';
+        paginationEl.appendChild(span);
+    }
+
+    // Init
+    showPage(1);
+    if (totalRows <= perPage) {
+        // Show footer info even if only 1 page
+        footer.style.display = 'flex';
+        footerInfo.textContent = 'Menampilkan 1 - ' + totalRows + ' dari ' + totalRows + ' riwayat verifikasi';
+    }
+})();
+</script>
+@endpush
 
