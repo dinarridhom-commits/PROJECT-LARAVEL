@@ -834,6 +834,9 @@ function formatAttributeLabel(key) {
         'LUAS': 'Luas (Ha)',
         'luas': 'Luas (Ha)',
         'Luas_ha': 'Luas (Ha)',
+        'Luasan': 'Luas (Ha)',
+        'LUASAN': 'Luas (Ha)',
+        'luasan': 'Luas (Ha)',
         'D_I_R': 'Daerah Irigasi',
         'D_I': 'Daerah Irigasi',
         'Kewenangan': 'Kewenangan',
@@ -916,7 +919,7 @@ function buildFeatureCardPopup(cleanName, categoryBadge, properties, fileName, l
                         var displayHa = (numVal !== null && !isNaN(numVal))
                             ? numVal.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Ha'
                             : val;
-                        valFormatted = '<span class="badge badge-success px-1.5 py-0.5 font-weight-bold">' + displayHa + '</span>';
+                        valFormatted = displayHa;
                     } else if (isPanjang) {
                         var numLen = null;
                         if (typeof val === 'number') {
@@ -932,7 +935,7 @@ function buildFeatureCardPopup(cleanName, categoryBadge, properties, fileName, l
                         var displayLen = (numLen !== null && !isNaN(numLen))
                             ? numLen.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' m'
                             : val;
-                        valFormatted = '<span class="badge badge-info px-1.5 py-0.5 font-weight-bold">' + displayLen + '</span>';
+                        valFormatted = displayLen;
                     }
 
                     html += '<tr><th class="bws-attr-th text-muted">' + displayLabel + '</th><td class="bws-attr-td font-weight-medium">' + valFormatted + '</td></tr>';
