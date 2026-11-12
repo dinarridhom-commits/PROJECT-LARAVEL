@@ -20,11 +20,8 @@
                 Pusat data spasial dan inventarisasi infrastruktur Daerah Irigasi, Jaringan Saluran, dan Bangunan Air di Provinsi Kalimantan Barat.
             </p>
             <div class="dash-hero-actions">
-                <a href="{{ route('peta') }}" class="btn btn-warning font-weight-bold text-dark px-4 py-2 shadow-sm mr-2" style="border-radius: 8px;">
+                <a href="{{ route('peta') }}" class="btn btn-warning font-weight-bold text-dark px-4 py-2 shadow-sm" style="border-radius: 8px;">
                     <i class="fas fa-map-marked-alt mr-2"></i> Buka Peta Spasial Interaktif
-                </a>
-                <a href="{{ route('users.index') }}" class="btn btn-outline-light font-weight-bold px-3 py-2" style="border-radius: 8px;">
-                    <i class="fas fa-users-cog mr-1"></i> Kelola Pengguna
                 </a>
             </div>
 
