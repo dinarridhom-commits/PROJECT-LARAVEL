@@ -154,23 +154,35 @@
         <i class="fas fa-angle-up"></i>
     </a>
 
-    <!-- Logout Modal-->
-    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Yakin ingin keluar?</h5>
-                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                <div class="modal-body">Apakah anda yakin ingin Logout?</div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                    <form action="{{ route('logout') }}" method="POST" class="d-inline">
-                        @csrf
-                        <button type="submit" class="btn btn-primary">Logout</button>
-                    </form>
+    <!-- Logout Modal (Modern Centered Dialog) -->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="logoutModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 420px;">
+            <div class="modal-content border-0 shadow-lg position-relative" style="border-radius: 18px; overflow: hidden;">
+                <button type="button" class="close position-absolute" data-dismiss="modal" aria-label="Close" style="top: 16px; right: 18px; z-index: 10; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #f1f5f9; font-size: 18px; opacity: 0.8; transition: all 0.15s ease;">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="modal-body text-center p-4 pt-5 pb-4">
+                    {{-- Icon Logout Bulat Tengah --}}
+                    <div style="width: 68px; height: 68px; border-radius: 50%; background: #fee2e2; color: #dc2626; display: inline-flex; align-items: center; justify-content: center; font-size: 26px; margin-bottom: 18px; box-shadow: 0 0 0 8px #fef2f2;">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </div>
+                    <h5 class="font-weight-bold text-dark mb-2" id="logoutModalLabel" style="font-size: 19px; letter-spacing: -0.2px;">
+                        Keluar dari Akun?
+                    </h5>
+                    <p class="text-muted mb-4" style="font-size: 13.5px; line-height: 1.5; max-width: 330px; margin: 0 auto 24px auto;">
+                        Apakah Anda yakin ingin keluar? Sesi Anda akan diakhiri dan Anda perlu masuk kembali untuk mengakses sistem.
+                    </p>
+                    <div class="d-flex align-items-center justify-content-center" style="gap: 12px;">
+                        <button type="button" class="btn btn-light font-weight-bold px-4 py-2.5" data-dismiss="modal" style="border-radius: 10px; font-size: 13.5px; min-width: 120px; border: 1px solid #e2e8f0; color: #475569; background: #f8fafc;">
+                            Batal
+                        </button>
+                        <form action="{{ route('logout') }}" method="POST" class="m-0">
+                            @csrf
+                            <button type="submit" class="btn btn-danger font-weight-bold px-4 py-2.5" style="border-radius: 10px; font-size: 13.5px; min-width: 140px; background: linear-gradient(135deg, #ef4444, #dc2626); border: none; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);">
+                                <i class="fas fa-sign-out-alt mr-1.5"></i> Ya, Keluar
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
