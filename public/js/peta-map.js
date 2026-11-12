@@ -829,6 +829,11 @@ function formatAttributeLabel(key) {
         'fid': 'FID',
         'Luas_Ha': 'Luas (Ha)',
         'LUAS_HA': 'Luas (Ha)',
+        'luas_ha': 'Luas (Ha)',
+        'Luas': 'Luas (Ha)',
+        'LUAS': 'Luas (Ha)',
+        'luas': 'Luas (Ha)',
+        'Luas_ha': 'Luas (Ha)',
         'D_I_R': 'Daerah Irigasi',
         'D_I': 'Daerah Irigasi',
         'Kewenangan': 'Kewenangan',
@@ -891,10 +896,43 @@ function buildFeatureCardPopup(cleanName, categoryBadge, properties, fileName, l
                     var valFormatted = val;
 
                     // Highlight atribut penting (Luas, Panjang, Debit)
-                    if (kUpper.indexOf('LUAS') !== -1 || kUpper.indexOf('AREA') !== -1 || kUpper.indexOf('HA') !== -1) {
-                        valFormatted = '<span class="badge badge-success px-1.5 py-0.5 font-weight-bold">' + val + '</span>';
-                    } else if (kUpper.indexOf('PANJANG') !== -1 || kUpper.indexOf('LENGTH') !== -1) {
-                        valFormatted = '<span class="badge badge-info px-1.5 py-0.5 font-weight-bold">' + val + '</span>';
+                    var isLuas = (kUpper.indexOf('LUAS') !== -1 || kUpper.indexOf('AREA') !== -1 || kUpper.endsWith('_HA') || kUpper === 'HA' || kUpper.indexOf('(HA)') !== -1);
+                    var isPanjang = (!isLuas && (kUpper.indexOf('PANJANG') !== -1 || kUpper.indexOf('LENGTH') !== -1 || kUpper.indexOf('JARAK') !== -1));
+
+                    if (isLuas) {
+                        var numVal = null;
+                        if (typeof val === 'number') {
+                            numVal = val;
+                        } else {
+                            var cleanStr = String(val).replace(/\s*ha\b/i, '').trim();
+                            // Jika format koma desimal Indonesia: "7.700,83" atau "7700,83"
+                            if (cleanStr.indexOf(',') !== -1) {
+                                cleanStr = cleanStr.replace(/\./g, '').replace(',', '.');
+                            }
+                            var parsed = parseFloat(cleanStr);
+                            if (!isNaN(parsed)) numVal = parsed;
+                        }
+
+                        var displayHa = (numVal !== null && !isNaN(numVal))
+                            ? numVal.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Ha'
+                            : val;
+                        valFormatted = '<span class="badge badge-success px-1.5 py-0.5 font-weight-bold">' + displayHa + '</span>';
+                    } else if (isPanjang) {
+                        var numLen = null;
+                        if (typeof val === 'number') {
+                            numLen = val;
+                        } else {
+                            var cleanLen = String(val).replace(/\s*m\b/i, '').trim();
+                            if (cleanLen.indexOf(',') !== -1) {
+                                cleanLen = cleanLen.replace(/\./g, '').replace(',', '.');
+                            }
+                            var parsedLen = parseFloat(cleanLen);
+                            if (!isNaN(parsedLen)) numLen = parsedLen;
+                        }
+                        var displayLen = (numLen !== null && !isNaN(numLen))
+                            ? numLen.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' m'
+                            : val;
+                        valFormatted = '<span class="badge badge-info px-1.5 py-0.5 font-weight-bold">' + displayLen + '</span>';
                     }
 
                     html += '<tr><th class="bws-attr-th text-muted">' + displayLabel + '</th><td class="bws-attr-td font-weight-medium">' + valFormatted + '</td></tr>';
