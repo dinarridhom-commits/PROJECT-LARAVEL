@@ -42,11 +42,11 @@
             {{-- Kanan: Tombol Masuk / Profil --}}
             <div class="peta-navbar-right">
                 @auth
-                    {{-- Tombol Manajemen User --}}
+                    {{-- Tombol Dashboard Utama --}}
                     @if(in_array(Auth::user()->role, ['superadmin', 'admin']))
-                    <a href="{{ route('users.index') }}" class="peta-btn-admin-nav" title="Buka Manajemen User">
-                        <i class="fas fa-users-cog"></i>
-                        <span>Manajemen User</span>
+                    <a href="{{ route('dashboard') }}" class="peta-btn-admin-nav" title="Buka Dashboard Utama">
+                        <i class="fas fa-th-large"></i>
+                        <span>Dashboard</span>
                     </a>
                     @endif
 
@@ -69,9 +69,14 @@
                             </a>
                             @if(in_array(Auth::user()->role, ['superadmin', 'admin']))
                             <a class="dropdown-item py-2 d-flex align-items-center"
-                               href="{{ route('admin.panel') }}">
-                                <i class="fas fa-cog text-muted mr-2" style="width:16px;"></i>
-                                <span>Admin Panel</span>
+                               href="{{ route('dashboard') }}">
+                                <i class="fas fa-th-large text-primary mr-2" style="width:16px;"></i>
+                                <span>Dashboard</span>
+                            </a>
+                            <a class="dropdown-item py-2 d-flex align-items-center"
+                               href="{{ route('users.index') }}">
+                                <i class="fas fa-users-cog text-muted mr-2" style="width:16px;"></i>
+                                <span>Manajemen User</span>
                             </a>
                             @endif
                             <div class="dropdown-divider my-1"></div>
