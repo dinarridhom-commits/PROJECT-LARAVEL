@@ -51,3 +51,4 @@ class UserNotification extends Model
         ]);
     }
 }
+

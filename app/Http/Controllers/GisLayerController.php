@@ -214,3 +214,4 @@ class GisLayerController extends Controller
         return back()->with('success', "Berkas GIS '{$nama}' telah dihapus secara permanen dari server.");
     }
 }
+
