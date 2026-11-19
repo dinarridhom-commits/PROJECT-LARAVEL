@@ -102,7 +102,7 @@
                     <i class="fas fa-search"></i>
                 </div>
                 <div class="psb-header-text">
-                    <div class="psb-header-title">Jelajahi objek irigasi</div>
+                    <div class="psb-header-title">Jelajahi Objek Irigasi</div>
                     <div class="psb-header-sub">Cari pos atau daerah irigasi</div>
                 </div>
                 <button type="button" class="psb-btn-collapse" id="btnCollapseSidebar" onclick="toggleSidebarView()" title="Sembunyikan Sidebar">
@@ -112,7 +112,7 @@
 
             {{-- Pencarian --}}
             <div class="psb-section">
-                <label class="psb-label">Cari pos atau daerah irigasi</label>
+                <label class="psb-label">Cari Pos atau Daerah Irigasi</label>
                 <div class="psb-search-wrap">
                     <input type="text"
                            id="cari-sidebar"
@@ -132,15 +132,15 @@
                     </div>
                 </div>
                 <div class="psb-search-hint">
-                    Pilih hasil pencarian untuk melihat detail. Maksimal 150 karakter
+                    Pilih hasil pencarian untuk melihat detail lokasi pada peta.
                 </div>
             </div>
 
             {{-- Kategori & Layer Peta (Sesuai Gambar No 1) --}}
             <div class="psb-categories-section">
                 <div class="psb-categories-header">
-                    <span class="psb-categories-title">Tampilkan kategori</span>
-                    <span class="psb-categories-subtitle">Layer peta</span>
+                    <span class="psb-categories-title">Tampilkan Kategori</span>
+                    <span class="psb-categories-subtitle">Layer Peta</span>
                 </div>
                 <div class="psb-category-list">
                     {{-- 1. DIR Baku (Hijau) --}}

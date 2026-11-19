@@ -36,7 +36,7 @@
             {{-- Modal Header --}}
             <div class="modal-header bg-primary text-white py-3 px-4 d-flex align-items-center justify-content-between">
                 <h5 class="modal-title font-weight-bold mb-0" id="modalUploadGeojsonLabel" style="font-size: 15.5px;">
-                    <i class="fas fa-cloud-upload-alt mr-2"></i>Upload &amp; Pilih Layer GIS (GeoJSON / SHP / KML)
+                    <i class="fas fa-cloud-upload-alt mr-2"></i>Unggah &amp; Pilih Layer Spasial (GeoJSON / SHP / KML)
                 </h5>
                 <button type="button" class="close text-white opacity-80" data-dismiss="modal"
                         aria-label="Close" id="btnCloseUploadModal" style="font-size: 20px;">
@@ -81,7 +81,7 @@
                 <div class="form-group mb-2">
                     <div class="d-flex align-items-center justify-content-between mb-1.5">
                         <label class="font-weight-bold text-dark mb-0" style="font-size: 13.5px;">
-                            2. Layer Terdeteksi di dalam Berkas (Pilih yang diunggah):
+                            2. Layer Terdeteksi di dalam Berkas (Pilih yang Akan Diunggah):
                         </label>
                         <div id="triageActionButtons" style="display: none;">
                             <button type="button" class="btn btn-xs btn-outline-secondary font-weight-bold mr-1" onclick="selectAllTriage(true)" style="font-size: 10.5px; padding: 2px 7px; border-radius: 4px;">Pilih Semua</button>
@@ -158,7 +158,7 @@
                     </button>
                 </div>
                 <button type="button" class="btn btn-primary font-weight-bold px-4 py-1.5 shadow-sm" id="btnSubmitTriage" onclick="submitTriageUpload()" disabled style="font-size: 13px; border-radius: 8px;">
-                    <i class="fas fa-arrow-up mr-1.5"></i>Upload Terpilih
+                    <i class="fas fa-arrow-up mr-1.5"></i>Unggah Layer Terpilih
                 </button>
             </div>
 
@@ -183,7 +183,7 @@
 
             <div class="modal-header bg-dark text-white">
                 <h5 class="modal-title font-weight-bold" id="modalKelolaGeojsonLabel">
-                    <i class="fas fa-folder-open text-warning mr-2"></i>Kelola File GIS (public/geojson)
+                    <i class="fas fa-folder-open text-warning mr-2"></i>Kelola Berkas Spasial GIS
                 </h5>
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
@@ -197,7 +197,7 @@
                     <div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
                         <span class="small text-muted font-weight-medium">Total:
                             <span class="badge badge-primary px-2 py-1">
-                                {{ count($fileList ?? []) }} File GIS
+                                {{ count($fileList ?? []) }} Berkas GIS
                             </span>
                         </span>
                         <span id="bulk-selected-info" style="display:none;">
@@ -213,7 +213,7 @@
                                 style="border-radius: 6px; height: 32px; font-size: 12px; padding: 0 12px;"
                                 title="Buka form interaktif untuk unggah layer GIS baru (.zip, .shp, .geojson, .kml)">
                             <i class="fas fa-cloud-upload-alt mr-1.5"></i>
-                            <span>Upload File Baru</span>
+                            <span>Unggah Berkas Baru</span>
                         </button>
                     </div>
                     <div style="min-width: 200px; max-width: 260px;" class="flex-grow-1">

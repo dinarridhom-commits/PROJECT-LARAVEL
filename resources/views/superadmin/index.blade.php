@@ -9,7 +9,7 @@
     <div>
         <h1 class="h3 font-weight-bold text-gray-800">
             <i class="fas fa-users-cog text-danger mr-2"></i>
-            Manajemen User
+            Manajemen Pengguna
         </h1>
         <p class="text-muted small mb-0">
             Pembuatan akun staf/admin langsung oleh Super Admin dan pengelolaan hak akses.

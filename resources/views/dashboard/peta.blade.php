@@ -77,7 +77,7 @@
                             <a class="dropdown-item py-2 d-flex align-items-center"
                                href="{{ route('users.index') }}">
                                 <i class="fas fa-users-cog text-muted mr-2" style="width:16px;"></i>
-                                <span>Manajemen User</span>
+                                <span>Manajemen Pengguna</span>
                             </a>
                             @endif
                             <div class="dropdown-divider my-1"></div>
@@ -147,8 +147,8 @@
                     <i class="fas fa-search"></i>
                 </div>
                 <div class="flex-grow-1">
-                    <div class="psb-header-title">Jelajahi objek irigasi</div>
-                    <div class="psb-header-sub">Mulai dari nama atau No Foto spasial</div>
+                    <div class="psb-header-title">Jelajahi Objek Irigasi</div>
+                    <div class="psb-header-sub">Cari berdasarkan nama pos atau daerah irigasi</div>
                 </div>
                 <button type="button" class="psb-btn-collapse" id="btnCollapseSidebar" onclick="toggleSidebarView()" title="Sembunyikan Sidebar">
                     <i class="fas fa-chevron-left"></i>
@@ -157,7 +157,7 @@
 
             {{-- Pencarian --}}
             <div class="psb-section">
-                <label class="psb-label">Cari pos atau daerah irigasi</label>
+                <label class="psb-label">Cari Pos atau Daerah Irigasi</label>
                 <div class="psb-search-wrap">
                     <input type="text"
                            id="cari-sidebar"
@@ -177,15 +177,15 @@
                     </div>
                 </div>
                 <div class="psb-search-hint">
-                    Pilih hasil pencarian untuk melihat detail. Maksimal 150 karakter
+                    Pilih hasil pencarian untuk melihat detail lokasi pada peta.
                 </div>
             </div>
 
             {{-- Kategori & Layer Peta (Sesuai Gambar No 1) --}}
             <div class="psb-categories-section">
                 <div class="psb-categories-header">
-                    <span class="psb-categories-title">Tampilkan kategori</span>
-                    <span class="psb-categories-subtitle">Layer peta</span>
+                    <span class="psb-categories-title">Tampilkan Kategori</span>
+                    <span class="psb-categories-subtitle">Layer Peta</span>
                 </div>
                 <div class="psb-category-list">
                     {{-- 1. DIR Baku (Hijau) --}}
@@ -271,7 +271,7 @@
             <div class="psb-admin-actions">
                 <button type="button" class="psb-btn-admin" data-toggle="modal" data-target="#modalKelolaGeojson" title="Kelola dan unggah berkas GIS">
                     <i class="fas fa-folder-open text-primary"></i>
-                    <span>Kelola File GIS</span>
+                    <span>Kelola Berkas GIS</span>
                     <span class="badge badge-primary ml-auto" id="sidebar-file-count">{{ count($fileList ?? []) }}</span>
                 </button>
             </div>
@@ -317,7 +317,7 @@
                         <i class="fas fa-map mr-1"></i> Peta Interaktif
                     </button>
                     <button class="ptb-tab" id="tab-tabel" onclick="switchPetaTab('tabel')">
-                        <i class="fas fa-table mr-1"></i> Buka Tabel Data
+                        <i class="fas fa-table mr-1"></i> Tabel Data Spasial
                         <span class="badge badge-primary ml-1" style="font-size:10px; border-radius:10px; padding:2px 7px;">{{ count($fileList ?? []) }}</span>
                     </button>
                 </div>
@@ -403,7 +403,7 @@
                             <button type="button" class="btn-export-green" onclick="exportDataToCsv()"
                                     title="Unduh data dalam format CSV/Excel">
                                 <i class="fas fa-file-excel"></i>
-                                <span>Export CSV</span>
+                                <span>Ekspor CSV</span>
                             </button>
                             <div class="dropdown d-inline-block">
                                 <button type="button"
@@ -411,16 +411,16 @@
                                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                                         style="height:38px; border-radius:6px; font-size:13px;">
                                     <i class="fas fa-file-download mr-1"></i>
-                                    <span>Unduh GeoJSON</span>
+                                    <span>Unduh Berkas Spasial</span>
                                 </button>
                                 <div class="dropdown-menu dropdown-menu-right shadow border-0 py-2"
                                      style="border-radius:8px; min-width:250px; z-index:1060;">
                                     <div class="dropdown-header text-uppercase font-weight-bold text-xs text-muted">
-                                        Unduh Arsip GeoJSON (.ZIP)
+                                        Unduh Arsip Spasial (.ZIP)
                                     </div>
                                     <a class="dropdown-item py-2 d-flex align-items-center justify-content-between"
                                        href="{{ route('peta.download-category', 'all') }}">
-                                        <span><i class="fas fa-archive text-primary mr-2"></i> Semua Data GIS</span>
+                                        <span><i class="fas fa-archive text-primary mr-2"></i> Semua Layer Spasial</span>
                                         <span class="badge badge-primary px-2">{{ count($fileList) }}</span>
                                     </a>
                                     <div class="dropdown-divider my-1"></div>

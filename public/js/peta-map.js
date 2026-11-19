@@ -1984,7 +1984,7 @@ document.addEventListener('DOMContentLoaded', function() {
         var submitBtn = document.getElementById('btnSubmitTriage');
         if (submitBtn) {
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-arrow-up mr-1.5"></i>Upload Terpilih';
+            submitBtn.innerHTML = '<i class="fas fa-arrow-up mr-1.5"></i>Unggah Terpilih';
         }
     };
 
@@ -2249,9 +2249,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (submitBtn) {
             submitBtn.disabled = (selectedCount === 0);
             if (selectedCount === 0) {
-                submitBtn.innerHTML = '<i class="fas fa-ban mr-1.5"></i>Upload Terpilih (0)';
+                submitBtn.innerHTML = '<i class="fas fa-ban mr-1.5"></i>Unggah Terpilih (0)';
             } else {
-                submitBtn.innerHTML = '<i class="fas fa-arrow-up mr-1.5"></i>Upload Terpilih (' + selectedCount + ')';
+                submitBtn.innerHTML = '<i class="fas fa-arrow-up mr-1.5"></i>Unggah Terpilih (' + selectedCount + ')';
             }
         }
     };

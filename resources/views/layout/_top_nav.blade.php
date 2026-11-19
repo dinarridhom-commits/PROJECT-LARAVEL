@@ -274,12 +274,12 @@
             </div>
         </div>
 
-        {{-- 3. MANAJEMEN USER (Super Admin & Admin) --}}
+        {{-- 3. MANAJEMEN PENGGUNA (Super Admin & Admin) --}}
         @if(Auth::check() && in_array(Auth::user()->role, ['superadmin', 'admin']))
         <a href="{{ route('users.index') }}"
            class="bws-subnav-link {{ request()->is('users*') ? 'active' : '' }}">
             <i class="fas fa-users-cog text-info mr-2"></i>
-            <span>Manajemen User</span>
+            <span>Manajemen Pengguna</span>
         </a>
         @endif
 
