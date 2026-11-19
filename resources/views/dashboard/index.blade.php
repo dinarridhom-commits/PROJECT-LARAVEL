@@ -6,35 +6,55 @@
 <div class="container-fluid px-3 py-2">
 
     {{-- ============================================================
-         1. HERO WELCOME BANNER
+         1. HERO WELCOME BANNER (PROFESIONAL PUPR ENTERPRISE)
          ============================================================ --}}
     <div class="dash-hero-card mb-4">
         <div class="dash-hero-content">
             <div class="dash-hero-badge">
-                <i class="fas fa-chart-line mr-1 text-warning"></i> Monitoring &amp; Analitik Spasial
+                <i class="fas fa-chart-line text-warning"></i>
+                <span>MONITORING &amp; ANALITIK SPASIAL</span>
             </div>
             <h1 class="dash-hero-title">
-                Dashboard WebGIS BWS Kalimantan I
+                Dashboard WebGIS <span class="dash-hero-highlight">BWS Kalimantan I</span>
             </h1>
             <p class="dash-hero-subtitle">
                 Pusat data spasial dan inventarisasi infrastruktur Daerah Irigasi, Jaringan Saluran, dan Bangunan Air di Provinsi Kalimantan Barat.
             </p>
             <div class="dash-hero-actions">
-                <a href="{{ route('peta') }}" class="btn btn-warning font-weight-bold text-dark px-4 py-2 shadow-sm" style="border-radius: 8px;">
-                    <i class="fas fa-map-marked-alt mr-2"></i> Buka Peta Spasial Interaktif
+                <a href="{{ route('peta') }}" class="dash-hero-btn-cta">
+                    <i class="fas fa-map-marked-alt mr-2"></i>
+                    <span>Buka Peta Spasial Interaktif</span>
+                    <i class="fas fa-arrow-right ml-2" style="font-size: 12px; opacity: 0.85;"></i>
                 </a>
             </div>
 
-            {{-- Status Command Center Real-Time --}}
-            <div class="dash-hero-status-bar d-flex flex-wrap align-items-center mt-3 pt-2" style="border-top: 1px solid rgba(255,255,255,0.18); gap: 14px; font-size: 11.5px; color: rgba(255,255,255,0.92);">
-                <span><i class="fas fa-circle text-success mr-1.5" style="font-size: 8px;"></i> Status: <b>Sistem Terhubung &amp; Aktif</b></span>
-                <span><i class="fas fa-calendar-check mr-1.5 text-warning"></i> Sinkronisasi: <b>{{ date('d M Y') }}</b></span>
-                <span><i class="fas fa-map-marked-alt mr-1.5 text-info"></i> Wilayah Kerja: <b>14 Kab/Kota Kalbar</b></span>
+            {{-- Status Command Center Real-Time (Modern Capsule Chips) --}}
+            <div class="dash-hero-status-bar d-flex flex-wrap align-items-center mt-3 pt-3">
+                <div class="dash-hero-chip">
+                    <i class="fas fa-circle text-success" style="font-size: 7px;"></i>
+                    <span>Status: <b class="text-white">Terhubung &amp; Aktif</b></span>
+                </div>
+                <div class="dash-hero-chip">
+                    <i class="fas fa-calendar-check text-warning" style="font-size: 11px;"></i>
+                    <span>Sinkronisasi: <b class="text-white">{{ date('d M Y') }}</b></span>
+                </div>
+                <div class="dash-hero-chip">
+                    <i class="fas fa-map-marker-alt text-info" style="font-size: 11px;"></i>
+                    <span>Wilayah Kerja: <b class="text-white">14 Kab/Kota Kalbar</b></span>
+                </div>
             </div>
         </div>
-        <div class="dash-hero-illustration d-none d-lg-flex">
-            <div class="dash-hero-circle">
+
+        {{-- Sisi Kanan: Identitas Resmi Logo & Lembaga --}}
+        <div class="dash-hero-illustration d-none d-lg-flex flex-column align-items-center justify-content-center text-center pl-4">
+            <div class="dash-hero-circle mb-2">
                 <img src="{{ asset('sbadmin/img/logo-pu.jpeg') }}" alt="Logo PUPR" class="dash-hero-logo">
+            </div>
+            <div class="text-white font-weight-bold" style="font-size: 12px; letter-spacing: 0.5px; line-height: 1.35;">
+                KEMENTERIAN PEKERJAAN UMUM
+            </div>
+            <div style="font-size: 11px; color: rgba(255,255,255,0.8); letter-spacing: 0.2px;">
+                Ditjen Sumber Daya Air &bull; BWS Kalimantan I
             </div>
         </div>
     </div>
@@ -326,70 +346,121 @@
      CSS KHUSUS DASHBOARD ANALITIK
      ============================================================ --}}
 <style>
-    /* Hero Welcome Banner */
+    /* Hero Welcome Banner (Modern PUPR Enterprise Theme) */
     .dash-hero-card {
-        background: linear-gradient(135deg, #0f2e59 0%, #1e3a8a 55%, #1d4ed8 100%);
-        border-radius: 18px;
-        padding: 32px 36px;
+        background: linear-gradient(135deg, #091e3a 0%, #153e75 52%, #1d4ed8 100%);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 20px;
+        padding: 34px 38px;
         color: #ffffff;
         display: flex;
         align-items: center;
         justify-content: space-between;
         position: relative;
         overflow: hidden;
-        box-shadow: 0 10px 30px rgba(15, 46, 89, 0.25);
+        box-shadow: 0 14px 35px rgba(9, 30, 58, 0.28);
     }
     .dash-hero-card::before {
         content: '';
         position: absolute;
-        top: -60px;
-        right: -60px;
-        width: 260px;
-        height: 260px;
+        top: -70px;
+        right: -70px;
+        width: 300px;
+        height: 300px;
         border-radius: 50%;
         background: radial-gradient(circle, rgba(251, 191, 36, 0.22) 0%, transparent 70%);
         pointer-events: none;
     }
     .dash-hero-content {
-        max-width: 640px;
+        max-width: 660px;
         position: relative;
         z-index: 2;
     }
     .dash-hero-badge {
-        display: inline-block;
-        background: rgba(255, 255, 255, 0.15);
-        border: 1px solid rgba(255, 255, 255, 0.25);
-        padding: 4px 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border: 1px solid rgba(251, 191, 36, 0.4);
+        padding: 5px 14px;
         border-radius: 50px;
         font-size: 11.5px;
-        font-weight: 600;
+        font-weight: 700;
+        letter-spacing: 0.8px;
         margin-bottom: 12px;
-        letter-spacing: 0.3px;
+        color: #fef3c7;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
     .dash-hero-title {
-        font-size: 26px;
+        font-size: 28px;
         font-weight: 800;
-        letter-spacing: -0.3px;
-        margin-bottom: 8px;
+        letter-spacing: -0.4px;
+        margin-bottom: 10px;
         color: #ffffff;
+        line-height: 1.25;
+    }
+    .dash-hero-highlight {
+        color: #fbbf24;
+        text-shadow: 0 2px 10px rgba(251, 191, 36, 0.25);
     }
     .dash-hero-subtitle {
-        font-size: 13.5px;
+        font-size: 14.5px;
+        color: rgba(255, 255, 255, 0.92);
+        line-height: 1.6;
+        margin-bottom: 22px;
+        font-weight: 400;
+    }
+    .dash-hero-btn-cta {
+        display: inline-flex;
+        align-items: center;
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        color: #0f172a !important;
+        font-weight: 700;
+        font-size: 14px;
+        padding: 11px 24px;
+        border-radius: 10px;
+        border: none;
+        box-shadow: 0 4px 16px rgba(245, 158, 11, 0.38);
+        transition: all 0.25s ease;
+        text-decoration: none !important;
+    }
+    .dash-hero-btn-cta:hover {
+        background: linear-gradient(135deg, #fcd34d 0%, #fbbf24 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 22px rgba(245, 158, 11, 0.52);
+        color: #0f172a !important;
+    }
+    .dash-hero-status-bar {
+        border-top: 1px solid rgba(255, 255, 255, 0.14) !important;
+        gap: 10px;
+    }
+    .dash-hero-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        padding: 5px 12px;
+        border-radius: 8px;
+        font-size: 11.5px;
         color: rgba(255, 255, 255, 0.88);
-        line-height: 1.5;
-        margin-bottom: 20px;
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
     }
     .dash-hero-circle {
-        width: 100px;
-        height: 100px;
+        width: 96px;
+        height: 96px;
         background: #ffffff;
-        border-radius: 24px;
+        border-radius: 22px;
         padding: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
         flex-shrink: 0;
+        border: 2px solid rgba(255, 255, 255, 0.8);
     }
     .dash-hero-logo {
         width: 100%;
