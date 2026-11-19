@@ -146,12 +146,12 @@
                                value="{{ $search ?? '' }}"
                                style="border-radius: 8px 0 0 8px; font-size: 12.5px;">
                         <div class="input-group-append">
-                            <button class="btn btn-primary" type="submit" title="Cari data">
+                            <button class="btn btn-primary" type="submit" title="Cari data" style="border-radius: {{ empty($search) ? '0 8px 8px 0' : '0' }};">
                                 <i class="fas fa-search"></i>
                             </button>
                             @if(!empty($search))
                                 <a href="{{ route('master-data.infrastruktur', ['category' => $categoryFilter]) }}"
-                                   class="btn btn-outline-secondary" title="Hapus pencarian">
+                                   class="btn btn-outline-secondary" title="Hapus pencarian" style="border-radius: 0 8px 8px 0;">
                                     <i class="fas fa-times"></i>
                                 </a>
                             @endif
@@ -238,18 +238,17 @@
 
                             {{-- Aksi --}}
                             <td class="pr-4 text-center align-middle">
-                                <div class="btn-group btn-group-sm" role="group">
+                                <div class="d-flex align-items-center justify-content-center" style="gap: 6px;">
                                     {{-- Unduh Berkas --}}
                                     <a href="{{ route('peta.download-file', $layer->filename) }}"
-                                       class="btn btn-light border btn-sm text-primary"
-                                       title="Unduh Berkas GeoJSON ({{ $layer->filename }})"
-                                       style="border-radius: 6px 0 0 6px;">
+                                       class="bws-action-btn bws-act-download"
+                                       title="Unduh Berkas GeoJSON ({{ $layer->filename }})">
                                         <i class="fas fa-download"></i>
                                     </a>
 
                                     {{-- Buka di Peta Spasial --}}
                                     <a href="{{ route('peta', ['layer' => $layer->category]) }}"
-                                       class="btn btn-light border btn-sm text-success"
+                                       class="bws-action-btn bws-act-map"
                                        title="Buka layer di peta interaktif"
                                        target="_blank">
                                         <i class="fas fa-external-link-alt"></i>
@@ -258,10 +257,9 @@
                                     {{-- Hapus (Pindahkan ke Arsip Terhapus) --}}
                                     @if(Auth::check() && in_array(Auth::user()->role, ['admin', 'superadmin']))
                                     <button type="button"
-                                            class="btn btn-light border btn-sm text-danger"
+                                            class="bws-action-btn bws-act-delete"
                                             title="Pindahkan ke Arsip Terhapus"
-                                            onclick="confirmDeleteGis('{{ $layer->filename }}', '{{ addslashes($layer->nama_objek) }}')"
-                                            style="border-radius: 0 6px 6px 0;">
+                                            onclick="confirmDeleteGis('{{ $layer->filename }}', '{{ addslashes($layer->nama_objek) }}')">
                                         <i class="fas fa-trash-alt"></i>
                                     </button>
                                     @endif
@@ -485,14 +483,17 @@
     background: #fff;
     border: 1.5px solid #e9ecef;
     box-shadow: 0 1px 4px rgba(0,0,0,.05);
-    transition: all .2s ease;
+    transition: all .2s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     color: inherit;
 }
 .md-kpi-card:hover {
-    box-shadow: 0 4px 16px rgba(0,0,0,.10);
-    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0,0,0,.08);
+    transform: translateY(-3px);
     border-color: #94a3b8;
+}
+.md-kpi-card:active {
+    transform: translateY(0) scale(0.97) !important;
 }
 .md-kpi-active {
     border-color: #1d4ed8 !important;
@@ -576,6 +577,9 @@
     white-space: nowrap;
     cursor: pointer;
 }
+.bws-btn-top:active {
+    transform: scale(0.96) !important;
+}
 .bws-btn-top-primary {
     background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
     color: #ffffff !important;
@@ -614,6 +618,62 @@
 }
 
 /* ================================================================
+   ACTION BUTTONS DI DALAM TABEL (DOWNLOAD, LIHAT PETA, HAPUS)
+================================================================ */
+.bws-action-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12.5px;
+    cursor: pointer;
+    text-decoration: none !important;
+    transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+.bws-action-btn:active {
+    transform: scale(0.90) !important;
+}
+.bws-act-download {
+    color: #2563eb;
+}
+.bws-act-download:hover {
+    background: #eff6ff;
+    border-color: #93c5fd;
+    color: #1d4ed8;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.20);
+}
+.bws-act-map {
+    color: #16a34a;
+}
+.bws-act-map:hover {
+    background: #f0fdf4;
+    border-color: #86efac;
+    color: #15803d;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(22, 163, 74, 0.20);
+}
+.bws-act-delete {
+    color: #dc2626;
+}
+.bws-act-delete:hover {
+    background: #fef2f2;
+    border-color: #fca5a5;
+    color: #b91c1c;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(220, 38, 38, 0.20);
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+/* ================================================================
    DROPZONE STYLING
 ================================================================ */
 .md-dropzone-box {
@@ -647,6 +707,9 @@
 .bwsmd-pg-btn:hover:not(.active):not(.disabled) {
     background: #f1f5f9; border-color: #94a3b8;
     color: #1e293b; text-decoration: none;
+}
+.bwsmd-pg-btn:active:not(.disabled) {
+    transform: scale(0.93) !important;
 }
 .bwsmd-pg-btn.active {
     background: #1d4ed8; border-color: #1d4ed8;

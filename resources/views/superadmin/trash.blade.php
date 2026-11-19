@@ -1,6 +1,6 @@
 @extends('layout.master')
 
-@section('title', 'Tong Sampah Pengguna - Super Admin')
+@section('title', 'Arsip Terhapus Pengguna - Super Admin')
 
 @section('konten')
 <div class="container-fluid">

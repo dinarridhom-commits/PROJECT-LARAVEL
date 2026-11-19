@@ -96,7 +96,7 @@
                         <i class="fas fa-user"></i>
                     </div>
                     <span class="font-weight-bold">{{ Auth::user()->name }}</span>
-                    <i class="fas fa-chevron-down ml-1 small text-white-50"></i>
+                    <i class="fas fa-chevron-down ml-1 text-white-50" style="font-size: 10px;"></i>
                 </div>
                 <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in py-2"
                      aria-labelledby="userMenuDropdown" style="min-width: 180px; border-radius: 8px;">
@@ -247,7 +247,7 @@
                             <span class="badge badge-light border text-muted px-2 py-0.5 mr-2" style="font-size: 10.5px;">
                                 {{ $totalInfrastruktur }} Data
                             </span>
-                            <i class="fas fa-chevron-right text-muted small"></i>
+                            <i class="fas fa-chevron-right bws-chevron-arrow"></i>
                         </div>
                     </a>
 
@@ -309,7 +309,7 @@
                             <span class="badge badge-light border text-muted px-2 py-0.5 mr-2" style="font-size: 10.5px;">
                                 {{ $totalDaerahIrigasi }} Data
                             </span>
-                            <i class="fas fa-chevron-right text-muted small"></i>
+                            <i class="fas fa-chevron-right bws-chevron-arrow"></i>
                         </div>
                     </a>
 
@@ -383,7 +383,7 @@
                             <div class="bws-flyout-footer-sub">Kelola seluruh 54 berkas spasial</div>
                         </div>
                     </div>
-                    <i class="fas fa-arrow-right text-primary small ml-2"></i>
+                    <i class="fas fa-arrow-right bws-footer-arrow ml-2"></i>
                 </a>
             </div>
         </div>
@@ -428,7 +428,8 @@
     (function() {
         function initSubnavDropdowns() {
             var dropdown = document.querySelector('.bws-subnav-dropdown');
-            var submenu = document.querySelector('.bws-dropdown-submenu');
+            var submenus = dropdown ? dropdown.querySelectorAll('.bws-dropdown-submenu') : [];
+            var hoverTimers = {};
 
             if (dropdown) {
                 var btn = dropdown.querySelector('.bws-subnav-link');
@@ -442,11 +443,12 @@
                         if (isOpen) {
                             dropdown.classList.remove('show');
                             menu.classList.remove('show');
-                            if (submenu) {
-                                submenu.classList.remove('show');
-                                var f = submenu.querySelector('.bws-flyout-menu');
+                            submenus.forEach(function(sub, idx) {
+                                if (hoverTimers[idx]) clearTimeout(hoverTimers[idx]);
+                                sub.classList.remove('show');
+                                var f = sub.querySelector('.bws-flyout-menu');
                                 if (f) f.classList.remove('show');
-                            }
+                            });
                         } else {
                             dropdown.classList.add('show');
                             menu.classList.add('show');
@@ -455,24 +457,56 @@
                 }
             }
 
-            var submenus = dropdown ? dropdown.querySelectorAll('.bws-dropdown-submenu') : [];
-            submenus.forEach(function(sub) {
-                var subLink = sub.querySelector('a.bws-main-dropdown-card') || sub.querySelector('a.bws-dropdown-item');
+            submenus.forEach(function(sub, idx) {
                 var flyout = sub.querySelector('.bws-flyout-menu');
+                var subLink = sub.querySelector('a.bws-main-dropdown-card') || sub.querySelector('a.bws-dropdown-item');
 
-                if (subLink && flyout) {
+                function openSubmenu() {
+                    submenus.forEach(function(other, oIdx) {
+                        if (other !== sub) {
+                            if (hoverTimers[oIdx]) clearTimeout(hoverTimers[oIdx]);
+                            other.classList.remove('show');
+                            var of = other.querySelector('.bws-flyout-menu');
+                            if (of) of.classList.remove('show');
+                        }
+                    });
+                    sub.classList.add('show');
+                    if (flyout) flyout.classList.add('show');
+                }
+
+                function closeSubmenu() {
+                    if (hoverTimers[idx]) clearTimeout(hoverTimers[idx]);
+                    sub.classList.remove('show');
+                    if (flyout) flyout.classList.remove('show');
+                }
+
+                // Jeda / Delay Hover (280ms) agar menu samping tidak langsung muncul seketika saat kursor melintas
+                sub.addEventListener('mouseenter', function() {
+                    if (hoverTimers[idx]) clearTimeout(hoverTimers[idx]);
+                    hoverTimers[idx] = setTimeout(function() {
+                        openSubmenu();
+                    }, 280);
+                });
+
+                sub.addEventListener('mouseleave', function() {
+                    if (hoverTimers[idx]) clearTimeout(hoverTimers[idx]);
+                    hoverTimers[idx] = setTimeout(function() {
+                        closeSubmenu();
+                    }, 180);
+                });
+
+                // Jika diklik langsung, seketika buka/tutup (toggle) tanpa menunggu delay
+                if (subLink) {
                     subLink.addEventListener('click', function(e) {
                         e.preventDefault();
                         e.stopPropagation();
-                        submenus.forEach(function(other) {
-                            if (other !== sub) {
-                                other.classList.remove('show');
-                                var of = other.querySelector('.bws-flyout-menu');
-                                if (of) of.classList.remove('show');
-                            }
-                        });
-                        sub.classList.toggle('show');
-                        flyout.classList.toggle('show');
+                        if (hoverTimers[idx]) clearTimeout(hoverTimers[idx]);
+                        var isShowing = sub.classList.contains('show');
+                        if (isShowing) {
+                            closeSubmenu();
+                        } else {
+                            openSubmenu();
+                        }
                     });
                 }
             });
@@ -482,7 +516,8 @@
                     dropdown.classList.remove('show');
                     var m = dropdown.querySelector('.bws-dropdown-menu');
                     if (m) m.classList.remove('show');
-                    submenus.forEach(function(sub) {
+                    submenus.forEach(function(sub, idx) {
+                        if (hoverTimers[idx]) clearTimeout(hoverTimers[idx]);
                         sub.classList.remove('show');
                         var f = sub.querySelector('.bws-flyout-menu');
                         if (f) f.classList.remove('show');
@@ -837,6 +872,39 @@
     line-height: 1.2;
     margin-top: 1px;
     font-family: 'Inter', sans-serif;
+}
+
+/* ================================================================
+   CHEVRON ARROWS & PRESS / ACTIVE EFFECTS
+================================================================ */
+.bws-chevron-arrow {
+    font-size: 11px;
+    color: #94a3b8;
+    transition: transform 0.18s ease, color 0.18s ease;
+    display: inline-block;
+}
+.bws-main-dropdown-card:hover .bws-chevron-arrow,
+.bws-dropdown-submenu.show .bws-chevron-arrow {
+    color: #1d4ed8;
+    transform: translateX(2px);
+}
+.bws-footer-arrow {
+    font-size: 11.5px;
+    color: #1d4ed8;
+    transition: transform 0.18s ease;
+    display: inline-block;
+}
+.bws-flyout-footer-btn:hover .bws-footer-arrow {
+    transform: translateX(3px);
+}
+.bws-main-dropdown-card:active {
+    transform: scale(0.98) !important;
+}
+.bws-flyout-card:active {
+    transform: scale(0.98) !important;
+}
+.bws-flyout-footer-btn:active {
+    transform: scale(0.98) !important;
 }
 </style>
 @endif

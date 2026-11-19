@@ -96,14 +96,14 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 8px 20px;
-    min-height: 62px;
+    padding: 10px 24px;
+    min-height: 68px;
 }
-.bws-nav-left { display: flex; align-items: center; gap: 16px; }
+.bws-nav-left { display: flex; align-items: center; gap: 18px; }
 
 /* Tombol Reset Tampilan Peta */
 .bws-back-btn {
-    width: 42px; height: 42px;
+    width: 44px; height: 44px;
     background: #ffffff;
     border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
@@ -111,17 +111,18 @@ body {
     text-decoration: none;
     box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     transition: all 0.2s ease;
-    font-size: 16px; border: none; cursor: pointer;
+    font-size: 17px; border: none; cursor: pointer;
 }
 .bws-back-btn:hover { background: #f1f5f9; color: var(--bws-primary); transform: scale(1.05); text-decoration: none; }
+.bws-back-btn:active { transform: scale(0.92); }
 
 /* Logo & Identitas */
-.bws-brand-wrapper { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #ffffff; }
-.bws-logo-pu { width: 40px; height: 40px; object-fit: cover; border-radius: 8px; background: #ffffff; padding: 2px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+.bws-brand-wrapper { display: flex; align-items: center; gap: 12px; text-decoration: none; color: #ffffff; }
+.bws-logo-pu { width: 48px; height: 48px; object-fit: cover; border-radius: 9px; background: #ffffff; padding: 2.5px; box-shadow: 0 2px 5px rgba(0,0,0,0.15); }
 .bws-brand-text { line-height: 1.25; }
-.bws-brand-title { font-weight: 800; font-size: 14px; letter-spacing: 0.4px; color: #ffffff; text-transform: uppercase; }
-.bws-brand-subtitle { font-size: 11px; color: rgba(255,255,255,0.95); font-weight: 500; }
-.bws-brand-dept { font-size: 10.5px; color: rgba(255,255,255,0.82); font-weight: 400; }
+.bws-brand-title { font-weight: 800; font-size: 15.5px; letter-spacing: 0.5px; color: #ffffff; text-transform: uppercase; font-family: 'Plus Jakarta Sans', sans-serif; }
+.bws-brand-subtitle { font-size: 12px; color: rgba(255,255,255,0.96); font-weight: 600; font-family: 'Inter', sans-serif; }
+.bws-brand-dept { font-size: 11px; color: rgba(255,255,255,0.85); font-weight: 400; font-family: 'Inter', sans-serif; }
 
 /* Nav Right */
 .bws-nav-right { display: flex; align-items: center; gap: 14px; }
@@ -131,6 +132,7 @@ body {
     border-radius: 50%; cursor: pointer; transition: all 0.2s ease; position: relative;
 }
 .bws-header-btn:hover { background: rgba(255,255,255,0.16); color: #ffffff; }
+.bws-header-btn:active { transform: scale(0.92); }
 
 /* Badge notifikasi jumlah file GIS / unread */
 .bws-badge-pill {
@@ -386,6 +388,7 @@ body {
     cursor: pointer; transition: all 0.2s ease; font-weight: 600; font-size: 13.5px;
 }
 .bws-profile-pill:hover { background: rgba(255,255,255,0.15); color: #ffffff; text-decoration: none; }
+.bws-profile-pill:active { transform: scale(0.96); }
 .bws-profile-avatar {
     width: 36px; height: 36px; border-radius: 50%;
     background: rgba(255,255,255,0.32);
@@ -547,7 +550,6 @@ body {
     z-index: 1100;
     list-style: none;
 }
-.bws-dropdown-submenu:hover > .bws-flyout-menu,
 .bws-dropdown-submenu.show > .bws-flyout-menu,
 .bws-dropdown-submenu > .bws-flyout-menu.show {
     display: block !important;

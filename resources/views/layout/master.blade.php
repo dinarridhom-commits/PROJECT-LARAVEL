@@ -69,6 +69,23 @@
             font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
         }
 
+        /* Proteksi Ikon FontAwesome agar tidak tertimpa font teks */
+        .fa, .fas, i.fa, i.fas {
+            font-family: "Font Awesome 5 Free" !important;
+            font-weight: 900 !important;
+            font-style: normal;
+        }
+        .far, i.far {
+            font-family: "Font Awesome 5 Free" !important;
+            font-weight: 400 !important;
+            font-style: normal;
+        }
+        .fab, i.fab {
+            font-family: "Font Awesome 5 Brands" !important;
+            font-weight: 400 !important;
+            font-style: normal;
+        }
+
         /* Mencegah horizontal scroll overflow di seluruh halaman */
         html, body {
             overflow-x: hidden !important;
