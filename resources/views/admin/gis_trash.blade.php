@@ -1,27 +1,30 @@
 @extends('layout.master')
 
-@section('title', 'Tong Sampah Berkas GIS - Super Admin')
+@section('title', 'Arsip Berkas Terhapus - Super Admin')
 
 @section('konten')
 <div class="container-fluid">
 
-    <div class="d-flex align-items-center justify-content-between mb-4">
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap" style="gap: 12px;">
         <div>
-            <h1 class="h3 font-weight-bold text-gray-800">
-                <i class="fas fa-trash-alt text-danger mr-2"></i>
-                Tong Sampah Berkas GIS (Trash)
+            <h1 class="h3 font-weight-bold text-gray-800" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+                <i class="fas fa-archive text-danger mr-2"></i>
+                Arsip Berkas Spasial Terhapus
             </h1>
-            <p class="text-muted small mb-0">
-                Berkas spasial GeoJSON yang dihapus sementara (*Soft Deleted*). Anda dapat memulihkan (*Restore*) berkas kembali ke peta atau menghapusnya secara permanen.
+            <p class="text-muted small mb-0" style="font-family: 'Inter', sans-serif;">
+                Daftar berkas spasial GeoJSON yang dihapus sementara (Soft Deleted). Anda dapat memulihkan (*Restore*) berkas kembali ke publikasi peta atau menghapusnya secara permanen.
             </p>
         </div>
 
-        <div class="d-flex align-items-center" style="gap: 8px;">
-            <a href="{{ route('gis.verification') }}" class="btn btn-outline-primary shadow-sm font-weight-bold">
-                <i class="fas fa-clipboard-check mr-1"></i> Antrean Verifikasi
+        <div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
+            <a href="{{ route('master-data.infrastruktur') }}" class="btn btn-outline-secondary font-weight-bold shadow-sm" style="border-radius: 8px; font-size: 13px;">
+                <i class="fas fa-database mr-1.5 text-primary"></i> Master Data
             </a>
-            <a href="{{ route('peta') }}" class="btn btn-secondary shadow-sm">
-                <i class="fas fa-map mr-1"></i> Kembali ke Peta
+            <a href="{{ route('gis.verification') }}" class="btn btn-outline-primary shadow-sm font-weight-bold" style="border-radius: 8px; font-size: 13px;">
+                <i class="fas fa-clipboard-check mr-1.5"></i> Antrean Verifikasi
+            </a>
+            <a href="{{ route('peta') }}" class="btn btn-primary shadow-sm font-weight-bold" style="border-radius: 8px; font-size: 13px;" target="_blank">
+                <i class="fas fa-map mr-1.5"></i> Buka Peta
             </a>
         </div>
     </div>

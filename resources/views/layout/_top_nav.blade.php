@@ -65,7 +65,7 @@
                             <i class="fas fa-tasks mr-1"></i> Antrean Verifikasi
                         </a>
                         <a href="{{ route('gis.trash') }}" class="bws-notif-footer-link text-muted">
-                            <i class="fas fa-trash-alt mr-1"></i> Tong Sampah GIS
+                            <i class="fas fa-archive mr-1"></i> Arsip Terhapus
                         </a>
                     </div>
                     @else
@@ -225,77 +225,127 @@
                     <a href="{{ route('master-data.infrastruktur') }}" class="bws-dropdown-item {{ request()->is('master-data/infrastruktur*') ? 'font-weight-bold text-primary' : '' }}">
                         <span class="d-flex align-items-center">
                             <i class="fas fa-layer-group text-primary mr-2"></i>
-                            <span>Infrastruktur</span>
+                            <span>Infrastruktur &amp; Areal Irigasi</span>
                         </span>
                         <i class="fas fa-chevron-right text-muted small ml-3"></i>
                     </a>
 
-                    {{-- Submenu Flyout Infrastruktur (Angka Realtime dari DB) --}}
+                    {{-- Submenu Flyout Bersekat (Opsi B: Dua Kelompok + Simbol & Card Elegan) --}}
                     @php
                         $navCatCounts = \App\Models\GisLayer::where('status', 'approved')
                             ->selectRaw('category, count(*) as total')
                             ->groupBy('category')
                             ->pluck('total', 'category');
                     @endphp
-                    <div class="bws-flyout-menu shadow">
+                    <div class="bws-flyout-menu shadow-lg">
+                        {{-- GRUP 1: DAERAH IRIGASI (KAWASAN / AREAL) --}}
+                        <div class="bws-flyout-header-group">
+                            <span class="bws-group-badge bws-badge-green">Kawasan</span>
+                            <span class="bws-group-title">Daerah Irigasi</span>
+                        </div>
+
                         <a href="{{ route('master-data.infrastruktur', ['category' => 'baku']) }}"
-                           class="bws-dropdown-item {{ request('category') == 'baku' ? 'font-weight-bold text-primary' : '' }}">
-                            <span class="d-flex align-items-center">
-                                <span class="bws-flyout-badge mr-2" style="background:#27ae60;"></span>
-                                <span>Daerah Irigasi Baku</span>
-                            </span>
-                            <span class="badge badge-light border text-muted ml-2" style="font-size: 10px; padding: 2px 6px;">
-                                {{ $navCatCounts['baku'] ?? 0 }} Data
-                            </span>
-                        </a>
-                        <a href="{{ route('master-data.infrastruktur', ['category' => 'fungsional']) }}"
-                           class="bws-dropdown-item {{ request('category') == 'fungsional' ? 'font-weight-bold text-primary' : '' }}">
-                            <span class="d-flex align-items-center">
-                                <span class="bws-flyout-badge mr-2" style="background:#2980b9;"></span>
-                                <span>Daerah Irigasi Fungsional</span>
-                            </span>
-                            <span class="badge badge-light border text-muted ml-2" style="font-size: 10px; padding: 2px 6px;">
-                                {{ $navCatCounts['fungsional'] ?? 0 }} Data
-                            </span>
-                        </a>
-                        <a href="{{ route('master-data.infrastruktur', ['category' => 'potensial']) }}"
-                           class="bws-dropdown-item {{ request('category') == 'potensial' ? 'font-weight-bold text-primary' : '' }}">
-                            <span class="d-flex align-items-center">
-                                <span class="bws-flyout-badge mr-2" style="background:#e67e22;"></span>
-                                <span>Daerah Irigasi Potensial</span>
-                            </span>
-                            <span class="badge badge-light border text-muted ml-2" style="font-size: 10px; padding: 2px 6px;">
-                                {{ $navCatCounts['potensial'] ?? 0 }} Data
-                            </span>
-                        </a>
-                        <div class="dropdown-divider my-1"></div>
-                        <a href="{{ route('master-data.infrastruktur', ['category' => 'saluran']) }}"
-                           class="bws-dropdown-item {{ request('category') == 'saluran' ? 'font-weight-bold text-primary' : '' }}">
-                            <span class="d-flex align-items-center">
-                                <span class="bws-flyout-badge mr-2" style="background:#0984e3;"></span>
-                                <span>Jaringan Saluran Irigasi</span>
-                            </span>
-                            <span class="badge badge-light border text-muted ml-2" style="font-size: 10px; padding: 2px 6px;">
-                                {{ $navCatCounts['saluran'] ?? 0 }} Data
-                            </span>
-                        </a>
-                        <a href="{{ route('master-data.infrastruktur', ['category' => 'bangunan']) }}"
-                           class="bws-dropdown-item {{ request('category') == 'bangunan' ? 'font-weight-bold text-primary' : '' }}">
-                            <span class="d-flex align-items-center">
-                                <span class="bws-flyout-badge mr-2" style="background:#d63031;"></span>
-                                <span>Bangunan Air / Pelengkap</span>
-                            </span>
-                            <span class="badge badge-light border text-muted ml-2" style="font-size: 10px; padding: 2px 6px;">
-                                {{ $navCatCounts['bangunan'] ?? 0 }} Data
+                           class="bws-flyout-card {{ request('category') == 'baku' ? 'active' : '' }}">
+                            <div class="bws-flyout-card-left">
+                                <div class="bws-flyout-icon-box bws-icon-green">
+                                    <i class="fas fa-seedling"></i>
+                                </div>
+                                <div>
+                                    <div class="bws-flyout-card-name">Daerah Irigasi Baku</div>
+                                    <div class="bws-flyout-card-desc">Lahan beririgasi baku aktif</div>
+                                </div>
+                            </div>
+                            <span class="bws-flyout-pill-count">
+                                {{ $navCatCounts['baku'] ?? 0 }} Berkas
                             </span>
                         </a>
 
-                        <div class="dropdown-divider my-1"></div>
-                        <a href="{{ route('master-data.infrastruktur') }}" class="bws-dropdown-item text-primary font-weight-bold">
-                            <span class="d-flex align-items-center">
-                                <i class="fas fa-th-list mr-2"></i>
-                                <span>Lihat Semua Data</span>
+                        <a href="{{ route('master-data.infrastruktur', ['category' => 'fungsional']) }}"
+                           class="bws-flyout-card {{ request('category') == 'fungsional' ? 'active' : '' }}">
+                            <div class="bws-flyout-card-left">
+                                <div class="bws-flyout-icon-box bws-icon-blue">
+                                    <i class="fas fa-tint"></i>
+                                </div>
+                                <div>
+                                    <div class="bws-flyout-card-name">Daerah Irigasi Fungsional</div>
+                                    <div class="bws-flyout-card-desc">Lahan beririgasi teratur</div>
+                                </div>
+                            </div>
+                            <span class="bws-flyout-pill-count">
+                                {{ $navCatCounts['fungsional'] ?? 0 }} Berkas
                             </span>
+                        </a>
+
+                        <a href="{{ route('master-data.infrastruktur', ['category' => 'potensial']) }}"
+                           class="bws-flyout-card {{ request('category') == 'potensial' ? 'active' : '' }}">
+                            <div class="bws-flyout-card-left">
+                                <div class="bws-flyout-icon-box bws-icon-amber">
+                                    <i class="fas fa-chart-area"></i>
+                                </div>
+                                <div>
+                                    <div class="bws-flyout-card-name">Daerah Irigasi Potensial</div>
+                                    <div class="bws-flyout-card-desc">Kawasan potensi pengembangan</div>
+                                </div>
+                            </div>
+                            <span class="bws-flyout-pill-count">
+                                {{ $navCatCounts['potensial'] ?? 0 }} Berkas
+                            </span>
+                        </a>
+
+                        {{-- SEKAT PEMBATAS / GRUP 2: PRASARANA FISIK & BANGUNAN AIR --}}
+                        <div class="bws-flyout-divider"></div>
+
+                        <div class="bws-flyout-header-group">
+                            <span class="bws-group-badge bws-badge-blue">Prasarana Fisik</span>
+                            <span class="bws-group-title">Infrastruktur &amp; Bangunan Air</span>
+                        </div>
+
+                        <a href="{{ route('master-data.infrastruktur', ['category' => 'saluran']) }}"
+                           class="bws-flyout-card {{ request('category') == 'saluran' ? 'active' : '' }}">
+                            <div class="bws-flyout-card-left">
+                                <div class="bws-flyout-icon-box bws-icon-cyan">
+                                    <i class="fas fa-stream"></i>
+                                </div>
+                                <div>
+                                    <div class="bws-flyout-card-name">Jaringan Saluran Irigasi</div>
+                                    <div class="bws-flyout-card-desc">Saluran primer, sekunder &amp; tersier</div>
+                                </div>
+                            </div>
+                            <span class="bws-flyout-pill-count">
+                                {{ $navCatCounts['saluran'] ?? 0 }} Berkas
+                            </span>
+                        </a>
+
+                        <a href="{{ route('master-data.infrastruktur', ['category' => 'bangunan']) }}"
+                           class="bws-flyout-card {{ request('category') == 'bangunan' ? 'active' : '' }}">
+                            <div class="bws-flyout-card-left">
+                                <div class="bws-flyout-icon-box bws-icon-red">
+                                    <i class="fas fa-archway"></i>
+                                </div>
+                                <div>
+                                    <div class="bws-flyout-card-name">Bangunan Air &amp; Pelengkap</div>
+                                    <div class="bws-flyout-card-desc">Bendung, pintu air &amp; bagi sadap</div>
+                                </div>
+                            </div>
+                            <span class="bws-flyout-pill-count">
+                                {{ $navCatCounts['bangunan'] ?? 0 }} Berkas
+                            </span>
+                        </a>
+
+                        {{-- FOOTER MENU: BUKA SEMUA DATA --}}
+                        <div class="bws-flyout-divider"></div>
+
+                        <a href="{{ route('master-data.infrastruktur') }}" class="bws-flyout-footer-btn">
+                            <div class="d-flex align-items-center">
+                                <div class="bws-flyout-icon-box bws-icon-indigo mr-2.5">
+                                    <i class="fas fa-th-large"></i>
+                                </div>
+                                <div>
+                                    <div class="bws-flyout-footer-title">Buka Katalog Master Data</div>
+                                    <div class="bws-flyout-footer-sub">Kelola tabel, unduh &amp; unggah berkas spasial</div>
+                                </div>
+                            </div>
+                            <i class="fas fa-arrow-right text-primary small ml-2"></i>
                         </a>
                     </div>
                 </div>
@@ -546,4 +596,151 @@
             }).catch(function() {});
     });
 </script>
+
+<style>
+/* ================================================================
+   BWS FLYOUT MENU (CARD & SECTIONED GROUP STYLE - OPSI B)
+================================================================ */
+.bws-dropdown-submenu .bws-flyout-menu {
+    min-width: 350px !important;
+    padding: 10px !important;
+    border-radius: 14px !important;
+    border: 1px solid #e2e8f0 !important;
+    background: #ffffff !important;
+    box-shadow: 0 20px 40px -6px rgba(15, 23, 42, 0.16), 0 10px 16px -6px rgba(15, 23, 42, 0.08) !important;
+}
+
+.bws-flyout-header-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px 4px 8px;
+}
+.bws-group-badge {
+    font-size: 9.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 2px 7px;
+    border-radius: 6px;
+    line-height: 1.2;
+}
+.bws-badge-green { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+.bws-badge-blue  { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+
+.bws-group-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: 'Inter', sans-serif;
+}
+
+.bws-flyout-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    border-radius: 10px;
+    text-decoration: none !important;
+    transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-bottom: 2px;
+    background: transparent;
+    border: 1px solid transparent;
+}
+.bws-flyout-card:hover {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+    transform: translateX(3px);
+}
+.bws-flyout-card.active {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+}
+
+.bws-flyout-card-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.bws-flyout-icon-box {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13.5px;
+    flex-shrink: 0;
+}
+.bws-icon-green  { background: #dcfce7; color: #16a34a; }
+.bws-icon-blue   { background: #dbeafe; color: #2563eb; }
+.bws-icon-amber  { background: #fef3c7; color: #d97706; }
+.bws-icon-cyan   { background: #e0f2fe; color: #0284c7; }
+.bws-icon-red    { background: #fee2e2; color: #dc2626; }
+.bws-icon-indigo { background: #e0e7ff; color: #4f46e5; }
+
+.bws-flyout-card-name {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1.25;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+.bws-flyout-card-desc {
+    font-size: 10.5px;
+    color: #64748b;
+    line-height: 1.2;
+    margin-top: 1px;
+    font-family: 'Inter', sans-serif;
+}
+.bws-flyout-pill-count {
+    font-size: 11px;
+    font-weight: 600;
+    color: #475569;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    padding: 2px 8px;
+    border-radius: 12px;
+    white-space: nowrap;
+}
+
+.bws-flyout-divider {
+    height: 1px;
+    background: #f1f5f9;
+    margin: 6px 4px;
+}
+
+.bws-flyout-footer-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 12px;
+    border-radius: 10px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    text-decoration: none !important;
+    transition: all 0.18s ease;
+}
+.bws-flyout-footer-btn:hover {
+    background: #eff6ff;
+    border-color: #93c5fd;
+    transform: translateY(-1px);
+}
+.bws-flyout-footer-title {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #1d4ed8;
+    line-height: 1.2;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+.bws-flyout-footer-sub {
+    font-size: 10.5px;
+    color: #64748b;
+    line-height: 1.2;
+    margin-top: 1px;
+    font-family: 'Inter', sans-serif;
+}
+</style>
 @endif

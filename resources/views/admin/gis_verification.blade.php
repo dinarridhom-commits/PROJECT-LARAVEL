@@ -19,12 +19,14 @@
             </p>
         </div>
 
-        <div class="d-flex align-items-center" style="gap: 8px;">
-            <a href="{{ route('gis.trash') }}" class="btn btn-outline-secondary font-weight-bold shadow-sm" title="Buka Tong Sampah Berkas GIS">
-                <i class="fas fa-trash-alt mr-1 text-danger"></i> Tong Sampah GIS
+        <div class="d-flex align-items-center" style="gap: 10px;">
+            <a href="{{ route('gis.trash') }}" class="bws-btn-top bws-btn-top-archive" title="Buka Arsip Berkas Spasial yang Dihapus">
+                <i class="fas fa-archive mr-2 text-danger"></i>
+                <span>Arsip Terhapus</span>
             </a>
-            <a href="{{ route('peta') }}" class="btn btn-primary font-weight-bold shadow-sm">
-                <i class="fas fa-map mr-1"></i> Buka Peta
+            <a href="{{ route('peta') }}" class="bws-btn-top bws-btn-top-primary" title="Buka Peta Spasial Interaktif" target="_blank">
+                <i class="fas fa-map-marked-alt mr-2"></i>
+                <span>Buka Peta</span>
             </a>
         </div>
     </div>
@@ -386,6 +388,62 @@
 
 @push('scripts')
 <style>
+/* ================================================================
+   TOP HEADER BUTTONS (PROFESIONAL & GAGAH)
+================================================================ */
+.bws-btn-top {
+    height: 38px;
+    padding: 0 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    white-space: nowrap;
+    cursor: pointer;
+}
+.bws-btn-top-primary {
+    background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+    color: #ffffff !important;
+    border: 1px solid #1d4ed8;
+}
+.bws-btn-top-primary:hover {
+    background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%);
+    box-shadow: 0 4px 14px rgba(29, 78, 216, 0.35);
+    transform: translateY(-1px);
+}
+
+.bws-btn-top-archive {
+    background: #ffffff;
+    color: #475569 !important;
+    border: 1.5px solid #cbd5e1;
+}
+.bws-btn-top-archive:hover {
+    background: #fef2f2;
+    color: #dc2626 !important;
+    border-color: #fca5a5;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
+    transform: translateY(-1px);
+}
+
+.bws-btn-top-map {
+    background: #ffffff;
+    color: #1e293b !important;
+    border: 1.5px solid #cbd5e1;
+}
+.bws-btn-top-map:hover {
+    background: #eff6ff;
+    color: #1d4ed8 !important;
+    border-color: #93c5fd;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+    transform: translateY(-1px);
+}
+
 /* ================================================================
    KPI CARDS
 ================================================================ */

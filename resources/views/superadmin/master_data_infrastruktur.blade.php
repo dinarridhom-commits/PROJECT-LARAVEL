@@ -46,28 +46,25 @@
             </p>
         </div>
 
-        <div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
+        <div class="d-flex align-items-center flex-wrap" style="gap: 10px;">
             {{-- Tombol Unggah Berkas Baru --}}
-            <button type="button" class="btn btn-primary font-weight-bold shadow-sm d-inline-flex align-items-center px-3 py-2"
-                    style="border-radius: 8px; font-size: 13px;"
+            <button type="button" class="bws-btn-top bws-btn-top-primary"
                     data-toggle="modal" data-target="#modalUploadGisMaster">
                 <i class="fas fa-cloud-upload-alt mr-2"></i>
                 <span>Unggah Berkas Baru</span>
             </button>
 
-            {{-- Tombol Tong Sampah GIS --}}
+            {{-- Tombol Arsip Terhapus --}}
             @if(Auth::check() && Auth::user()->role === 'superadmin')
-            <a href="{{ route('gis.trash') }}" class="btn btn-outline-secondary font-weight-bold shadow-sm d-inline-flex align-items-center px-3 py-2"
-               style="border-radius: 8px; font-size: 13px;" title="Lihat berkas GIS yang dihapus">
-                <i class="fas fa-trash-alt text-danger mr-1.5"></i>
-                <span>Tong Sampah</span>
+            <a href="{{ route('gis.trash') }}" class="bws-btn-top bws-btn-top-archive" title="Lihat berkas spasial yang dihapus">
+                <i class="fas fa-archive mr-2 text-danger"></i>
+                <span>Arsip Terhapus</span>
             </a>
             @endif
 
             {{-- Tombol Buka Peta Spasial --}}
-            <a href="{{ route('peta') }}" class="btn btn-outline-primary font-weight-bold shadow-sm d-inline-flex align-items-center px-3 py-2"
-               style="border-radius: 8px; font-size: 13px;" title="Buka tampilan peta interaktif">
-                <i class="fas fa-map-marked-alt mr-1.5"></i>
+            <a href="{{ route('peta') }}" class="bws-btn-top bws-btn-top-map" title="Buka tampilan peta interaktif" target="_blank">
+                <i class="fas fa-map-marked-alt mr-2 text-primary"></i>
                 <span>Buka Peta</span>
             </a>
         </div>
@@ -258,11 +255,11 @@
                                         <i class="fas fa-external-link-alt"></i>
                                     </a>
 
-                                    {{-- Hapus (Pindahkan ke Tong Sampah) --}}
+                                    {{-- Hapus (Pindahkan ke Arsip Terhapus) --}}
                                     @if(Auth::check() && in_array(Auth::user()->role, ['admin', 'superadmin']))
                                     <button type="button"
                                             class="btn btn-light border btn-sm text-danger"
-                                            title="Pindahkan ke Tong Sampah"
+                                            title="Pindahkan ke Arsip Terhapus"
                                             onclick="confirmDeleteGis('{{ $layer->filename }}', '{{ addslashes($layer->nama_objek) }}')"
                                             style="border-radius: 0 6px 6px 0;">
                                         <i class="fas fa-trash-alt"></i>
@@ -444,7 +441,7 @@
 
                 <div class="modal-header bg-danger text-white py-3 px-4">
                     <h5 class="modal-title font-weight-bold mb-0" style="font-size: 15px;">
-                        <i class="fas fa-trash-alt mr-2"></i> Pindahkan ke Tong Sampah?
+                        <i class="fas fa-archive mr-2"></i> Pindahkan ke Arsip Terhapus?
                     </h5>
                     <button type="button" class="close text-white opacity-80" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
@@ -457,14 +454,14 @@
                     </div>
                     <h6 class="font-weight-bold text-dark mb-1" id="deleteTargetDisplayName">Nama Objek</h6>
                     <p class="text-muted small mb-0">
-                        Berkas akan dipindahkan ke <strong>Tong Sampah GIS</strong> dan disembunyikan dari peta. Anda tetap dapat memulihkannya nanti jika diperlukan.
+                        Berkas akan dipindahkan ke <strong>Arsip Terhapus</strong> dan disembunyikan dari publikasi peta. Berkas dapat dipulihkan kembali oleh Super Admin sewaktu-waktu.
                     </p>
                 </div>
 
                 <div class="modal-footer bg-light py-2.5 px-4 d-flex justify-content-between">
                     <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal" style="border-radius: 6px;">Batal</button>
                     <button type="submit" class="btn btn-danger btn-sm font-weight-bold px-3 shadow-sm" style="border-radius: 6px;">
-                        <i class="fas fa-trash-alt mr-1"></i> Ya, Pindahkan
+                        <i class="fas fa-archive mr-1"></i> Ya, Pindahkan
                     </button>
                 </div>
             </form>
@@ -558,6 +555,62 @@
     padding: 3px 10px; border-radius: 20px;
     font-size: 11.5px; font-weight: 700;
     vertical-align: middle;
+}
+
+/* ================================================================
+   TOP HEADER BUTTONS (PROFESIONAL & GAGAH)
+================================================================ */
+.bws-btn-top {
+    height: 38px;
+    padding: 0 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    white-space: nowrap;
+    cursor: pointer;
+}
+.bws-btn-top-primary {
+    background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+    color: #ffffff !important;
+    border: 1px solid #1d4ed8;
+}
+.bws-btn-top-primary:hover {
+    background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%);
+    box-shadow: 0 4px 14px rgba(29, 78, 216, 0.35);
+    transform: translateY(-1px);
+}
+
+.bws-btn-top-archive {
+    background: #ffffff;
+    color: #475569 !important;
+    border: 1.5px solid #cbd5e1;
+}
+.bws-btn-top-archive:hover {
+    background: #fef2f2;
+    color: #dc2626 !important;
+    border-color: #fca5a5;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
+    transform: translateY(-1px);
+}
+
+.bws-btn-top-map {
+    background: #ffffff;
+    color: #1e293b !important;
+    border: 1.5px solid #cbd5e1;
+}
+.bws-btn-top-map:hover {
+    background: #eff6ff;
+    color: #1d4ed8 !important;
+    border-color: #93c5fd;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+    transform: translateY(-1px);
 }
 
 /* ================================================================
