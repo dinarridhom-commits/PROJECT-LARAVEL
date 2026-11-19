@@ -35,18 +35,26 @@ class MasterDataController extends Controller
 
         $layers = $query->paginate(10)->withQueryString();
 
-        // Palet warna per kategori (konsisten dengan nav)
+        // Palet warna & label per kategori
+        $categoryLabels = [
+            'baku'       => 'Daerah Irigasi Baku',
+            'fungsional' => 'Daerah Irigasi Fungsional',
+            'potensial'  => 'Daerah Irigasi Potensial',
+            'saluran'    => 'Jaringan Saluran Irigasi',
+            'bangunan'   => 'Bangunan Air / Pelengkap',
+        ];
+
         $categoryColors = [
-            'DIR Baku'        => '#27ae60',
-            'DIR Fungsional'  => '#2980b9',
-            'DIR Potensial'   => '#e67e22',
-            'Jaringan Saluran Irigasi' => '#0984e3',
-            'Bangunan Air'    => '#d63031',
+            'baku'       => '#27ae60',
+            'fungsional' => '#2980b9',
+            'potensial'  => '#e67e22',
+            'saluran'    => '#0984e3',
+            'bangunan'   => '#d63031',
         ];
 
         return view('superadmin.master_data_infrastruktur', compact(
             'layers', 'stats', 'totalApproved',
-            'categoryFilter', 'categoryColors'
+            'categoryFilter', 'categoryColors', 'categoryLabels'
         ));
     }
 }

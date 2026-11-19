@@ -41,11 +41,11 @@
 
         @php
             $catDefs = [
-                ['key' => 'DIR Baku',        'icon' => 'fa-map',           'color' => 'baku',    'dot' => '#27ae60'],
-                ['key' => 'DIR Fungsional',  'icon' => 'fa-water',         'color' => 'fung',    'dot' => '#2980b9'],
-                ['key' => 'DIR Potensial',   'icon' => 'fa-seedling',      'color' => 'pot',     'dot' => '#e67e22'],
-                ['key' => 'Jaringan Saluran Irigasi', 'icon' => 'fa-route','color' => 'sal',    'dot' => '#0984e3'],
-                ['key' => 'Bangunan Air',    'icon' => 'fa-building',      'color' => 'bang',    'dot' => '#d63031'],
+                ['key' => 'baku',       'label' => 'DIR Baku',        'icon' => 'fa-map',      'dot' => '#27ae60'],
+                ['key' => 'fungsional', 'label' => 'DIR Fungsional',  'icon' => 'fa-water',    'dot' => '#2980b9'],
+                ['key' => 'potensial',  'label' => 'DIR Potensial',   'icon' => 'fa-seedling', 'dot' => '#e67e22'],
+                ['key' => 'saluran',    'label' => 'Jaringan Saluran','icon' => 'fa-route',   'dot' => '#0984e3'],
+                ['key' => 'bangunan',   'label' => 'Bangunan Air',    'icon' => 'fa-building', 'dot' => '#d63031'],
             ];
         @endphp
 
@@ -58,7 +58,7 @@
                     <i class="fas {{ $cat['icon'] }}"></i>
                 </div>
                 <div class="md-kpi-value">{{ $stats[$cat['key']] ?? 0 }}</div>
-                <div class="md-kpi-label">{{ $cat['key'] }}</div>
+                <div class="md-kpi-label">{{ $cat['label'] }}</div>
             </a>
         </div>
         @endforeach
@@ -74,7 +74,7 @@
                 <i class="fas fa-table text-secondary mr-2"></i>
                 Daftar Berkas Spasial
                 @if($categoryFilter !== 'all')
-                    <span class="md-active-filter-chip ml-2">{{ $categoryFilter }}</span>
+                    <span class="md-active-filter-chip ml-2">{{ $categoryLabels[$categoryFilter] ?? ucfirst($categoryFilter) }}</span>
                 @endif
             </h6>
             <small class="text-muted">
@@ -117,11 +117,13 @@
                             </td>
                             <td>
                                 @php
-                                    $dotColor = $categoryColors[$layer->category] ?? '#64748b';
+                                    $catKey = strtolower($layer->category);
+                                    $dotColor = $categoryColors[$catKey] ?? '#64748b';
+                                    $displayLabel = $categoryLabels[$catKey] ?? ucfirst($layer->category);
                                 @endphp
-                                <span class="md-category-chip" style="border-color: {{ $dotColor }}20; color: {{ $dotColor }}; background: {{ $dotColor }}15;">
+                                <span class="md-category-chip" style="border-color: {{ $dotColor }}30; color: {{ $dotColor }}; background: {{ $dotColor }}15;">
                                     <span class="md-cat-dot" style="background: {{ $dotColor }};"></span>
-                                    {{ $layer->category }}
+                                    {{ $displayLabel }}
                                 </span>
                             </td>
                             <td class="text-muted">

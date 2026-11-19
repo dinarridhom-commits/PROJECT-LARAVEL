@@ -238,55 +238,55 @@
                             ->pluck('total', 'category');
                     @endphp
                     <div class="bws-flyout-menu shadow">
-                        <a href="{{ route('master-data.infrastruktur', ['category' => 'DIR Baku']) }}"
-                           class="bws-dropdown-item {{ request('category') == 'DIR Baku' ? 'font-weight-bold text-primary' : '' }}">
+                        <a href="{{ route('master-data.infrastruktur', ['category' => 'baku']) }}"
+                           class="bws-dropdown-item {{ request('category') == 'baku' ? 'font-weight-bold text-primary' : '' }}">
                             <span class="d-flex align-items-center">
                                 <span class="bws-flyout-badge mr-2" style="background:#27ae60;"></span>
                                 <span>Daerah Irigasi Baku</span>
                             </span>
                             <span class="badge badge-light border text-muted ml-2" style="font-size: 10px; padding: 2px 6px;">
-                                {{ $navCatCounts['DIR Baku'] ?? 0 }} Data
+                                {{ $navCatCounts['baku'] ?? 0 }} Data
                             </span>
                         </a>
-                        <a href="{{ route('master-data.infrastruktur', ['category' => 'DIR Fungsional']) }}"
-                           class="bws-dropdown-item {{ request('category') == 'DIR Fungsional' ? 'font-weight-bold text-primary' : '' }}">
+                        <a href="{{ route('master-data.infrastruktur', ['category' => 'fungsional']) }}"
+                           class="bws-dropdown-item {{ request('category') == 'fungsional' ? 'font-weight-bold text-primary' : '' }}">
                             <span class="d-flex align-items-center">
                                 <span class="bws-flyout-badge mr-2" style="background:#2980b9;"></span>
                                 <span>Daerah Irigasi Fungsional</span>
                             </span>
                             <span class="badge badge-light border text-muted ml-2" style="font-size: 10px; padding: 2px 6px;">
-                                {{ $navCatCounts['DIR Fungsional'] ?? 0 }} Data
+                                {{ $navCatCounts['fungsional'] ?? 0 }} Data
                             </span>
                         </a>
-                        <a href="{{ route('master-data.infrastruktur', ['category' => 'DIR Potensial']) }}"
-                           class="bws-dropdown-item {{ request('category') == 'DIR Potensial' ? 'font-weight-bold text-primary' : '' }}">
+                        <a href="{{ route('master-data.infrastruktur', ['category' => 'potensial']) }}"
+                           class="bws-dropdown-item {{ request('category') == 'potensial' ? 'font-weight-bold text-primary' : '' }}">
                             <span class="d-flex align-items-center">
                                 <span class="bws-flyout-badge mr-2" style="background:#e67e22;"></span>
                                 <span>Daerah Irigasi Potensial</span>
                             </span>
                             <span class="badge badge-light border text-muted ml-2" style="font-size: 10px; padding: 2px 6px;">
-                                {{ $navCatCounts['DIR Potensial'] ?? 0 }} Data
+                                {{ $navCatCounts['potensial'] ?? 0 }} Data
                             </span>
                         </a>
                         <div class="dropdown-divider my-1"></div>
-                        <a href="{{ route('master-data.infrastruktur', ['category' => 'Jaringan Saluran Irigasi']) }}"
-                           class="bws-dropdown-item {{ request('category') == 'Jaringan Saluran Irigasi' ? 'font-weight-bold text-primary' : '' }}">
+                        <a href="{{ route('master-data.infrastruktur', ['category' => 'saluran']) }}"
+                           class="bws-dropdown-item {{ request('category') == 'saluran' ? 'font-weight-bold text-primary' : '' }}">
                             <span class="d-flex align-items-center">
                                 <span class="bws-flyout-badge mr-2" style="background:#0984e3;"></span>
                                 <span>Jaringan Saluran Irigasi</span>
                             </span>
                             <span class="badge badge-light border text-muted ml-2" style="font-size: 10px; padding: 2px 6px;">
-                                {{ $navCatCounts['Jaringan Saluran Irigasi'] ?? 0 }} Data
+                                {{ $navCatCounts['saluran'] ?? 0 }} Data
                             </span>
                         </a>
-                        <a href="{{ route('master-data.infrastruktur', ['category' => 'Bangunan Air']) }}"
-                           class="bws-dropdown-item {{ request('category') == 'Bangunan Air' ? 'font-weight-bold text-primary' : '' }}">
+                        <a href="{{ route('master-data.infrastruktur', ['category' => 'bangunan']) }}"
+                           class="bws-dropdown-item {{ request('category') == 'bangunan' ? 'font-weight-bold text-primary' : '' }}">
                             <span class="d-flex align-items-center">
                                 <span class="bws-flyout-badge mr-2" style="background:#d63031;"></span>
                                 <span>Bangunan Air / Pelengkap</span>
                             </span>
                             <span class="badge badge-light border text-muted ml-2" style="font-size: 10px; padding: 2px 6px;">
-                                {{ $navCatCounts['Bangunan Air'] ?? 0 }} Data
+                                {{ $navCatCounts['bangunan'] ?? 0 }} Data
                             </span>
                         </a>
 
