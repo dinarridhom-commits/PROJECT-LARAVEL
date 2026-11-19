@@ -147,17 +147,20 @@
 
             {{-- FOOTER MODAL (Sesuai Diagram: [ Batal ]  [ ⬆ Upload Terpilih ]) --}}
             <div class="modal-footer bg-light py-2.5 px-4 d-flex align-items-center justify-content-between">
-                <button type="button" class="btn btn-secondary font-weight-bold px-3 py-1.5" data-dismiss="modal" id="btnBatalUpload" style="font-size: 13px; border-radius: 8px;">
-                    Batal
-                </button>
+                <div class="d-flex align-items-center">
+                    <button type="button" class="btn btn-outline-secondary font-weight-bold px-2.5 py-1.5 mr-2"
+                            onclick="switchToKelolaModal()" style="font-size: 12px; border-radius: 8px;"
+                            title="Kembali ke tabel kelola berkas GIS">
+                        <i class="fas fa-arrow-left mr-1"></i>Daftar Berkas
+                    </button>
+                    <button type="button" class="btn btn-secondary font-weight-bold px-3 py-1.5" data-dismiss="modal" id="btnBatalUpload" style="font-size: 13px; border-radius: 8px;">
+                        Batal
+                    </button>
+                </div>
                 <button type="button" class="btn btn-primary font-weight-bold px-4 py-1.5 shadow-sm" id="btnSubmitTriage" onclick="submitTriageUpload()" disabled style="font-size: 13px; border-radius: 8px;">
                     <i class="fas fa-arrow-up mr-1.5"></i>Upload Terpilih
                 </button>
             </div>
-
-        </div>
-    </div>
-</div>
 
         </div>
     </div>
@@ -189,25 +192,35 @@
 
             <div class="modal-body p-3">
 
-                {{-- Info jumlah file & pencarian --}}
-                <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-                    <div class="small text-muted mb-2 mb-sm-0 d-flex align-items-center flex-wrap gap-2">
-                        <span>Total tersimpan:
+                {{-- Baris Toolbar: Info Jumlah, Tombol Upload File Baru & Pencarian --}}
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-3" style="gap: 10px;">
+                    <div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
+                        <span class="small text-muted font-weight-medium">Total:
                             <span class="badge badge-primary px-2 py-1">
                                 {{ count($fileList ?? []) }} File GIS
                             </span>
                         </span>
-                        <span id="bulk-selected-info" class="ml-2" style="display:none;">
+                        <span id="bulk-selected-info" style="display:none;">
                             <span class="badge badge-warning text-dark px-2 py-1">
                                 <i class="fas fa-check-square mr-1"></i>
                                 <span id="bulk-selected-count">0</span> Dipilih
                             </span>
                         </span>
+                        {{-- Tombol Upload File Baru (Opsi 1: Terintegrasi di Kelola File GIS) --}}
+                        <button type="button"
+                                class="btn btn-sm btn-primary font-weight-bold shadow-sm d-flex align-items-center"
+                                onclick="switchToUploadModal()"
+                                style="border-radius: 6px; height: 32px; font-size: 12px; padding: 0 12px;"
+                                title="Buka form interaktif untuk unggah layer GIS baru (.zip, .shp, .geojson, .kml)">
+                            <i class="fas fa-cloud-upload-alt mr-1.5"></i>
+                            <span>Upload File Baru</span>
+                        </button>
                     </div>
-                    <div class="w-50">
+                    <div style="min-width: 200px; max-width: 260px;" class="flex-grow-1">
                         <input type="text"
                                id="cari-file-geojson"
                                class="form-control form-control-sm"
+                               style="border-radius: 6px; height: 32px; font-size: 12px;"
                                placeholder="🔍 Cari nama file..."
                                onkeyup="filterTabelFileGeojson(this.value)">
                     </div>

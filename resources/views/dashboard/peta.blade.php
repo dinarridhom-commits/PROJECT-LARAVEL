@@ -269,14 +269,10 @@
             {{-- Tombol GIS (Khusus Admin) --}}
             @if(Auth::check() && in_array(Auth::user()->role, ['admin', 'superadmin']))
             <div class="psb-admin-actions">
-                <button type="button" class="psb-btn-admin" data-toggle="modal" data-target="#modalKelolaGeojson">
-                    <i class="fas fa-folder-open"></i>
+                <button type="button" class="psb-btn-admin" data-toggle="modal" data-target="#modalKelolaGeojson" title="Kelola dan unggah berkas GIS">
+                    <i class="fas fa-folder-open text-primary"></i>
                     <span>Kelola File GIS</span>
                     <span class="badge badge-primary ml-auto" id="sidebar-file-count">{{ count($fileList ?? []) }}</span>
-                </button>
-                <button type="button" class="psb-btn-admin psb-btn-primary" data-toggle="modal" data-target="#modalUploadGeojson">
-                    <i class="fas fa-cloud-upload-alt"></i>
-                    <span>Upload File GIS</span>
                 </button>
             </div>
             @endif

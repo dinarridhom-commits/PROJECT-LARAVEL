@@ -1988,6 +1988,21 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
+    // Navigasi Antar-Modal (Kelola File <-> Upload File)
+    window.switchToUploadModal = function() {
+        $('#modalKelolaGeojson').modal('hide');
+        setTimeout(function() {
+            $('#modalUploadGeojson').modal('show');
+        }, 350);
+    };
+
+    window.switchToKelolaModal = function() {
+        $('#modalUploadGeojson').modal('hide');
+        setTimeout(function() {
+            $('#modalKelolaGeojson').modal('show');
+        }, 350);
+    };
+
     // Reset saat modal dibuka atau ditutup
     $('#modalUploadGeojson').on('show.bs.modal', function() {
         resetTriageModal();
