@@ -26,8 +26,53 @@
 
 * { box-sizing: border-box; }
 
+/* ============================================================
+   GLOBAL STANDAR TIPOGRAFI WEBGIS BWS KALIMANTAN I:
+   - Judul & Heading: 'Plus Jakarta Sans' (Tegas, Gagah, Modern)
+   - Isi Teks, Tabel, Form, & Data: 'Inter' (Standar Keterbacaan)
+   ============================================================ */
+body,
+p,
+table,
+.table,
+td,
+th,
+form,
+input,
+select,
+textarea,
+.form-control,
+.btn,
+.badge,
+small,
+.small,
+.nav-link,
+.dropdown-item,
+.sidebar .nav-item .nav-link span,
+.topbar {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+}
+
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6,
+.modal-title,
+.card-title,
+.card-header,
+.dash-hero-title,
+.peta-hero-title,
+.sidebar-brand-text,
+.bws-brand-title,
+.peta-brand-title,
+.navbar-brand,
+.brand-title,
+.bws-popup-title,
+.bws-legend-title,
+.ptb-breadcrumb,
+.heading-font {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+}
+
 body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background-color: var(--bws-bg);
     color: var(--bws-text-main);
     margin: 0;

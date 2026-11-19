@@ -10,9 +10,13 @@
 
     <title>@yield('title', 'FEWS BWS KALIMANTAN I - Sistem Informasi Irigasi')</title>
 
-    <!-- Custom fonts for this template-->
+    <!-- Google Fonts: Inter (Body & Data) & Plus Jakarta Sans (Headings) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Custom icon fonts -->
     <link href="{{asset('sbadmin')}}/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
 
     <!-- Custom styles for this template-->
     <link href="{{asset('sbadmin')}}/css/sb-admin-2.min.css" rel="stylesheet">
@@ -24,8 +28,47 @@
     <!-- CSS Khusus BWS Kalimantan I WebGIS & Navigasi -->
     <link rel="stylesheet" href="{{ asset('css/peta.css') }}?v={{ filemtime(public_path('css/peta.css')) }}">
 
-    <!-- Responsive Styles untuk Tampilan Layar HP & Berbagai Perangkat -->
+    <!-- Responsive Styles & Standar Tipografi WebGIS (Plus Jakarta Sans + Inter) -->
     <style>
+        /* Standar Tipografi Nasional: Judul (Plus Jakarta Sans) & Data/Teks (Inter) */
+        body,
+        p,
+        table,
+        .table,
+        td,
+        th,
+        form,
+        input,
+        select,
+        textarea,
+        .form-control,
+        .btn,
+        .badge,
+        small,
+        .small,
+        .nav-link,
+        .dropdown-item,
+        .sidebar .nav-item .nav-link span,
+        .topbar {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+
+        h1, h2, h3, h4, h5, h6,
+        .h1, .h2, .h3, .h4, .h5, .h6,
+        .modal-title,
+        .card-title,
+        .card-header,
+        .dash-hero-title,
+        .peta-hero-title,
+        .sidebar-brand-text,
+        .bws-brand-title,
+        .peta-brand-title,
+        .navbar-brand,
+        .brand-title,
+        .heading-font {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+
         /* Mencegah horizontal scroll overflow di seluruh halaman */
         html, body {
             overflow-x: hidden !important;
