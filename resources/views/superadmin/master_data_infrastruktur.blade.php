@@ -6,36 +6,86 @@
 <div class="container-fluid">
 
     {{-- ============================================================ --}}
-    {{-- HEADER --}}
+    {{-- FLASH NOTIFIKASI --}}
     {{-- ============================================================ --}}
-    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap" style="gap: 10px;">
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show shadow-sm border-0 mb-4" style="border-radius: 10px; background: #ecfdf5; color: #065f46; border-left: 4px solid #10b981 !important;">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-check-circle fa-lg mr-2.5 text-success"></i>
+                <div class="font-weight-medium" style="font-size: 13.5px;">{{ session('success') }}</div>
+            </div>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0 mb-4" style="border-radius: 10px; background: #fef2f2; color: #991b1b; border-left: 4px solid #ef4444 !important;">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-exclamation-circle fa-lg mr-2.5 text-danger"></i>
+                <div class="font-weight-medium" style="font-size: 13.5px;">{{ session('error') }}</div>
+            </div>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    @endif
+
+    {{-- ============================================================ --}}
+    {{-- HEADER HALAMAN & TOMBOL AKSI UTAMA --}}
+    {{-- ============================================================ --}}
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap" style="gap: 12px;">
         <div>
-            <h1 class="h3 font-weight-bold text-gray-800 mb-1">
-                <i class="fas fa-layer-group text-primary mr-2"></i>
-                Data Infrastruktur Irigasi
+            <h1 class="h3 font-weight-bold text-gray-800 mb-1" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+                <i class="fas fa-database text-primary mr-2"></i>
+                Master Data Infrastruktur Irigasi
             </h1>
-            <p class="text-muted small mb-0">
-                Rekapitulasi seluruh berkas spasial infrastruktur irigasi yang telah disetujui dan dipublikasikan ke peta WebGIS BWS Kalimantan I.
+            <p class="text-muted small mb-0" style="font-family: 'Inter', sans-serif;">
+                Katalog dan pengelolaan seluruh berkas spasial GeoJSON BWS Kalimantan I yang telah dipublikasikan ke peta interaktif.
             </p>
         </div>
-        <a href="{{ route('peta') }}" class="btn btn-primary font-weight-bold shadow-sm">
-            <i class="fas fa-map mr-1"></i> Buka Peta Spasial
-        </a>
+
+        <div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
+            {{-- Tombol Unggah Berkas Baru --}}
+            <button type="button" class="btn btn-primary font-weight-bold shadow-sm d-inline-flex align-items-center px-3 py-2"
+                    style="border-radius: 8px; font-size: 13px;"
+                    data-toggle="modal" data-target="#modalUploadGisMaster">
+                <i class="fas fa-cloud-upload-alt mr-2"></i>
+                <span>Unggah Berkas Baru</span>
+            </button>
+
+            {{-- Tombol Tong Sampah GIS --}}
+            @if(Auth::check() && Auth::user()->role === 'superadmin')
+            <a href="{{ route('gis.trash') }}" class="btn btn-outline-secondary font-weight-bold shadow-sm d-inline-flex align-items-center px-3 py-2"
+               style="border-radius: 8px; font-size: 13px;" title="Lihat berkas GIS yang dihapus">
+                <i class="fas fa-trash-alt text-danger mr-1.5"></i>
+                <span>Tong Sampah</span>
+            </a>
+            @endif
+
+            {{-- Tombol Buka Peta Spasial --}}
+            <a href="{{ route('peta') }}" class="btn btn-outline-primary font-weight-bold shadow-sm d-inline-flex align-items-center px-3 py-2"
+               style="border-radius: 8px; font-size: 13px;" title="Buka tampilan peta interaktif">
+                <i class="fas fa-map-marked-alt mr-1.5"></i>
+                <span>Buka Peta</span>
+            </a>
+        </div>
     </div>
 
     {{-- ============================================================ --}}
-    {{-- KPI CARDS PER KATEGORI --}}
+    {{-- KPI CARDS STATISTIK REALTIME PER KATEGORI --}}
     {{-- ============================================================ --}}
     <div class="row mb-4">
-        {{-- Total --}}
+        {{-- Total Semua Data --}}
         <div class="col-6 col-md-2 mb-3">
             <a href="{{ route('master-data.infrastruktur') }}"
                class="md-kpi-card md-kpi-total {{ $categoryFilter === 'all' ? 'md-kpi-active' : '' }} h-100 text-decoration-none d-block">
                 <div class="md-kpi-icon-wrap md-kpi-icon-total">
-                    <i class="fas fa-database"></i>
+                    <i class="fas fa-layer-group"></i>
                 </div>
                 <div class="md-kpi-value">{{ $totalApproved }}</div>
-                <div class="md-kpi-label">Semua Data</div>
+                <div class="md-kpi-label">Semua Kategori</div>
             </a>
         </div>
 
@@ -65,57 +115,96 @@
     </div>
 
     {{-- ============================================================ --}}
-    {{-- TABEL DATA --}}
+    {{-- TABEL DATA SPASIAL INFRASTRUKTUR --}}
     {{-- ============================================================ --}}
-    <div class="card shadow-sm border-0 mb-4" style="border-radius: 12px;">
-        <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between flex-wrap"
-             style="border-bottom: 1px solid #f1f5f9; gap: 10px;">
-            <h6 class="m-0 font-weight-bold text-dark">
-                <i class="fas fa-table text-secondary mr-2"></i>
-                Daftar Berkas Spasial
-                @if($categoryFilter !== 'all')
-                    <span class="md-active-filter-chip ml-2">{{ $categoryLabels[$categoryFilter] ?? ucfirst($categoryFilter) }}</span>
-                @endif
-            </h6>
-            <small class="text-muted">
-                Menampilkan <strong>{{ $layers->firstItem() ?? 0 }}</strong>
-                &ndash; <strong>{{ $layers->lastItem() ?? 0 }}</strong>
-                dari <strong>{{ $layers->total() }}</strong> berkas
-            </small>
+    <div class="card shadow-sm border-0 mb-4" style="border-radius: 12px; overflow: hidden;">
+        <div class="card-header bg-white py-3" style="border-bottom: 1px solid #f1f5f9;">
+            <div class="d-flex align-items-center justify-content-between flex-wrap" style="gap: 12px;">
+                <div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
+                    <h6 class="m-0 font-weight-bold text-dark" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+                        <i class="fas fa-table text-primary mr-2"></i>
+                        Daftar Berkas Spasial
+                    </h6>
+                    @if($categoryFilter !== 'all')
+                        <span class="md-active-filter-chip">
+                            <i class="fas fa-filter mr-1"></i>
+                            {{ $categoryLabels[$categoryFilter] ?? ucfirst($categoryFilter) }}
+                        </span>
+                    @endif
+                    @if(!empty($search))
+                        <span class="badge badge-light border text-muted px-2 py-1" style="font-size: 11px;">
+                            Pencarian: "<strong>{{ $search }}</strong>"
+                        </span>
+                    @endif
+                </div>
+
+                {{-- Form Pencarian Data --}}
+                <form method="GET" action="{{ route('master-data.infrastruktur') }}" class="form-inline m-0">
+                    @if($categoryFilter !== 'all')
+                        <input type="hidden" name="category" value="{{ $categoryFilter }}">
+                    @endif
+                    <div class="input-group input-group-sm" style="width: 260px;">
+                        <input type="text" name="search" class="form-control"
+                               placeholder="Cari nama objek / file..."
+                               value="{{ $search ?? '' }}"
+                               style="border-radius: 8px 0 0 8px; font-size: 12.5px;">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="submit" title="Cari data">
+                                <i class="fas fa-search"></i>
+                            </button>
+                            @if(!empty($search))
+                                <a href="{{ route('master-data.infrastruktur', ['category' => $categoryFilter]) }}"
+                                   class="btn btn-outline-secondary" title="Hapus pencarian">
+                                    <i class="fas fa-times"></i>
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
 
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0" style="font-size: 13px;">
-                    <thead class="bg-light text-muted small text-uppercase">
+                    <thead class="bg-light text-muted small text-uppercase" style="letter-spacing: 0.5px;">
                         <tr>
-                            <th class="pl-4 py-3" width="4%">No.</th>
+                            <th class="pl-4 py-3 text-center" width="4%">No.</th>
                             <th class="py-3" width="28%">Nama Objek Spasial</th>
                             <th class="py-3" width="18%">Kategori</th>
-                            <th class="py-3" width="14%">Pengunggah</th>
-                            <th class="py-3" width="14%">Diverifikasi Oleh</th>
-                            <th class="py-3" width="12%">Ukuran Berkas</th>
-                            <th class="py-3 pr-4" width="10%">Tanggal Disetujui</th>
+                            <th class="py-3" width="13%">Ukuran</th>
+                            <th class="py-3" width="15%">Pengunggah</th>
+                            <th class="py-3" width="12%">Waktu Unggah</th>
+                            <th class="py-3 pr-4 text-center" width="10%">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($layers as $index => $layer)
                         <tr>
-                            <td class="pl-4 text-center text-muted font-weight-bold">
+                            {{-- Nomor Urut --}}
+                            <td class="pl-4 text-center text-muted font-weight-bold align-middle">
                                 {{ $layers->firstItem() + $index }}
                             </td>
-                            <td class="font-weight-bold text-dark">
+
+                            {{-- Nama Objek & Berkas --}}
+                            <td class="align-middle">
                                 <div class="d-flex align-items-start">
-                                    <i class="fas fa-file-code text-primary mr-2 mt-1" style="flex-shrink:0;"></i>
+                                    <div class="md-file-icon mr-2.5">
+                                        <i class="fas fa-file-code"></i>
+                                    </div>
                                     <div>
-                                        {{ $layer->nama_objek }}
-                                        <small class="text-muted d-block" style="font-family: monospace; font-size: 11px;">
+                                        <div class="font-weight-bold text-dark mb-0.5" style="font-size: 13.5px;">
+                                            {{ $layer->nama_objek }}
+                                        </div>
+                                        <span class="text-muted d-block font-monospace" style="font-size: 11px;">
                                             {{ $layer->filename }}
-                                        </small>
+                                        </span>
                                     </div>
                                 </div>
                             </td>
-                            <td>
+
+                            {{-- Kategori --}}
+                            <td class="align-middle">
                                 @php
                                     $catKey = strtolower($layer->category);
                                     $dotColor = $categoryColors[$catKey] ?? '#64748b';
@@ -126,30 +215,80 @@
                                     {{ $displayLabel }}
                                 </span>
                             </td>
-                            <td class="text-muted">
-                                {{ $layer->user ? $layer->user->name : 'Staf GIS' }}
+
+                            {{-- Ukuran Berkas --}}
+                            <td class="align-middle">
+                                <span class="badge badge-light border text-muted px-2 py-1 font-weight-normal" style="font-size: 11px;">
+                                    {{ $layer->file_size ?? '-' }}
+                                </span>
                             </td>
-                            <td class="text-muted">
-                                {{ $layer->reviewer ? $layer->reviewer->name : 'Super Admin' }}
-                            </td>
-                            <td class="text-muted small">
-                                {{ $layer->file_size ?? '-' }}
-                            </td>
-                            <td class="pr-4 text-muted small">
-                                <i class="fas fa-calendar-check mr-1 text-success"></i>
-                                {{ $layer->reviewed_at ? $layer->reviewed_at->format('d M Y') : '-' }}
-                                <small class="d-block text-muted" style="font-size: 10.5px;">
-                                    {{ $layer->reviewed_at ? $layer->reviewed_at->format('H:i') : '' }}
+
+                            {{-- Pengunggah & Verifikator --}}
+                            <td class="align-middle">
+                                <div class="font-weight-medium text-dark">
+                                    {{ $layer->user ? $layer->user->name : 'Staf GIS' }}
+                                </div>
+                                <small class="text-muted d-block">
+                                    Verif: {{ $layer->reviewer ? $layer->reviewer->name : 'Super Admin' }}
                                 </small>
+                            </td>
+
+                            {{-- Waktu --}}
+                            <td class="align-middle text-muted small">
+                                <div><i class="fas fa-calendar-alt text-gray-400 mr-1"></i>{{ $layer->created_at ? $layer->created_at->format('d M Y') : '-' }}</div>
+                                <small class="text-gray-500">{{ $layer->created_at ? $layer->created_at->format('H:i') : '' }}</small>
+                            </td>
+
+                            {{-- Aksi --}}
+                            <td class="pr-4 text-center align-middle">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    {{-- Unduh Berkas --}}
+                                    <a href="{{ route('peta.download-file', $layer->filename) }}"
+                                       class="btn btn-light border btn-sm text-primary"
+                                       title="Unduh Berkas GeoJSON ({{ $layer->filename }})"
+                                       style="border-radius: 6px 0 0 6px;">
+                                        <i class="fas fa-download"></i>
+                                    </a>
+
+                                    {{-- Buka di Peta Spasial --}}
+                                    <a href="{{ route('peta', ['layer' => $layer->category]) }}"
+                                       class="btn btn-light border btn-sm text-success"
+                                       title="Buka layer di peta interaktif"
+                                       target="_blank">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+
+                                    {{-- Hapus (Pindahkan ke Tong Sampah) --}}
+                                    @if(Auth::check() && in_array(Auth::user()->role, ['admin', 'superadmin']))
+                                    <button type="button"
+                                            class="btn btn-light border btn-sm text-danger"
+                                            title="Pindahkan ke Tong Sampah"
+                                            onclick="confirmDeleteGis('{{ $layer->filename }}', '{{ addslashes($layer->nama_objek) }}')"
+                                            style="border-radius: 0 6px 6px 0;">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                         @empty
                         <tr>
                             <td colspan="7" class="p-0 border-0">
                                 <div class="text-center py-5 text-muted">
-                                    <i class="fas fa-inbox fa-3x mb-3 d-block" style="opacity:.25;"></i>
-                                    <div class="font-weight-bold">Belum Ada Data Infrastruktur</div>
-                                    <small>Berkas spasial yang telah disetujui akan tampil di sini.</small>
+                                    <div style="width: 60px; height: 60px; border-radius: 50%; background: #f1f5f9; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px; color: #94a3b8; font-size: 24px;">
+                                        <i class="fas fa-folder-open"></i>
+                                    </div>
+                                    <h6 class="font-weight-bold text-dark mb-1">Tidak Ada Berkas Ditemukan</h6>
+                                    <p class="text-muted small mb-3">
+                                        @if(!empty($search))
+                                            Tidak ada berkas spasial yang cocok dengan kata kunci "<strong>{{ $search }}</strong>".
+                                        @else
+                                            Belum ada berkas spasial untuk kategori ini.
+                                        @endif
+                                    </p>
+                                    <button type="button" class="btn btn-sm btn-primary font-weight-bold px-3" data-toggle="modal" data-target="#modalUploadGisMaster">
+                                        <i class="fas fa-cloud-upload-alt mr-1.5"></i> Unggah Berkas Baru
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -173,7 +312,7 @@
                 @if($layers->onFirstPage())
                     <span class="bwsmd-pg-btn disabled">&laquo;</span>
                 @else
-                    <a href="{{ $layers->previousPageUrl() }}" class="bwsmd-pg-btn">&laquo;</a>
+                    <a href="{{ $layers->previousPageUrl() }}" class="bwsmd-pg-btn" title="Halaman Sebelumnya">&laquo;</a>
                 @endif
 
                 @php
@@ -203,7 +342,7 @@
                 @endif
 
                 @if($layers->hasMorePages())
-                    <a href="{{ $layers->nextPageUrl() }}" class="bwsmd-pg-btn">&raquo;</a>
+                    <a href="{{ $layers->nextPageUrl() }}" class="bwsmd-pg-btn" title="Halaman Berikutnya">&raquo;</a>
                 @else
                     <span class="bwsmd-pg-btn disabled">&raquo;</span>
                 @endif
@@ -213,6 +352,124 @@
         @endif
     </div>
 
+</div>
+
+{{-- ============================================================ --}}
+{{-- MODAL UPLOAD BERKAS SPASIAL BARU (SUPER ADMIN & ADMIN) --}}
+{{-- ============================================================ --}}
+<div class="modal fade" id="modalUploadGisMaster" tabindex="-1" role="dialog" aria-labelledby="modalUploadGisMasterLabel" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 620px;">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 14px; overflow: hidden;">
+            <form action="{{ route('peta.upload-geojson') }}" method="POST" enctype="multipart/form-data" id="formUploadMaster">
+                @csrf
+                <div class="modal-header bg-primary text-white py-3 px-4 d-flex align-items-center justify-content-between">
+                    <div>
+                        <h5 class="modal-title font-weight-bold mb-0" id="modalUploadGisMasterLabel" style="font-size: 15.5px; font-family: 'Plus Jakarta Sans', sans-serif;">
+                            <i class="fas fa-cloud-upload-alt mr-2"></i>Unggah Berkas Spasial Baru
+                        </h5>
+                        <small class="text-white-50" style="font-size: 11.5px;">Data langsung dipublikasikan ke peta spasial WebGIS BWS Kalimantan I</small>
+                    </div>
+                    <button type="button" class="close text-white opacity-80" data-dismiss="modal" aria-label="Close" style="font-size: 22px;">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body p-4">
+                    {{-- 1. Pilihan Berkas --}}
+                    <div class="form-group mb-3">
+                        <label class="font-weight-bold text-dark small mb-1">
+                            Berkas GIS (.GeoJSON / .JSON / .KML / .KMZ / Shapefile .ZIP) <span class="text-danger">*</span>
+                        </label>
+                        <div class="md-dropzone-box text-center p-3" id="dropzoneBox" onclick="document.getElementById('inputMasterFile').click()">
+                            <i class="fas fa-file-upload fa-2x text-primary mb-2 d-block"></i>
+                            <div class="font-weight-bold text-dark small" id="dropzoneFileName">Klik atau Seret Berkas ke Sini</div>
+                            <small class="text-muted d-block mt-1" style="font-size: 11px;">Maksimal 100 MB per berkas</small>
+                        </div>
+                        <input type="file" name="file_geojson[]" id="inputMasterFile" class="d-none" multiple required
+                               accept=".geojson,.json,.kml,.kmz,.zip" onchange="handleMasterFileSelect(this)">
+                    </div>
+
+                    {{-- 2. Kategori Infrastruktur --}}
+                    <div class="form-group mb-3">
+                        <label class="font-weight-bold text-dark small mb-1">
+                            Kategori Infrastruktur <span class="text-danger">*</span>
+                        </label>
+                        <select name="categories[]" class="form-control form-control-sm" required style="border-radius: 8px; height: 38px; font-size: 13px;">
+                            <option value="">-- Pilih Kategori Infrastruktur --</option>
+                            <option value="baku" {{ $categoryFilter === 'baku' ? 'selected' : '' }}>🟢 Daerah Irigasi Baku</option>
+                            <option value="fungsional" {{ $categoryFilter === 'fungsional' ? 'selected' : '' }}>🔵 Daerah Irigasi Fungsional</option>
+                            <option value="potensial" {{ $categoryFilter === 'potensial' ? 'selected' : '' }}>🟠 Daerah Irigasi Potensial</option>
+                            <option value="saluran" {{ $categoryFilter === 'saluran' ? 'selected' : '' }}>🔷 Jaringan Saluran Irigasi</option>
+                            <option value="bangunan" {{ $categoryFilter === 'bangunan' ? 'selected' : '' }}>🔴 Bangunan Air / Pelengkap</option>
+                        </select>
+                    </div>
+
+                    {{-- 3. Nama Objek Spasial --}}
+                    <div class="form-group mb-3">
+                        <label class="font-weight-bold text-dark small mb-1">
+                            Nama Objek Spasial <small class="text-muted">(Opsional, otomatis dari nama berkas jika kosong)</small>
+                        </label>
+                        <input type="text" name="object_names[]" id="inputMasterObjectName" class="form-control form-control-sm"
+                               placeholder="Contoh: DIR Baku Sebangkau..." style="border-radius: 8px; height: 38px; font-size: 13px;">
+                    </div>
+
+                    {{-- Info Box --}}
+                    <div class="p-2.5 rounded bg-light border d-flex align-items-center" style="font-size: 12px; color: #475569;">
+                        <i class="fas fa-info-circle text-primary fa-lg mr-2.5 flex-shrink-0"></i>
+                        <span>Berkas yang diunggah akan otomatis diproses dan langsung dapat diakses pada tabel Master Data serta peta spasial.</span>
+                    </div>
+                </div>
+
+                <div class="modal-footer bg-light py-2.5 px-4 d-flex justify-content-between align-items-center">
+                    <button type="button" class="btn btn-secondary btn-sm font-weight-medium px-3" data-dismiss="modal" style="border-radius: 6px;">Batal</button>
+                    <button type="submit" class="btn btn-primary btn-sm font-weight-bold px-4 shadow-sm" id="btnSubmitUploadMaster" style="border-radius: 6px;">
+                        <i class="fas fa-cloud-upload-alt mr-1.5"></i> Mulai Unggah
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- ============================================================ --}}
+{{-- MODAL KONFIRMASI HAPUS (PINDAHKAN KE TRASH) --}}
+{{-- ============================================================ --}}
+<div class="modal fade" id="modalDeleteGis" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 440px;">
+        <div class="modal-content border-0 shadow" style="border-radius: 12px; overflow: hidden;">
+            <form action="{{ route('peta.delete-geojson') }}" method="POST">
+                @csrf
+                @method('DELETE')
+                <input type="hidden" name="file_name" id="deleteTargetFileName" value="">
+
+                <div class="modal-header bg-danger text-white py-3 px-4">
+                    <h5 class="modal-title font-weight-bold mb-0" style="font-size: 15px;">
+                        <i class="fas fa-trash-alt mr-2"></i> Pindahkan ke Tong Sampah?
+                    </h5>
+                    <button type="button" class="close text-white opacity-80" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body p-4 text-center">
+                    <div style="width: 54px; height: 54px; border-radius: 50%; background: #fee2e2; color: #dc2626; display: inline-flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 14px;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h6 class="font-weight-bold text-dark mb-1" id="deleteTargetDisplayName">Nama Objek</h6>
+                    <p class="text-muted small mb-0">
+                        Berkas akan dipindahkan ke <strong>Tong Sampah GIS</strong> dan disembunyikan dari peta. Anda tetap dapat memulihkannya nanti jika diperlukan.
+                    </p>
+                </div>
+
+                <div class="modal-footer bg-light py-2.5 px-4 d-flex justify-content-between">
+                    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal" style="border-radius: 6px;">Batal</button>
+                    <button type="submit" class="btn btn-danger btn-sm font-weight-bold px-3 shadow-sm" style="border-radius: 6px;">
+                        <i class="fas fa-trash-alt mr-1"></i> Ya, Pindahkan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 @endsection
 
@@ -271,8 +528,16 @@
 }
 
 /* ================================================================
-   CATEGORY CHIP
+   FILE ICON & CATEGORY CHIP
 ================================================================ */
+.md-file-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 14px; flex-shrink: 0;
+}
 .md-category-chip {
     display: inline-flex; align-items: center; gap: 5px;
     padding: 3px 10px;
@@ -290,9 +555,24 @@
     display: inline-flex; align-items: center;
     background: #dbeafe; color: #1d4ed8;
     border: 1px solid #bfdbfe;
-    padding: 2px 10px; border-radius: 20px;
-    font-size: 11px; font-weight: 700;
+    padding: 3px 10px; border-radius: 20px;
+    font-size: 11.5px; font-weight: 700;
     vertical-align: middle;
+}
+
+/* ================================================================
+   DROPZONE STYLING
+================================================================ */
+.md-dropzone-box {
+    border: 2px dashed #93c5fd;
+    border-radius: 10px;
+    background: #f8fafc;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.md-dropzone-box:hover {
+    background: #eff6ff;
+    border-color: #3b82f6;
 }
 
 /* ================================================================
@@ -325,4 +605,42 @@
     pointer-events: none; background: #f8fafc;
 }
 </style>
+
+<script>
+function handleMasterFileSelect(input) {
+    const box = document.getElementById('dropzoneFileName');
+    const nameInput = document.getElementById('inputMasterObjectName');
+    if (input.files && input.files.length > 0) {
+        if (input.files.length === 1) {
+            const fileName = input.files[0].name;
+            box.innerHTML = '<span class="text-success"><i class="fas fa-check mr-1"></i> ' + escapeHtml(fileName) + '</span>';
+            if (nameInput && !nameInput.value) {
+                // Auto-fill object name from filename without extension
+                const cleanName = fileName.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ");
+                nameInput.value = cleanName;
+            }
+        } else {
+            box.innerHTML = '<span class="text-success"><i class="fas fa-check-double mr-1"></i> ' + input.files.length + ' berkas dipilih</span>';
+        }
+    } else {
+        box.textContent = 'Klik atau Seret Berkas ke Sini';
+    }
+}
+
+function confirmDeleteGis(fileName, displayName) {
+    document.getElementById('deleteTargetFileName').value = fileName;
+    document.getElementById('deleteTargetDisplayName').textContent = displayName || fileName;
+    $('#modalDeleteGis').modal('show');
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+</script>
 @endpush

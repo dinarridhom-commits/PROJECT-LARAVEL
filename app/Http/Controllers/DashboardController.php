@@ -512,7 +512,7 @@ class DashboardController extends Controller
                     'message'  => $msg
                 ]);
             }
-            return redirect()->route('peta')->with('success', $msg);
+            return redirect()->back()->with('success', $msg);
         }
 
         if ($request->ajax() || $request->wantsJson()) {
@@ -522,7 +522,7 @@ class DashboardController extends Controller
             ], 422);
         }
 
-        return redirect()->route('peta')->with('error', 'Gagal mengunggah file. Pastikan file berformat .geojson, .json, .kml, .kmz, atau Shapefile .zip.');
+        return redirect()->back()->with('error', 'Gagal mengunggah file. Pastikan file berformat .geojson, .json, .kml, .kmz, atau Shapefile .zip.');
     }
 
     /**
@@ -560,10 +560,10 @@ class DashboardController extends Controller
             }
 
             ActivityLog::record('SOFT_DELETE_GEOJSON', "Memindahkan file GIS '{$fileName}' ke Tong Sampah (Trash)");
-            return redirect()->route('peta')->with('success', "File GIS '{$fileName}' berhasil dipindahkan ke Tong Sampah (Dapat dipulihkan oleh Super Admin).");
+            return redirect()->back()->with('success', "File GIS '{$fileName}' berhasil dipindahkan ke Tong Sampah (Dapat dipulihkan oleh Super Admin).");
         }
 
-        return redirect()->route('peta')->with('error', "File '{$fileName}' tidak ditemukan di folder public/geojson.");
+        return redirect()->back()->with('error', "File '{$fileName}' tidak ditemukan di folder public/geojson.");
     }
 
     /**
@@ -620,14 +620,14 @@ class DashboardController extends Controller
             if (count($notFound) > 0) {
                 $msg .= ' ' . count($notFound) . ' file tidak ditemukan: ' . implode(', ', $notFound);
             }
-            return redirect()->route('peta')->with('success', $msg);
+            return redirect()->back()->with('success', $msg);
         }
 
         if (count($failed) > 0) {
-            return redirect()->route('peta')->with('error', 'Gagal menghapus file dari server karena izin akses (permission denied): ' . implode(', ', $failed));
+            return redirect()->back()->with('error', 'Gagal menghapus file dari server karena izin akses (permission denied): ' . implode(', ', $failed));
         }
 
-        return redirect()->route('peta')->with('error', 'Tidak ada file yang berhasil dihapus. Pastikan file masih tersedia di server.');
+        return redirect()->back()->with('error', 'Tidak ada file yang berhasil dihapus. Pastikan file masih tersedia di server.');
     }
 
     /**

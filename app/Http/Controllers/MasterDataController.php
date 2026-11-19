@@ -15,6 +15,7 @@ class MasterDataController extends Controller
     public function infrastruktur(Request $request)
     {
         $categoryFilter = $request->input('category', 'all');
+        $search = $request->input('search');
 
         // Statistik per kategori (realtime dari DB)
         $stats = GisLayer::where('status', 'approved')
@@ -31,6 +32,13 @@ class MasterDataController extends Controller
 
         if ($categoryFilter && $categoryFilter !== 'all') {
             $query->where('category', $categoryFilter);
+        }
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('nama_objek', 'like', "%{$search}%")
+                  ->orWhere('filename', 'like', "%{$search}%");
+            });
         }
 
         $layers = $query->paginate(10)->withQueryString();
@@ -54,7 +62,7 @@ class MasterDataController extends Controller
 
         return view('superadmin.master_data_infrastruktur', compact(
             'layers', 'stats', 'totalApproved',
-            'categoryFilter', 'categoryColors', 'categoryLabels'
+            'categoryFilter', 'search', 'categoryColors', 'categoryLabels'
         ));
     }
 }
