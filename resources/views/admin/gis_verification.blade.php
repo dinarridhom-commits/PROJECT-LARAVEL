@@ -230,8 +230,37 @@
     {{-- ============================================================ --}}
     {{-- RIWAYAT VERIFIKASI --}}
     {{-- ============================================================ --}}
+    @php
+        // Palet warna dot per kategori (otomatis assign warna bergilir jika tidak terdaftar)
+        $catColorMap = [
+            'dir baku'        => '#3b82f6',
+            'dir fungsional'  => '#6366f1',
+            'dir potensial'   => '#f59e0b',
+            'saluran'         => '#06b6d4',
+            'bangunan air'    => '#ef4444',
+            'irigasi'         => '#10b981',
+            'sungai'          => '#0ea5e9',
+        ];
+        $fallbackColors = ['#8b5cf6','#ec4899','#14b8a6','#f97316','#84cc16'];
+        $uniqueCategories = collect($historyLayers)
+            ->pluck('category')->filter()->unique()->sort()->values();
+        $assignedColors = [];
+        $fallbackIdx = 0;
+        foreach ($uniqueCategories as $cat) {
+            $key = strtolower(trim($cat));
+            if (isset($catColorMap[$key])) {
+                $assignedColors[$cat] = $catColorMap[$key];
+            } else {
+                $assignedColors[$cat] = $fallbackColors[$fallbackIdx % count($fallbackColors)];
+                $fallbackIdx++;
+            }
+        }
+    @endphp
+
     <div class="card shadow-sm border-0 mb-4" style="border-radius: 12px;">
         <div class="card-header bg-white py-3" style="border-bottom: 1px solid #f1f5f9;">
+
+            {{-- Baris 1: Judul + Search + Status Tab --}}
             <div class="d-flex align-items-center justify-content-between flex-wrap" style="gap: 10px;">
                 <h6 class="m-0 font-weight-bold text-dark">
                     <i class="fas fa-history text-secondary mr-2"></i>
@@ -251,7 +280,7 @@
                                placeholder="Cari nama berkas..."
                                style="border-radius: 0 8px 8px 0; font-size: 12.5px;">
                     </div>
-                    {{-- Tab Filter Pills --}}
+                    {{-- Tab Filter Status --}}
                     <div class="gis-filter-tabs">
                         <button class="gis-filter-tab active" data-filter="all">
                             Semua <span class="gis-filter-count">{{ count($historyLayers) }}</span>
@@ -265,6 +294,24 @@
                     </div>
                 </div>
             </div>
+
+            {{-- Baris 2: Chip Filter Kategori --}}
+            @if($uniqueCategories->count() > 0)
+            <div class="gis-category-chips mt-2" id="categoryChipBar">
+                <button class="gis-cat-chip active" data-cat="all">
+                    <span class="gis-cat-dot" style="background:#64748b;"></span>
+                    Semua Kategori
+                </button>
+                @foreach($uniqueCategories as $cat)
+                    @php $dotColor = $assignedColors[$cat] ?? '#64748b'; @endphp
+                    <button class="gis-cat-chip" data-cat="{{ strtolower(trim($cat)) }}">
+                        <span class="gis-cat-dot" style="background:{{ $dotColor }};"></span>
+                        {{ $cat }}
+                    </button>
+                @endforeach
+            </div>
+            @endif
+
         </div>
 
         <div class="card-body p-0">
@@ -281,7 +328,10 @@
                     </thead>
                     <tbody id="historyTableBody">
                         @forelse($historyLayers as $hl)
-                            <tr class="history-row" data-status="{{ $hl->status }}" data-name="{{ strtolower($hl->nama_objek) }}">
+                            <tr class="history-row"
+                                data-status="{{ $hl->status }}"
+                                data-name="{{ strtolower($hl->nama_objek) }}"
+                                data-category="{{ strtolower(trim($hl->category ?? '')) }}">
                                 <td class="pl-4 font-weight-bold text-dark">
                                     {{ $hl->nama_objek }}
                                 </td>
@@ -471,7 +521,7 @@
 }
 
 /* ================================================================
-   FILTER TABS
+   FILTER TABS (STATUS)
 ================================================================ */
 .gis-filter-tabs {
     display: flex; align-items: center;
@@ -504,6 +554,48 @@
 }
 
 /* ================================================================
+   CATEGORY CHIP FILTER
+================================================================ */
+.gis-category-chips {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-top: 2px;
+}
+.gis-cat-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 13px 4px 10px;
+    border-radius: 20px;
+    border: 1.5px solid #e2e8f0;
+    background: #fff;
+    font-size: 12px; font-weight: 600;
+    color: #475569;
+    cursor: pointer;
+    transition: all .15s ease;
+    white-space: nowrap;
+    font-family: 'Inter', sans-serif;
+}
+.gis-cat-chip:hover {
+    border-color: #94a3b8;
+    color: #1e293b;
+    background: #f8fafc;
+}
+.gis-cat-chip.active {
+    border-color: currentColor;
+    color: #1e293b;
+    background: #f1f5f9;
+    box-shadow: 0 1px 4px rgba(0,0,0,.10);
+    font-weight: 700;
+}
+.gis-cat-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+/* ================================================================
    PAGINATION
 ================================================================ */
 .bws-table-v2-footer {
@@ -531,8 +623,9 @@
 
     const perPage   = 10;
     let currentPage = 1;
-    let activeFilter = 'all';
-    let searchTerm   = '';
+    let activeFilter   = 'all';   // status filter
+    let activeCatFilter = 'all';  // category filter
+    let searchTerm     = '';
 
     const allRows      = Array.from(document.querySelectorAll('#historyTableBody .history-row'));
     const footer       = document.getElementById('historyTableFooter');
@@ -541,39 +634,37 @@
     const noResults    = document.getElementById('historyNoResults');
     const searchInput  = document.getElementById('historySearch');
     const filterTabs   = document.querySelectorAll('.gis-filter-tab');
+    const catChips     = document.querySelectorAll('.gis-cat-chip');
 
     if (allRows.length === 0) return;
 
     /* ---- helpers ---- */
     function getVisibleRows() {
         return allRows.filter(function(row) {
-            const matchFilter = (activeFilter === 'all') || (row.dataset.status === activeFilter);
+            const matchStatus = (activeFilter === 'all') || (row.dataset.status === activeFilter);
+            const matchCat    = (activeCatFilter === 'all') || (row.dataset.category === activeCatFilter);
             const matchSearch = !searchTerm || row.dataset.name.includes(searchTerm);
-            return matchFilter && matchSearch;
+            return matchStatus && matchCat && matchSearch;
         });
     }
 
     function render() {
-        const visibleRows = getVisibleRows();
+        const visibleRows  = getVisibleRows();
         const totalVisible = visibleRows.length;
         const totalPages   = Math.max(1, Math.ceil(totalVisible / perPage));
 
-        // Clamp currentPage
         if (currentPage > totalPages) currentPage = totalPages;
 
         const start = (currentPage - 1) * perPage;
         const end   = start + perPage;
 
-        // Hide all, then show visible slice
         allRows.forEach(function(r) { r.style.display = 'none'; });
         visibleRows.forEach(function(r, idx) {
             r.style.display = (idx >= start && idx < end) ? '' : 'none';
         });
 
-        // No-results state
         if (noResults) noResults.style.display = (totalVisible === 0) ? 'block' : 'none';
 
-        // Footer
         if (totalVisible > 0) {
             footer.style.display = 'flex';
             var actualEnd = Math.min(end, totalVisible);
@@ -587,7 +678,6 @@
     function renderPagination(totalPages) {
         paginationEl.innerHTML = '';
 
-        // Prev
         var prev = document.createElement('button');
         prev.className = 'bws-pg-btn' + (currentPage === 1 ? ' disabled' : '');
         prev.innerHTML = '&laquo;';
@@ -595,7 +685,6 @@
         if (currentPage > 1) prev.addEventListener('click', function() { currentPage--; render(); });
         paginationEl.appendChild(prev);
 
-        // Page numbers
         var maxButtons = 5;
         var half       = Math.floor(maxButtons / 2);
         var startPage  = Math.max(1, currentPage - half);
@@ -606,7 +695,6 @@
         for (var p = startPage; p <= endPage; p++) appendPageBtn(p);
         if (endPage < totalPages) { if (endPage < totalPages - 1) appendEllipsis(); appendPageBtn(totalPages); }
 
-        // Next
         var next = document.createElement('button');
         next.className = 'bws-pg-btn' + (currentPage === totalPages ? ' disabled' : '');
         next.innerHTML = '&raquo;';
@@ -631,13 +719,24 @@
     }
 
     /* ---- Events ---- */
-    // Filter tabs
+    // Status filter tabs
     filterTabs.forEach(function(tab) {
         tab.addEventListener('click', function() {
             filterTabs.forEach(function(t) { t.classList.remove('active'); });
             tab.classList.add('active');
             activeFilter = tab.dataset.filter;
             currentPage  = 1;
+            render();
+        });
+    });
+
+    // Category chip filter
+    catChips.forEach(function(chip) {
+        chip.addEventListener('click', function() {
+            catChips.forEach(function(c) { c.classList.remove('active'); });
+            chip.classList.add('active');
+            activeCatFilter = chip.dataset.cat;
+            currentPage     = 1;
             render();
         });
     });
