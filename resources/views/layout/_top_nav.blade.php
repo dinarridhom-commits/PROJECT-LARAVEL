@@ -214,16 +214,15 @@
 
         {{-- 2. MASTER DATA (DROPDOWN) --}}
         <div class="bws-subnav-dropdown">
-            <button type="button" class="bws-subnav-link {{ request()->has('layer') ? 'active' : '' }}">
+            <button type="button" class="bws-subnav-link {{ request()->is('master-data*') || request()->has('layer') ? 'active' : '' }}">
                 <i class="fas fa-database text-secondary mr-2"></i>
                 <span>Master Data</span>
                 <i class="fas fa-chevron-down ml-1 text-muted" style="font-size: 10px;"></i>
             </button>
 
             <div class="bws-dropdown-menu shadow">
-                {{-- Hanya Infrastruktur sesuai permintaan user --}}
                 <div class="bws-dropdown-submenu">
-                    <a href="#" class="bws-dropdown-item" onclick="return false;">
+                    <a href="{{ route('master-data.infrastruktur') }}" class="bws-dropdown-item {{ request()->is('master-data/infrastruktur*') ? 'font-weight-bold text-primary' : '' }}">
                         <span class="d-flex align-items-center">
                             <i class="fas fa-layer-group text-primary mr-2"></i>
                             <span>Infrastruktur</span>
@@ -231,43 +230,72 @@
                         <i class="fas fa-chevron-right text-muted small ml-3"></i>
                     </a>
 
-                    {{-- Submenu Flyout Infrastruktur (Mengikuti 54 Data GeoJSON Website) --}}
+                    {{-- Submenu Flyout Infrastruktur (Angka Realtime dari DB) --}}
+                    @php
+                        $navCatCounts = \App\Models\GisLayer::where('status', 'approved')
+                            ->selectRaw('category, count(*) as total')
+                            ->groupBy('category')
+                            ->pluck('total', 'category');
+                    @endphp
                     <div class="bws-flyout-menu shadow">
-                        <a href="{{ route('peta', ['layer' => 'baku']) }}" class="bws-dropdown-item {{ request('layer') == 'baku' ? 'font-weight-bold text-primary' : '' }}">
+                        <a href="{{ route('master-data.infrastruktur', ['category' => 'DIR Baku']) }}"
+                           class="bws-dropdown-item {{ request('category') == 'DIR Baku' ? 'font-weight-bold text-primary' : '' }}">
                             <span class="d-flex align-items-center">
                                 <span class="bws-flyout-badge mr-2" style="background:#27ae60;"></span>
                                 <span>Daerah Irigasi Baku</span>
                             </span>
-                            <span class="badge badge-light border text-muted px-1.5 py-0.5 ml-2" style="font-size: 10px;">9 Data</span>
+                            <span class="badge badge-light border text-muted ml-2" style="font-size: 10px; padding: 2px 6px;">
+                                {{ $navCatCounts['DIR Baku'] ?? 0 }} Data
+                            </span>
                         </a>
-                        <a href="{{ route('peta', ['layer' => 'fungsional']) }}" class="bws-dropdown-item {{ request('layer') == 'fungsional' ? 'font-weight-bold text-primary' : '' }}">
+                        <a href="{{ route('master-data.infrastruktur', ['category' => 'DIR Fungsional']) }}"
+                           class="bws-dropdown-item {{ request('category') == 'DIR Fungsional' ? 'font-weight-bold text-primary' : '' }}">
                             <span class="d-flex align-items-center">
                                 <span class="bws-flyout-badge mr-2" style="background:#2980b9;"></span>
                                 <span>Daerah Irigasi Fungsional</span>
                             </span>
-                            <span class="badge badge-light border text-muted px-1.5 py-0.5 ml-2" style="font-size: 10px;">6 Data</span>
+                            <span class="badge badge-light border text-muted ml-2" style="font-size: 10px; padding: 2px 6px;">
+                                {{ $navCatCounts['DIR Fungsional'] ?? 0 }} Data
+                            </span>
                         </a>
-                        <a href="{{ route('peta', ['layer' => 'potensial']) }}" class="bws-dropdown-item {{ request('layer') == 'potensial' ? 'font-weight-bold text-primary' : '' }}">
+                        <a href="{{ route('master-data.infrastruktur', ['category' => 'DIR Potensial']) }}"
+                           class="bws-dropdown-item {{ request('category') == 'DIR Potensial' ? 'font-weight-bold text-primary' : '' }}">
                             <span class="d-flex align-items-center">
                                 <span class="bws-flyout-badge mr-2" style="background:#e67e22;"></span>
                                 <span>Daerah Irigasi Potensial</span>
                             </span>
-                            <span class="badge badge-light border text-muted px-1.5 py-0.5 ml-2" style="font-size: 10px;">10 Data</span>
+                            <span class="badge badge-light border text-muted ml-2" style="font-size: 10px; padding: 2px 6px;">
+                                {{ $navCatCounts['DIR Potensial'] ?? 0 }} Data
+                            </span>
                         </a>
                         <div class="dropdown-divider my-1"></div>
-                        <a href="{{ route('peta', ['layer' => 'saluran']) }}" class="bws-dropdown-item {{ request('layer') == 'saluran' ? 'font-weight-bold text-primary' : '' }}">
+                        <a href="{{ route('master-data.infrastruktur', ['category' => 'Jaringan Saluran Irigasi']) }}"
+                           class="bws-dropdown-item {{ request('category') == 'Jaringan Saluran Irigasi' ? 'font-weight-bold text-primary' : '' }}">
                             <span class="d-flex align-items-center">
                                 <span class="bws-flyout-badge mr-2" style="background:#0984e3;"></span>
                                 <span>Jaringan Saluran Irigasi</span>
                             </span>
-                            <span class="badge badge-light border text-muted px-1.5 py-0.5 ml-2" style="font-size: 10px;">15 Data</span>
+                            <span class="badge badge-light border text-muted ml-2" style="font-size: 10px; padding: 2px 6px;">
+                                {{ $navCatCounts['Jaringan Saluran Irigasi'] ?? 0 }} Data
+                            </span>
                         </a>
-                        <a href="{{ route('peta', ['layer' => 'bangunan']) }}" class="bws-dropdown-item {{ request('layer') == 'bangunan' ? 'font-weight-bold text-primary' : '' }}">
+                        <a href="{{ route('master-data.infrastruktur', ['category' => 'Bangunan Air']) }}"
+                           class="bws-dropdown-item {{ request('category') == 'Bangunan Air' ? 'font-weight-bold text-primary' : '' }}">
                             <span class="d-flex align-items-center">
                                 <span class="bws-flyout-badge mr-2" style="background:#d63031;"></span>
                                 <span>Bangunan Air / Pelengkap</span>
                             </span>
-                            <span class="badge badge-light border text-muted px-1.5 py-0.5 ml-2" style="font-size: 10px;">14 Data</span>
+                            <span class="badge badge-light border text-muted ml-2" style="font-size: 10px; padding: 2px 6px;">
+                                {{ $navCatCounts['Bangunan Air'] ?? 0 }} Data
+                            </span>
+                        </a>
+
+                        <div class="dropdown-divider my-1"></div>
+                        <a href="{{ route('master-data.infrastruktur') }}" class="bws-dropdown-item text-primary font-weight-bold">
+                            <span class="d-flex align-items-center">
+                                <i class="fas fa-th-list mr-2"></i>
+                                <span>Lihat Semua Data</span>
+                            </span>
                         </a>
                     </div>
                 </div>

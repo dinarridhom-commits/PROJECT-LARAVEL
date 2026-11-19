@@ -7,6 +7,7 @@ use App\Http\Controllers\RegistrasiController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\GisLayerController;
+use App\Http\Controllers\MasterDataController;
 use App\Http\Controllers\NotificationController;
 
 /* ============================================================
@@ -79,6 +80,9 @@ Route::middleware('auth')->group(function () {
 
         // Melihat daftar pengguna
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
+
+        // Master Data — Infrastruktur Irigasi
+        Route::get('/master-data/infrastruktur', [MasterDataController::class, 'infrastruktur'])->name('master-data.infrastruktur');
     });
 
     /* --- HAK AKSES KHUSUS: SUPER ADMIN ---
