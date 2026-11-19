@@ -205,12 +205,65 @@
         </div>
     </div>
 
-    @if($logs->hasPages())
-    <div class="card-footer bg-white py-3 d-flex justify-content-between align-items-center flex-wrap">
-        <small class="text-muted mb-2 mb-sm-0">
-            Menampilkan {{ $logs->firstItem() }} - {{ $logs->lastItem() }} dari total {{ $logs->total() }} log
+    @if($logs->hasPages() || $logs->total() > 0)
+    <div class="card-footer bg-white py-3 d-flex justify-content-between align-items-center flex-wrap" style="border-top: 1px solid #eaecf0; border-radius: 0 0 8px 8px; gap: 10px;">
+
+        {{-- Info kiri --}}
+        <small class="text-muted">
+            Menampilkan <strong>{{ $logs->firstItem() }}</strong> &ndash; <strong>{{ $logs->lastItem() }}</strong>
+            dari total <strong>{{ number_format($logs->total()) }}</strong> log aktivitas
         </small>
-        {{ $logs->links() }}
+
+        {{-- Tombol Pagination Custom --}}
+        @if($logs->hasPages())
+        <div class="bwslog-pagination">
+            {{-- Prev --}}
+            @if($logs->onFirstPage())
+                <span class="bwslog-pg-btn disabled">&laquo;</span>
+            @else
+                <a href="{{ $logs->previousPageUrl() }}" class="bwslog-pg-btn" title="Halaman Sebelumnya">&laquo;</a>
+            @endif
+
+            {{-- Nomor halaman --}}
+            @php
+                $currentPage = $logs->currentPage();
+                $lastPage    = $logs->lastPage();
+                $window      = 2; // halaman di kiri-kanan current
+                $start       = max(1, $currentPage - $window);
+                $end         = min($lastPage, $currentPage + $window);
+            @endphp
+
+            @if($start > 1)
+                <a href="{{ $logs->url(1) }}" class="bwslog-pg-btn">1</a>
+                @if($start > 2)
+                    <span class="bwslog-pg-btn disabled">&hellip;</span>
+                @endif
+            @endif
+
+            @for($p = $start; $p <= $end; $p++)
+                @if($p === $currentPage)
+                    <span class="bwslog-pg-btn active">{{ $p }}</span>
+                @else
+                    <a href="{{ $logs->url($p) }}" class="bwslog-pg-btn">{{ $p }}</a>
+                @endif
+            @endfor
+
+            @if($end < $lastPage)
+                @if($end < $lastPage - 1)
+                    <span class="bwslog-pg-btn disabled">&hellip;</span>
+                @endif
+                <a href="{{ $logs->url($lastPage) }}" class="bwslog-pg-btn">{{ $lastPage }}</a>
+            @endif
+
+            {{-- Next --}}
+            @if($logs->hasMorePages())
+                <a href="{{ $logs->nextPageUrl() }}" class="bwslog-pg-btn" title="Halaman Berikutnya">&raquo;</a>
+            @else
+                <span class="bwslog-pg-btn disabled">&raquo;</span>
+            @endif
+        </div>
+        @endif
+
     </div>
     @endif
 </div>
@@ -243,3 +296,57 @@
 </div>
 
 @endsection
+
+@push('scripts')
+<style>
+/* ================================================================
+   CUSTOM PAGINATION - LOG AKTIVITAS
+================================================================ */
+.bwslog-pagination {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+.bwslog-pg-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    padding: 0 10px;
+    border-radius: 8px;
+    border: 1.5px solid #e2e8f0;
+    background: #ffffff;
+    color: #475569;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.15s ease;
+    line-height: 1;
+    font-family: 'Inter', sans-serif;
+    user-select: none;
+}
+.bwslog-pg-btn:hover:not(.active):not(.disabled) {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+    color: #1e293b;
+    text-decoration: none;
+}
+.bwslog-pg-btn.active {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+    color: #ffffff;
+    font-weight: 700;
+    cursor: default;
+    box-shadow: 0 2px 6px rgba(29, 78, 216, 0.35);
+}
+.bwslog-pg-btn.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+    background: #f8fafc;
+}
+</style>
+@endpush

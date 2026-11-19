@@ -31,7 +31,7 @@ class ActivityLogController extends Controller
             $query->where('action', $actionFilter);
         }
 
-        $logs = $query->latest()->paginate(20)->withQueryString();
+        $logs = $query->latest()->paginate(10)->withQueryString();
 
         $totalLogs    = ActivityLog::count();
         $todayLogs    = ActivityLog::whereDate('created_at', today())->count();
