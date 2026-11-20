@@ -55,7 +55,8 @@ Route::middleware('auth')->group(function () {
     // Dashboard Utama: Grafik & Analisis Data Website
     Route::get('/dashboard', [DashboardController::class, 'analyticsDashboard'])->name('dashboard');
 
-    // Edit Profil Pengguna (Nama, Email, Password) - untuk semua pengguna yang login
+    // Profil Pengguna (Halaman Dedikasi & Update)
+    Route::get('/profile', [UserController::class, 'showProfile'])->name('profile.index');
     Route::put('/profile', [UserController::class, 'updateProfile'])->name('profile.update');
 
     // Notifikasi In-App

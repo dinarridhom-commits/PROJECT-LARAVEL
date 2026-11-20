@@ -102,7 +102,7 @@
                      aria-labelledby="userMenuDropdown" style="min-width: 180px; border-radius: 8px;">
 
                     <a class="dropdown-item py-2 d-flex align-items-center text-dark font-weight-medium"
-                       href="#" data-toggle="modal" data-target="#modalEditProfile">
+                       href="{{ route('profile.index') }}">
                         <i class="fas fa-user-edit text-primary mr-2.5" style="font-size: 14px; width: 20px;"></i>
                         <span>Edit Profil</span>
                     </a>

@@ -219,6 +219,24 @@ class UserController extends Controller
     }
 
     /**
+     * Menampilkan halaman profil lengkap pengguna yang sedang login (Opsi A)
+     */
+    public function showProfile()
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        // Data statistik kontribusi dan jejak aktivitas akun
+        $totalUploadedGis = \App\Models\GisLayer::where('user_id', $user->id)->count();
+        $recentUserLogs   = \App\Models\ActivityLog::where('user_name', $user->name)
+                                ->latest()
+                                ->take(5)
+                                ->get();
+
+        return view('user.profile', compact('user', 'totalUploadedGis', 'recentUserLogs'));
+    }
+
+    /**
      * Memperbarui profil pengguna yang sedang login (Nama, Email, dan Password)
      */
     public function updateProfile(Request $request)
