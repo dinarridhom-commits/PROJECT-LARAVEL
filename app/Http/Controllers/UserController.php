@@ -15,7 +15,8 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $search = $request->input('search');
+        $search     = $request->input('search');
+        $roleFilter = $request->input('role');
 
         $usersQuery = User::query();
 
@@ -27,6 +28,10 @@ class UserController extends Controller
             });
         }
 
+        if ($roleFilter && in_array($roleFilter, ['superadmin', 'admin'])) {
+            $usersQuery->where('role', $roleFilter);
+        }
+
         $users = $usersQuery->latest()->get();
 
         $totalUsers      = User::count();
@@ -34,7 +39,7 @@ class UserController extends Controller
         $totalAdmin      = User::where('role', 'admin')->count();
 
         $data = compact(
-            'users', 'search',
+            'users', 'search', 'roleFilter',
             'totalUsers', 'totalSuperadmin',
             'totalAdmin'
         );

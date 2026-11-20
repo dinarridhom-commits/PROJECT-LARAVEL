@@ -5,20 +5,20 @@
 @section('konten')
 <div class="container-fluid">
 
-    <div class="d-flex align-items-center justify-content-between mb-4">
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap" style="gap: 12px;">
         <div>
-            <h1 class="h3 font-weight-bold text-gray-800">
-                <i class="fas fa-trash-restore text-warning mr-2"></i>
-                Tong Sampah Pengguna (Trash)
+            <h1 class="h3 font-weight-bold text-gray-800 mb-1" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+                <i class="fas fa-archive text-danger mr-2"></i>
+                Arsip Terhapus Pengguna
             </h1>
-            <p class="text-muted small mb-0">
-                Daftar akun pengguna yang dihapus sementara (*Soft Deleted*). Anda dapat memulihkan (*Restore*) atau menghapus permanen.
+            <p class="text-muted small mb-0" style="font-family: 'Inter', sans-serif;">
+                Daftar akun pengguna yang dihapus sementara (<em>Soft Deleted</em>). Anda dapat memulihkan (<em>Restore</em>) atau menghapus permanen.
             </p>
         </div>
 
         <div class="d-flex align-items-center">
-            <a href="{{ route('users.index') }}" class="btn btn-secondary shadow-sm">
-                <i class="fas fa-arrow-left mr-1"></i> Kembali ke Manajemen User
+            <a href="{{ route('users.index') }}" class="btn btn-outline-secondary shadow-sm font-weight-bold" style="border-radius: 8px; font-size: 13px;">
+                <i class="fas fa-arrow-left mr-1.5"></i> Kembali ke Manajemen Pengguna
             </a>
         </div>
     </div>
