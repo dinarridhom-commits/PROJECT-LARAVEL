@@ -235,7 +235,7 @@
                                         {{ $initials }}
                                     </div>
                                     <div>
-                                        <div class="font-weight-bold text-dark mb-0.5 d-flex align-items-center flex-wrap" style="font-size: 13.5px; gap: 6px;">
+                                        <div class="font-weight-bold text-dark d-flex align-items-center flex-wrap" style="font-size: 13.5px; gap: 6px;">
                                             <span>{{ $u->name }}</span>
                                             @if($isSelf)
                                                 <span class="badge user-self-badge">
@@ -243,9 +243,6 @@
                                                 </span>
                                             @endif
                                         </div>
-                                        <span class="text-muted small" style="font-size: 11px;">
-                                            ID Akun: #{{ str_pad($u->id, 4, '0', STR_PAD_LEFT) }}
-                                        </span>
                                     </div>
                                 </div>
                             </td>
