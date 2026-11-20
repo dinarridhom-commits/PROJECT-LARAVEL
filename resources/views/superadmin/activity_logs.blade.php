@@ -280,14 +280,9 @@
                                 </small>
                             </td>
 
-                            {{-- Avatar & Nama Pengguna --}}
+                            {{-- Pengguna --}}
                             <td class="align-middle">
-                                <div class="d-flex align-items-center">
-                                    <div class="log-avatar-circle mr-2.5 {{ $log->role === 'superadmin' ? 'log-avatar-super' : 'log-avatar-admin' }}">
-                                        {{ $initials }}
-                                    </div>
-                                    <span class="font-weight-bold text-dark">{{ $userName }}</span>
-                                </div>
+                                <span class="font-weight-bold text-dark">{{ $userName }}</span>
                             </td>
 
                             {{-- Role --}}
@@ -327,7 +322,7 @@
                             {{-- IP Address --}}
                             <td class="pr-4 text-center align-middle">
                                 <span class="badge badge-light border text-muted px-2 py-1 font-monospace" style="font-size: 11px; letter-spacing: 0.3px;">
-                                    <i class="fas fa-network-wired text-gray-400 mr-1" style="font-size: 10px;"></i>{{ $log->ip_address ?? '127.0.0.1' }}
+                                    {{ $log->ip_address ?? '127.0.0.1' }}
                                 </span>
                             </td>
                         </tr>

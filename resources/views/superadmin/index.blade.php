@@ -228,22 +228,15 @@
                                 {{ $index + 1 }}
                             </td>
 
-                            {{-- Avatar & Nama Pengguna --}}
+                            {{-- Nama Pengguna --}}
                             <td class="align-middle">
-                                <div class="d-flex align-items-center">
-                                    <div class="user-avatar-circle mr-3 {{ $u->role === 'superadmin' ? 'user-avatar-super' : 'user-avatar-admin' }}">
-                                        {{ $initials }}
-                                    </div>
-                                    <div>
-                                        <div class="font-weight-bold text-dark d-flex align-items-center flex-wrap" style="font-size: 13.5px; gap: 6px;">
-                                            <span>{{ $u->name }}</span>
-                                            @if($isSelf)
-                                                <span class="badge user-self-badge">
-                                                    <i class="fas fa-check mr-1" style="font-size: 9px;"></i>Akun Anda
-                                                </span>
-                                            @endif
-                                        </div>
-                                    </div>
+                                <div class="font-weight-bold text-dark d-flex align-items-center flex-wrap" style="font-size: 13.5px; gap: 6px;">
+                                    <span>{{ $u->name }}</span>
+                                    @if($isSelf)
+                                        <span class="badge user-self-badge">
+                                            <i class="fas fa-check mr-1" style="font-size: 9px;"></i>Akun Anda
+                                        </span>
+                                    @endif
                                 </div>
                             </td>
 
