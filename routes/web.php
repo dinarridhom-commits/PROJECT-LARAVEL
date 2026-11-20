@@ -110,6 +110,7 @@ Route::middleware('auth')->group(function () {
 
         // Log Aktivitas Sistem
         Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
+        Route::get('/activity-logs/export', [ActivityLogController::class, 'exportCsv'])->name('activity-logs.export');
         Route::delete('/activity-logs/clear', [ActivityLogController::class, 'clear'])->name('activity-logs.clear');
     });
 
